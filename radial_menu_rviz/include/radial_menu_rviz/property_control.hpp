@@ -25,61 +25,84 @@ public:
   PropertyControl(rviz::Property *const parent) {
     // subscription control
     state_topic_ctl_.reset(new rviz::RosTopicProperty(
-        /* name = */ "State Topic", /* default val = */ "",
+        /* name = */ "State topic", /* default val = */ "",
         /* msg type = */ ros::message_traits::datatype< radial_menu_msgs::State >(),
         /* desc = */ "Subscribed topic of radial_menu_msgs::State to visualize",
         /* parent = */ parent,
         /* slot = */ SLOT(updateSubscriptionProperty()), /* receiver = */ this));
 
-    // drawing control (background color)
-    bg_rgb_ctl_.reset(new rviz::ColorProperty("Background RGB", QColor(0, 0, 0), "Background RGB",
-                                              parent, SLOT(updateDrawingProperty()), this));
-    bg_alpha_ctl_.reset(new rviz::FloatProperty("Background alpha", 0.8, "Background alpha", parent,
-                                                SLOT(updateDrawingProperty()), this));
-    bg_alpha_ctl_->setMin(0.);
-    bg_alpha_ctl_->setMax(1.);
-
     // drawing control (font)
-    font_ctl_.reset(new rviz::EnumProperty("Font", "DejaVu Sans Mono", "Font", parent,
+    font_ctl_.reset(new rviz::EnumProperty("Font", "DejaVu Sans Mono", "", parent,
                                            SLOT(updateDrawingProperty()), this));
     const QStringList font_families_(QFontDatabase().families());
     for (int i = 0; i < font_families_.size(); ++i) {
       font_ctl_->addOption(font_families_[i], i);
     }
-    font_bold_ctl_.reset(new rviz::BoolProperty("Font bold", true, "Font weight", parent,
-                                                SLOT(updateDrawingProperty()), this));
-    font_size_ctl_.reset(new rviz::IntProperty("Font size", 12, "Font size in points", parent,
+    font_bold_ctl_.reset(
+        new rviz::BoolProperty("Font bold", true, "", parent, SLOT(updateDrawingProperty()), this));
+    font_size_ctl_.reset(new rviz::IntProperty("Font size", 12, "In points", parent,
                                                SLOT(updateDrawingProperty()), this));
 
-    // drawing control (text color)
-    txt_rgb_default_ctl_.reset(new rviz::ColorProperty("Text RGB (default)", QColor(84, 84, 121),
-                                                       "Text RGB (default)", parent,
-                                                       SLOT(updateDrawingProperty()), this));
-    txt_rgb_pointed_ctl_.reset(new rviz::ColorProperty("Text RGB (pointed)", QColor(136, 181, 160),
-                                                       "Text RGB (pointed)", parent,
-                                                       SLOT(updateDrawingProperty()), this));
-    txt_rgb_selected_ctl_.reset(new rviz::ColorProperty("Text RGB (selected)", QColor(25, 255, 240),
-                                                        "Text RGB (selected)", parent,
-                                                        SLOT(updateDrawingProperty()), this));
-    txt_alpha_ctl_.reset(new rviz::FloatProperty("Text alpha", 0.8, "Text alpha", parent,
+    // drawing control (title area)
+    title_area_radius_ctl_.reset(new rviz::IntProperty(
+        "Title area radius", 128, "In pixels", parent, SLOT(updateDrawingProperty()), this));
+    title_area_radius_ctl_->setMin(1);
+    title_bg_rgb_ctl_.reset(new rviz::ColorProperty("Title bg", QColor(0, 0, 0),
+                                                    "RGB of title background", parent,
+                                                    SLOT(updateDrawingProperty()), this));
+    title_rgb_ctl_.reset(new rviz::ColorProperty("Title", QColor(255, 255, 255),
+                                                 "RGB of title text", parent,
                                                  SLOT(updateDrawingProperty()), this));
-    txt_alpha_ctl_->setMin(0.);
-    txt_alpha_ctl_->setMax(1.);
 
-    // drawing control (frame)
-    radius_ctl_.reset(new rviz::IntProperty("Radius", 128, "Radius of menu in pixels", parent,
-                                            SLOT(updateDrawingProperty()), this));
-    radius_ctl_->setMin(0);
-    padding_ctl_.reset(new rviz::IntProperty("Padding", 32, "Padding around menu in pixels", parent,
-                                             SLOT(updateDrawingProperty()), this));
-    padding_ctl_->setMin(0);
+    // drawing control (line)
+    line_width_ctl_.reset(new rviz::IntProperty("Line width", 2,
+                                                "Width of line between areas in pixels", parent,
+                                                SLOT(updateDrawingProperty()), this));
+    line_width_ctl_->setMin(0);
+
+    // drawing control (item area)
+    item_area_width_ctl_.reset(new rviz::IntProperty("Item area width", 128, "In pixels", parent,
+                                                     SLOT(updateDrawingProperty()), this));
+    item_area_width_ctl_->setMin(1);
+
+    item_bg_rgb_default_ctl_.reset(
+        new rviz::ColorProperty("Item bg (default)", QColor(255, 255, 255),
+                                "RGB of item background when not pointed or selected", parent,
+                                SLOT(updateDrawingProperty()), this));
+    item_rgb_default_ctl_.reset(new rviz::ColorProperty(
+        "Item (default)", QColor(0, 0, 0), "RGB of item text when not pointed or selected", parent,
+        SLOT(updateDrawingProperty()), this));
+    item_bg_rgb_pointed_ctl_.reset(new rviz::ColorProperty(
+        "Item bg (pointed)", QColor(128, 128, 128), "RGB of item background when pointed", parent,
+        SLOT(updateDrawingProperty()), this));
+    item_rgb_pointed_ctl_.reset(new rviz::ColorProperty("Item (pointed)", QColor(0, 0, 0),
+                                                        "RGB of item text when pointed", parent,
+                                                        SLOT(updateDrawingProperty()), this));
+    item_bg_rgb_selected_ctl_.reset(new rviz::ColorProperty(
+        "Item bg (selected)", QColor(0, 0, 0), "RGB of item background when selected", parent,
+        SLOT(updateDrawingProperty()), this));
+    item_rgb_selected_ctl_.reset(new rviz::ColorProperty("Item (selected)", QColor(255, 255, 255),
+                                                         "RGB of item text when selected", parent,
+                                                         SLOT(updateDrawingProperty()), this));
+
+    // drawing control (alpha)
+    bg_alpha_ctl_.reset(new rviz::FloatProperty(
+        "Bg alpha", 0.8, "Alpha of all background colors from 0 (transparent) to 1 (opaque)",
+        parent, SLOT(updateDrawingProperty()), this));
+    bg_alpha_ctl_->setMin(0.);
+    bg_alpha_ctl_->setMax(1.);
+    text_alpha_ctl_.reset(new rviz::FloatProperty(
+        "Text alpha", 0.8, "Alpha of all text colors from 0 (transparent) to 1 (opaque)", parent,
+        SLOT(updateDrawingProperty()), this));
+    text_alpha_ctl_->setMin(0.);
+    text_alpha_ctl_->setMax(1.);
 
     // position control
-    left_ctl_.reset(new rviz::IntProperty("Left", 128, "Left position of menu in pixels", parent,
-                                          SLOT(updatePositionProperty()), this));
+    left_ctl_.reset(new rviz::IntProperty("Left", 128, "Position of menu's left edge in pixels",
+                                          parent, SLOT(updatePositionProperty()), this));
     left_ctl_->setMin(0);
-    top_ctl_.reset(new rviz::IntProperty("Top", 128, "Top position of menu in pixels", parent,
-                                         SLOT(updatePositionProperty()), this));
+    top_ctl_.reset(new rviz::IntProperty("Top", 128, "Position of menu's top edge in pixels",
+                                         parent, SLOT(updatePositionProperty()), this));
     top_ctl_->setMin(0);
 
     // manually call slots to populate the initial properties
@@ -109,25 +132,39 @@ protected Q_SLOTS:
   }
 
   void updateDrawingProperty() {
-    drawing_prop_.bg_color.setRgb(bg_rgb_ctl_->getColor().rgb());
-    drawing_prop_.bg_color.setAlphaF(bg_alpha_ctl_->getFloat());
-
     drawing_prop_.font.setFamily(font_ctl_->getString());
     drawing_prop_.font.setBold(font_bold_ctl_->getBool());
     drawing_prop_.font.setPointSize(font_size_ctl_->getInt());
 
-    drawing_prop_.txt_color_default.setRgb(txt_rgb_default_ctl_->getColor().rgb());
-    drawing_prop_.txt_color_default.setAlphaF(txt_alpha_ctl_->getFloat());
+    drawing_prop_.title_area_radius = title_area_radius_ctl_->getInt();
 
-    drawing_prop_.txt_color_pointed.setRgb(txt_rgb_pointed_ctl_->getColor().rgb());
-    drawing_prop_.txt_color_pointed.setAlphaF(txt_alpha_ctl_->getFloat());
+    drawing_prop_.title_bg_color.setRgb(title_bg_rgb_ctl_->getColor().rgb());
+    drawing_prop_.title_bg_color.setAlphaF(bg_alpha_ctl_->getFloat());
 
-    drawing_prop_.txt_color_selected.setRgb(txt_rgb_selected_ctl_->getColor().rgb());
-    drawing_prop_.txt_color_selected.setAlphaF(txt_alpha_ctl_->getFloat());
+    drawing_prop_.title_color.setRgb(title_rgb_ctl_->getColor().rgb());
+    drawing_prop_.title_color.setAlphaF(text_alpha_ctl_->getFloat());
 
-    drawing_prop_.radius = radius_ctl_->getInt();
+    drawing_prop_.line_width = line_width_ctl_->getInt();
 
-    drawing_prop_.padding = padding_ctl_->getInt();
+    drawing_prop_.item_area_width = item_area_width_ctl_->getInt();
+
+    drawing_prop_.item_bg_color_default.setRgb(item_bg_rgb_default_ctl_->getColor().rgb());
+    drawing_prop_.item_bg_color_default.setAlphaF(bg_alpha_ctl_->getFloat());
+
+    drawing_prop_.item_color_default.setRgb(item_rgb_default_ctl_->getColor().rgb());
+    drawing_prop_.item_color_default.setAlphaF(text_alpha_ctl_->getFloat());
+
+    drawing_prop_.item_bg_color_pointed.setRgb(item_bg_rgb_pointed_ctl_->getColor().rgb());
+    drawing_prop_.item_bg_color_pointed.setAlphaF(bg_alpha_ctl_->getFloat());
+
+    drawing_prop_.item_color_pointed.setRgb(item_rgb_pointed_ctl_->getColor().rgb());
+    drawing_prop_.item_color_pointed.setAlphaF(text_alpha_ctl_->getFloat());
+
+    drawing_prop_.item_bg_color_selected.setRgb(item_bg_rgb_selected_ctl_->getColor().rgb());
+    drawing_prop_.item_bg_color_selected.setAlphaF(bg_alpha_ctl_->getFloat());
+
+    drawing_prop_.item_color_selected.setRgb(item_rgb_selected_ctl_->getColor().rgb());
+    drawing_prop_.item_color_selected.setAlphaF(text_alpha_ctl_->getFloat());
 
     Q_EMIT drawingPropertyChanged(drawing_prop_);
   }
@@ -145,15 +182,17 @@ protected:
   SubscriptionProperty sub_prop_;
 
   // drawing property & control
-  boost::scoped_ptr< rviz::ColorProperty > bg_rgb_ctl_;
-  boost::scoped_ptr< rviz::FloatProperty > bg_alpha_ctl_;
   boost::scoped_ptr< rviz::EnumProperty > font_ctl_;
   boost::scoped_ptr< rviz::BoolProperty > font_bold_ctl_;
   boost::scoped_ptr< rviz::IntProperty > font_size_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > txt_rgb_default_ctl_, txt_rgb_pointed_ctl_,
-      txt_rgb_selected_ctl_;
-  boost::scoped_ptr< rviz::FloatProperty > txt_alpha_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > radius_ctl_, padding_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > title_area_radius_ctl_;
+  boost::scoped_ptr< rviz::ColorProperty > title_bg_rgb_ctl_, title_rgb_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > line_width_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > item_area_width_ctl_;
+  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_default_ctl_, item_rgb_default_ctl_;
+  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
+  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
+  boost::scoped_ptr< rviz::FloatProperty > bg_alpha_ctl_, text_alpha_ctl_;
   DrawingProperty drawing_prop_;
 
   // position property & control

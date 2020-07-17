@@ -13,13 +13,21 @@ struct SubscriptionProperty {
 };
 
 struct DrawingProperty {
-  QColor bg_color;
   QFont font;
-  QColor txt_color_default;
-  QColor txt_color_pointed;
-  QColor txt_color_selected;
-  int radius;
-  int padding;
+
+  int title_area_radius;
+  QColor title_bg_color;
+  QColor title_color;
+
+  int line_width;
+
+  int item_area_width;
+  QColor item_bg_color_default;
+  QColor item_color_default;
+  QColor item_bg_color_pointed;
+  QColor item_color_pointed;
+  QColor item_bg_color_selected;
+  QColor item_color_selected;
 };
 
 struct PositionProperty {
