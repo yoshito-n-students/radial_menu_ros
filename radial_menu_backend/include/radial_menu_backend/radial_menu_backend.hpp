@@ -16,8 +16,9 @@ public:
       : allow_multi_selection(false), deselect_on_opening(false), deselect_on_closing(false),
         auto_select(false), open_button(/* PS4's circle*/ 1), select_button(/* PS4's L3 */ 11),
         pointing_axis_v(/* PS4's LEFT Y */ 1), pointing_axis_h(/* PS4's LEFT X */ 0),
-        invert_pointing_axis_v(true), invert_pointing_axis_h(true), pointing_axis_threshold(0.2) {
+        invert_pointing_axis_v(false), invert_pointing_axis_h(false), pointing_axis_threshold(0.5) {
     state.state = State::STATE_CLOSED;
+    state.pointed_id = -1;
   }
 
   virtual ~RadialMenuBackend() {}
