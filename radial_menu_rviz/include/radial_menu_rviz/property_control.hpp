@@ -3,6 +3,7 @@
 
 #include <radial_menu_msgs/State.h>
 #include <radial_menu_rviz/properties.hpp>
+#include <rviz/properties/bool_property.h>
 #include <rviz/properties/color_property.h>
 #include <rviz/properties/enum_property.h>
 #include <rviz/properties/float_property.h>
@@ -45,6 +46,8 @@ public:
     for (int i = 0; i < font_families_.size(); ++i) {
       font_ctl_->addOption(font_families_[i], i);
     }
+    font_bold_ctl_.reset(new rviz::BoolProperty("Font bold", true, "Font weight", parent,
+                                                SLOT(updateDrawingProperty()), this));
     font_size_ctl_.reset(new rviz::IntProperty("Font size", 12, "Font size in points", parent,
                                                SLOT(updateDrawingProperty()), this));
 
@@ -67,8 +70,8 @@ public:
     radius_ctl_.reset(new rviz::IntProperty("Radius", 128, "Radius of menu in pixels", parent,
                                             SLOT(updateDrawingProperty()), this));
     radius_ctl_->setMin(0);
-    padding_ctl_.reset(new rviz::IntProperty("Padding", 32, "Padding around menu in pixels",
-                                             parent, SLOT(updateDrawingProperty()), this));
+    padding_ctl_.reset(new rviz::IntProperty("Padding", 32, "Padding around menu in pixels", parent,
+                                             SLOT(updateDrawingProperty()), this));
     padding_ctl_->setMin(0);
 
     // position control
@@ -110,6 +113,7 @@ protected Q_SLOTS:
     drawing_prop_.bg_color.setAlphaF(bg_alpha_ctl_->getFloat());
 
     drawing_prop_.font.setFamily(font_ctl_->getString());
+    drawing_prop_.font.setBold(font_bold_ctl_->getBool());
     drawing_prop_.font.setPointSize(font_size_ctl_->getInt());
 
     drawing_prop_.txt_color_default.setRgb(txt_rgb_default_ctl_->getColor().rgb());
@@ -144,6 +148,7 @@ protected:
   boost::scoped_ptr< rviz::ColorProperty > bg_rgb_ctl_;
   boost::scoped_ptr< rviz::FloatProperty > bg_alpha_ctl_;
   boost::scoped_ptr< rviz::EnumProperty > font_ctl_;
+  boost::scoped_ptr< rviz::BoolProperty > font_bold_ctl_;
   boost::scoped_ptr< rviz::IntProperty > font_size_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > txt_rgb_default_ctl_, txt_rgb_pointed_ctl_,
       txt_rgb_selected_ctl_;
