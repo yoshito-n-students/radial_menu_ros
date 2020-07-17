@@ -1,0 +1,44 @@
+<launch>
+
+    <node name="joy_node" pkg="joy" type="joy_node">
+        <param name="dev" value="/dev/input/by-id/usb-Sony_Interactive_Entertainment_Wireless_Controller-if03-joystick" />
+    </node>
+
+    <node name="compass_menu_backend" pkg="radial_menu_backend" type="example_backend">
+        <remap from="radial_menu_state" to="compass_menu_state" />
+        <rosparam>
+            title: "compass"
+            items: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+            allow_multi_selection: false
+            deselect_on_opening: false
+            deselect_on_closing: false
+            auto_select: false
+            open_button: 1      # PS4's circle
+            select_button: 5    # PS4's R1
+            pointing_axis_v: 1  # PS4's LEFT Y
+            pointing_axis_h: 0  # PS4's LEFT X
+            pointing_axis_threshold: 0.5
+        </rosparam>
+    </node>
+
+    <node name="clock_menu_backend" pkg="radial_menu_backend" type="example_backend">
+        <remap from="radial_menu_state" to="clock_menu_state" />
+        <rosparam>
+            title: "clock"
+            items: ["12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]
+            allow_multi_selection: true
+            deselect_on_opening: false
+            deselect_on_closing: false
+            auto_select: true
+            open_button: 0      # PS4's cross
+            select_button: -1   # disabled
+            pointing_axis_v: 1  # PS4's LEFT Y
+            pointing_axis_h: 0  # PS4's LEFT X
+            pointing_axis_threshold: 0.5
+        </rosparam>
+    </node>
+
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="--display-config $(find radial_menu_example)/config/config.rviz" />
+
+</launch>
