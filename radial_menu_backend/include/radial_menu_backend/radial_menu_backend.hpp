@@ -2,6 +2,7 @@
 #define RADIAL_MENU_BACKEND_RADIAL_MENU_BACKEND_HPP
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint> // for std::int32_t
 #include <vector>
 
