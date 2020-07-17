@@ -1,5 +1,5 @@
-#ifndef RADIAL_MENU_BACKEND_RADIAL_MENU_BACKEND_HPP
-#define RADIAL_MENU_BACKEND_RADIAL_MENU_BACKEND_HPP
+#ifndef RADIAL_MENU_BACKEND_BACKEND_HPP
+#define RADIAL_MENU_BACKEND_BACKEND_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -11,9 +11,9 @@
 
 namespace radial_menu_backend {
 
-class RadialMenuBackend {
+class Backend {
 public:
-  RadialMenuBackend()
+  Backend()
       : allow_multi_selection(false), deselect_on_opening(false), deselect_on_closing(false),
         auto_select(false), open_button(/* PS4's circle*/ 1), select_button(/* PS4's L3 */ 11),
         pointing_axis_v(/* PS4's LEFT Y */ 1), pointing_axis_h(/* PS4's LEFT X */ 0),
@@ -22,7 +22,7 @@ public:
     state.pointed_id = -1;
   }
 
-  virtual ~RadialMenuBackend() {}
+  virtual ~Backend() {}
 
   void update(const sensor_msgs::Joy &joy) {
     // create new state instance based on the current state

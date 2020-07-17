@@ -1,11 +1,11 @@
-#include <radial_menu_backend/radial_menu_backend.hpp>
+#include <radial_menu_backend/backend.hpp>
 #include <ros/init.h>
 #include <ros/node_handle.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <sensor_msgs/Joy.h>
 
-radial_menu_backend::RadialMenuBackend backend;
+radial_menu_backend::Backend backend;
 ros::Publisher state_pub;
 
 // callback
