@@ -1,0 +1,9 @@
+<launch>
+
+    <node name="compass_menu_pub" pkg="rostopic" type="rostopic"
+          args="pub compass_menu_state radial_menu_msgs/State --file=$(find radial_menu_example)/launch/compass_menu_state.yaml --rate=1" />
+
+    <node name="rviz" pkg="rviz" type="rviz" 
+          args="--display-config $(find radial_menu_example)/rviz/one_menu.rviz" />
+
+</launch>
