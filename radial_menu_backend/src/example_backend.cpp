@@ -18,16 +18,9 @@ int main(int argc, char *argv[]) {
   ros::init(argc, argv, "example_backend");
   ros::NodeHandle nh, pnh("~");
 
-  // configure menu items
-  backend.state.title = "Compass";
-  backend.state.items.push_back("N");
-  backend.state.items.push_back("NE");
-  backend.state.items.push_back("E");
-  backend.state.items.push_back("SE");
-  backend.state.items.push_back("S");
-  backend.state.items.push_back("SW");
-  backend.state.items.push_back("W");
-  backend.state.items.push_back("NW");
+  // load menu items
+  pnh.getParam("title", backend.state.title);
+  pnh.getParam("items", backend.state.items);
 
   // load other configs from params
   pnh.getParam("allow_multi_selection", backend.allow_multi_selection);
