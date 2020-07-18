@@ -28,8 +28,6 @@ public:
 protected:
   // called once on initialization
   virtual void onInitialize() {
-    namespace rmm = radial_menu_msgs;
-
     // property control on the Display panel
     prop_ctl_.reset(new PropertyControl(this));
 
@@ -67,7 +65,7 @@ protected:
 
   void updateState(const radial_menu_msgs::StateConstPtr &state) {
     drawer_->setState(*state);
-    updateImage(prop_ctl_->drawingProperty());
+    overlay_->setImage(drawer_->draw());
   }
 
 protected Q_SLOTS:
