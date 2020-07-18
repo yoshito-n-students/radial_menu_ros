@@ -28,6 +28,19 @@ struct DrawingProperty {
   int bg_alpha, text_alpha;
 };
 
+struct HorizontalDrawingProperty {
+  QFont font;
+
+  QRgb title_bg_rgb, title_rgb;
+
+  int line_width;
+
+  QRgb item_bg_rgb_pointed, item_rgb_pointed;
+  QRgb item_bg_rgb_selected, item_rgb_selected;
+
+  int bg_alpha, text_alpha,bg_padding;
+};
+
 struct PositionProperty {
   QPoint top_left;
 };

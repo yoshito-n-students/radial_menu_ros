@@ -126,7 +126,9 @@ include_directories(
 qt5_wrap_cpp(
   MOC_FILES 
   include/radial_menu_rviz/display.hpp
+  include/radial_menu_rviz/horizontal_display.hpp
   include/radial_menu_rviz/property_control.hpp
+  include/radial_menu_rviz/horizontal_property_control.hpp
 )
 
 ## Declare a C++ library
