@@ -6,7 +6,6 @@
 #include <rviz/properties/bool_property.h>
 #include <rviz/properties/color_property.h>
 #include <rviz/properties/enum_property.h>
-#include <rviz/properties/float_property.h>
 #include <rviz/properties/int_property.h>
 #include <rviz/properties/property.h>
 #include <rviz/properties/ros_topic_property.h>
@@ -86,16 +85,16 @@ public:
                                                          SLOT(updateDrawingProperty()), this));
 
     // drawing control (alpha)
-    bg_alpha_ctl_.reset(new rviz::FloatProperty(
-        "Bg alpha", 0.8, "Alpha of all background colors from 0 (transparent) to 1 (opaque)",
+    bg_alpha_ctl_.reset(new rviz::IntProperty(
+        "Bg alpha", 255, "Alpha of all background colors from 0 (transparent) to 255 (opaque)",
         parent, SLOT(updateDrawingProperty()), this));
-    bg_alpha_ctl_->setMin(0.);
-    bg_alpha_ctl_->setMax(1.);
-    text_alpha_ctl_.reset(new rviz::FloatProperty(
-        "Text alpha", 0.8, "Alpha of all text colors from 0 (transparent) to 1 (opaque)", parent,
+    bg_alpha_ctl_->setMin(0);
+    bg_alpha_ctl_->setMax(255);
+    text_alpha_ctl_.reset(new rviz::IntProperty(
+        "Text alpha", 255, "Alpha of all text colors from 0 (transparent) to 255 (opaque)", parent,
         SLOT(updateDrawingProperty()), this));
-    text_alpha_ctl_->setMin(0.);
-    text_alpha_ctl_->setMax(1.);
+    text_alpha_ctl_->setMin(0);
+    text_alpha_ctl_->setMax(255);
 
     // position control
     left_ctl_.reset(new rviz::IntProperty("Left", 128, "Position of menu's left edge in pixels",
@@ -137,34 +136,21 @@ protected Q_SLOTS:
     drawing_prop_.font.setPointSize(font_size_ctl_->getInt());
 
     drawing_prop_.title_area_radius = title_area_radius_ctl_->getInt();
-
-    drawing_prop_.title_bg_color.setRgb(title_bg_rgb_ctl_->getColor().rgb());
-    drawing_prop_.title_bg_color.setAlphaF(bg_alpha_ctl_->getFloat());
-
-    drawing_prop_.title_color.setRgb(title_rgb_ctl_->getColor().rgb());
-    drawing_prop_.title_color.setAlphaF(text_alpha_ctl_->getFloat());
+    drawing_prop_.title_bg_rgb = title_bg_rgb_ctl_->getColor().rgb();
+    drawing_prop_.title_rgb = title_rgb_ctl_->getColor().rgb();
 
     drawing_prop_.line_width = line_width_ctl_->getInt();
 
     drawing_prop_.item_area_width = item_area_width_ctl_->getInt();
+    drawing_prop_.item_bg_rgb_default = item_bg_rgb_default_ctl_->getColor().rgb();
+    drawing_prop_.item_rgb_default = item_rgb_default_ctl_->getColor().rgb();
+    drawing_prop_.item_bg_rgb_pointed = item_bg_rgb_pointed_ctl_->getColor().rgb();
+    drawing_prop_.item_rgb_pointed = item_rgb_pointed_ctl_->getColor().rgb();
+    drawing_prop_.item_bg_rgb_selected = item_bg_rgb_selected_ctl_->getColor().rgb();
+    drawing_prop_.item_rgb_selected = item_rgb_selected_ctl_->getColor().rgb();
 
-    drawing_prop_.item_bg_color_default.setRgb(item_bg_rgb_default_ctl_->getColor().rgb());
-    drawing_prop_.item_bg_color_default.setAlphaF(bg_alpha_ctl_->getFloat());
-
-    drawing_prop_.item_color_default.setRgb(item_rgb_default_ctl_->getColor().rgb());
-    drawing_prop_.item_color_default.setAlphaF(text_alpha_ctl_->getFloat());
-
-    drawing_prop_.item_bg_color_pointed.setRgb(item_bg_rgb_pointed_ctl_->getColor().rgb());
-    drawing_prop_.item_bg_color_pointed.setAlphaF(bg_alpha_ctl_->getFloat());
-
-    drawing_prop_.item_color_pointed.setRgb(item_rgb_pointed_ctl_->getColor().rgb());
-    drawing_prop_.item_color_pointed.setAlphaF(text_alpha_ctl_->getFloat());
-
-    drawing_prop_.item_bg_color_selected.setRgb(item_bg_rgb_selected_ctl_->getColor().rgb());
-    drawing_prop_.item_bg_color_selected.setAlphaF(bg_alpha_ctl_->getFloat());
-
-    drawing_prop_.item_color_selected.setRgb(item_rgb_selected_ctl_->getColor().rgb());
-    drawing_prop_.item_color_selected.setAlphaF(text_alpha_ctl_->getFloat());
+    drawing_prop_.bg_alpha = bg_alpha_ctl_->getInt();
+    drawing_prop_.text_alpha = text_alpha_ctl_->getInt();
 
     Q_EMIT drawingPropertyChanged(drawing_prop_);
   }
@@ -192,7 +178,7 @@ protected:
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_default_ctl_, item_rgb_default_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
-  boost::scoped_ptr< rviz::FloatProperty > bg_alpha_ctl_, text_alpha_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, text_alpha_ctl_;
   DrawingProperty drawing_prop_;
 
   // position property & control

@@ -1,9 +1,9 @@
 #ifndef RADIAL_MENU_RVIZ_PROPERTIES_HPP
 #define RADIAL_MENU_RVIZ_PROPERTIES_HPP
 
-#include <QColor>
 #include <QFont>
 #include <QPoint>
+#include <QRgb>
 #include <QString>
 
 namespace radial_menu_rviz {
@@ -16,18 +16,16 @@ struct DrawingProperty {
   QFont font;
 
   int title_area_radius;
-  QColor title_bg_color;
-  QColor title_color;
+  QRgb title_bg_rgb, title_rgb;
 
   int line_width;
 
   int item_area_width;
-  QColor item_bg_color_default;
-  QColor item_color_default;
-  QColor item_bg_color_pointed;
-  QColor item_color_pointed;
-  QColor item_bg_color_selected;
-  QColor item_color_selected;
+  QRgb item_bg_rgb_default, item_rgb_default;
+  QRgb item_bg_rgb_pointed, item_rgb_pointed;
+  QRgb item_bg_rgb_selected, item_rgb_selected;
+
+  int bg_alpha, text_alpha;
 };
 
 struct PositionProperty {
