@@ -78,6 +78,33 @@ public:
     state = new_state;
   }
 
+  bool isOpened() const { return state.state == State::STATE_OPENED; }
+
+  bool isClosed() const { return state.state == State::STATE_CLOSED; }
+
+  bool isPointed(const std::string &item) const {
+    for (std::size_t i = 0; i < state.items.size(); ++i) {
+      if (state.items[i] == item) {
+        if (i == state.pointed_id) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool isSelected(const std::string &item) const {
+    for (std::size_t i = 0; i < state.items.size(); ++i) {
+      if (state.items[i] == item) {
+        if (std::find(state.selected_ids.begin(), state.selected_ids.end(), i) !=
+            state.selected_ids.end()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
 private:
   // utility static functions
 

@@ -10,8 +10,20 @@ ros::Publisher state_pub;
 
 // callback
 void onJoyRecieved(const sensor_msgs::JoyConstPtr &joy) {
+  // update menu state and publish
   backend.update(*joy);
   state_pub.publish(backend.state);
+
+  /*
+  // defer joy input to other objects as you want
+  if (backend.isClosed()) {
+    if (backend.isSelected("foo")) {
+      // foo.process(joy);
+    } else if (backend.isSelected("bar")) {
+      // bar.process(joy);
+    }
+  }
+  */
 }
 
 int main(int argc, char *argv[]) {
