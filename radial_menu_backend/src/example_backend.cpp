@@ -15,8 +15,8 @@ void onJoyRecieved(const sensor_msgs::JoyConstPtr &joy) {
   state_pub.publish(backend.state);
 
   /*
-  // defer joy input to other objects as you want
-  if (backend.isClosed()) {
+  // defer joy input to other objects if the menu is closed
+  if (!backend.state.is_opened) {
     if (backend.isSelected("foo")) {
       // foo.process(joy);
     } else if (backend.isSelected("bar")) {

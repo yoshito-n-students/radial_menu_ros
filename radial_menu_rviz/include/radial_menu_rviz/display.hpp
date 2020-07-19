@@ -98,7 +98,7 @@ protected Q_SLOTS:
 protected:
   static radial_menu_msgs::State closedState() {
     radial_menu_msgs::State state;
-    state.state = radial_menu_msgs::State::STATE_CLOSED;
+    state.is_opened = false;
     state.pointed_id = -1;
     return state;
   }

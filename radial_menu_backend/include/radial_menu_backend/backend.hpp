@@ -18,7 +18,7 @@ public:
         auto_select(false), open_button(/* PS4's circle*/ 1), select_button(/* PS4's L3 */ 11),
         pointing_axis_v(/* PS4's LEFT Y */ 1), pointing_axis_h(/* PS4's LEFT X */ 0),
         invert_pointing_axis_v(false), invert_pointing_axis_h(false), pointing_axis_threshold(0.5) {
-    state.state = State::STATE_CLOSED;
+    state.is_opened = false;
     state.pointed_id = -1;
   }
 
@@ -34,21 +34,18 @@ public:
     new_state.pointed_id = -1; // nothig pointed
 
     // detemine new state based on open button value
-    new_state.state =
-        (buttonValue(joy, open_button) > 0) ? State::STATE_OPENED : State::STATE_CLOSED;
+    new_state.is_opened = (buttonValue(joy, open_button) > 0);
 
     // cancel selections if required
-    if (deselect_on_opening && state.state == State::STATE_CLOSED &&
-        new_state.state == State::STATE_OPENED) {
+    if (deselect_on_opening && !state.is_opened && new_state.is_opened) {
       new_state.selected_ids.clear();
     }
-    if (deselect_on_closing && state.state == State::STATE_OPENED &&
-        new_state.state == State::STATE_CLOSED) {
+    if (deselect_on_closing && state.is_opened && !new_state.is_opened) {
       new_state.selected_ids.clear();
     }
 
     // if menu is opened, determine the pointed item based on the pointing axis angle
-    if (new_state.state == State::STATE_OPENED) {
+    if (new_state.is_opened) {
       const double value_v(invert_pointing_axis_v ? -axisValue(joy, pointing_axis_v)
                                                   : axisValue(joy, pointing_axis_v));
       const double value_h(invert_pointing_axis_h ? -axisValue(joy, pointing_axis_h)
@@ -69,18 +66,13 @@ public:
 
     // if auto_select is enabled,
     // select the item pointed in the previous state but not in the new state
-    if (auto_select && (new_state.state == State::STATE_OPENED && new_state.pointed_id < 0) &&
-        state.pointed_id >= 0) {
+    if (auto_select && (new_state.is_opened && new_state.pointed_id < 0) && state.pointed_id >= 0) {
       updateSelection(&new_state.selected_ids, state.pointed_id, allow_multi_selection);
     }
 
     // update the current state
     state = new_state;
   }
-
-  bool isOpened() const { return state.state == State::STATE_OPENED; }
-
-  bool isClosed() const { return state.state == State::STATE_CLOSED; }
 
   bool isPointed(const std::string &item) const {
     for (std::size_t i = 0; i < state.items.size(); ++i) {

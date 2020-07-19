@@ -8,7 +8,6 @@
 #include <radial_menu_msgs/State.h>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
-#include <ros/console.h>
 
 #include <QBrush>
 #include <QColor>
@@ -36,17 +35,12 @@ public:
   void setProperty(const DrawingProperty &prop) { prop_ = prop; }
 
   QImage draw() const {
-    switch (state_.state) {
-    case radial_menu_msgs::State::STATE_OPENED: {
+    if (state_.is_opened) {
       QImage image(ImageOverlay::formattedImage(imageSize(), Qt::transparent));
       drawBackground(&image);
       drawTexts(&image);
       return image;
-    }
-    default:
-      ROS_ERROR_STREAM("ImageDrawer::draw(): unexpected menu state ("
-                       << state_.state << "). Will fallback to closed state.");
-    case radial_menu_msgs::State::STATE_CLOSED:
+    } else {
       return QImage();
     }
   }
