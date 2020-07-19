@@ -52,8 +52,6 @@ public:
   }
 
 protected:
-  enum ItemType { DefaultItem, PointedItem, SelectedItem, InvalidItem };
-
   // drawing functions
 
   void drawBackground(QImage *const image) const {
@@ -73,36 +71,31 @@ protected:
 
     // draw item areas by pies
     if (!state_.items.empty()) {
-      // common properties of pies
-      const QPen pen_default(prop_.item_bg_rgb_default), pen_pointed(prop_.item_bg_rgb_pointed),
-          pen_selected(prop_.item_bg_rgb_selected);
-      const QBrush brush_default(prop_.item_bg_rgb_default),
-          brush_pointed(prop_.item_bg_rgb_pointed), brush_selected(prop_.item_bg_rgb_selected);
-      const int span_angle(itemSpanAngle());
       // set tools for alpha painter
       const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
       alpha_painter.setPen(bg_alpha);
       alpha_painter.setBrush(bg_alpha);
       // draw each pie
+      const int span_angle(itemSpanAngle());
       for (int i = 0; i < state_.items.size(); ++i) {
         // set tools for rgb painter according to item type
-        const int item_type(itemType(i));
-        switch (item_type) {
-        case PointedItem:
-          rgb_painter.setPen(pen_pointed);
-          rgb_painter.setBrush(brush_pointed);
-          break;
-        case SelectedItem:
-          rgb_painter.setPen(pen_selected);
-          rgb_painter.setBrush(brush_selected);
-          break;
-        default:
-          ROS_ERROR_STREAM("ImageDrawer::drawBackground(): unexpected item type ("
-                           << item_type << "). Will fallback to the default.");
-        case DefaultItem:
-          rgb_painter.setPen(pen_default);
-          rgb_painter.setBrush(brush_default);
-          break;
+        const bool is_selected(std::find(state_.selected_ids.begin(), state_.selected_ids.end(),
+                                         i) != state_.selected_ids.end());
+        const bool is_pointed(i == state_.pointed_id);
+        if (is_selected && is_pointed) {
+          const QRgb rgb(blendedRgb(prop_.item_bg_rgb_selected, prop_.item_bg_rgb_pointed));
+          rgb_painter.setPen(QPen(rgb));
+          rgb_painter.setBrush(QBrush(rgb));
+        } else if (is_selected && !is_pointed) {
+          rgb_painter.setPen(QPen(prop_.item_bg_rgb_selected));
+          rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_selected));
+        } else if (!is_selected && is_pointed) {
+          const QRgb rgb(blendedRgb(prop_.item_bg_rgb_default, prop_.item_bg_rgb_pointed));
+          rgb_painter.setPen(QPen(rgb));
+          rgb_painter.setBrush(QBrush(rgb));
+        } else { // !is_selected && !is_pointed
+          rgb_painter.setPen(QPen(prop_.item_bg_rgb_default));
+          rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_default));
         }
         // draw a pie
         const int center_angle(itemCenterAngle(i));
@@ -162,25 +155,21 @@ protected:
 
     // draw item texts
     if (!state_.items.empty()) {
-      const QPen pen_default(makeColor(prop_.item_rgb_default, prop_.text_alpha)),
-          pen_pointed(makeColor(prop_.item_rgb_pointed, prop_.text_alpha)),
-          pen_selected(makeColor(prop_.item_rgb_selected, prop_.text_alpha));
       for (int i = 0; i < state_.items.size(); ++i) {
         // set tools for the painter according to item type
-        const int item_type(itemType(i));
-        switch (item_type) {
-        case PointedItem:
-          painter.setPen(pen_pointed);
-          break;
-        case SelectedItem:
-          painter.setPen(pen_selected);
-          break;
-        default:
-          ROS_ERROR_STREAM("ImageDrawer::drawText(): unexpected item type ("
-                           << item_type << "). Will fallback to the default.");
-        case DefaultItem:
-          painter.setPen(pen_default);
-          break;
+        const bool is_selected(std::find(state_.selected_ids.begin(), state_.selected_ids.end(),
+                                         i) != state_.selected_ids.end());
+        const bool is_pointed(i == state_.pointed_id);
+        if (is_selected && is_pointed) {
+          const QRgb rgb(blendedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
+          painter.setPen(QPen(rgb));
+        } else if (is_selected && !is_pointed) {
+          painter.setPen(QPen(prop_.item_rgb_selected));
+        } else if (!is_selected && is_pointed) {
+          const QRgb rgb(blendedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed));
+          painter.setPen(QPen(rgb));
+        } else { // !is_selected && !is_pointed
+          painter.setPen(QPen(prop_.item_rgb_default));
         }
         // draw the item text
         QRect rect;
@@ -208,19 +197,6 @@ protected:
   QSize imageSize() const {
     const int len(2 * (prop_.title_area_radius + prop_.line_width + prop_.item_area_width));
     return QSize(len, len);
-  }
-
-  ItemType itemType(const int item_id) const {
-    if (item_id < 0 || item_id >= state_.items.size()) {
-      return InvalidItem;
-    } else if (std::find(state_.selected_ids.begin(), state_.selected_ids.end(), item_id) !=
-               state_.selected_ids.end()) {
-      return SelectedItem;
-    } else if (item_id == state_.pointed_id) {
-      return PointedItem;
-    } else {
-      return DefaultItem;
-    }
   }
 
   // angle for QPainter (0 at 3 o'clock, counterclockwise positive, in 1/16 degrees)
@@ -253,6 +229,13 @@ protected:
     const double u(radius * std::cos(th)), v(radius * std::sin(th));
     // rightward & downward positive
     return QPoint(-static_cast< int >(v), -static_cast< int >(u));
+  }
+
+  static QRgb blendedRgb(const QRgb &rgb1, const QRgb &rgb2) {
+    const QColor color1(rgb1), color2(rgb2);
+    return QColor((color1.red() + color2.red()) / 2, (color1.green() + color2.green()) / 2,
+                  (color1.blue() + color2.blue()) / 2)
+        .rgb();
   }
 
   static QColor makeColor(const QRgb &rgb, const int alpha) {

@@ -71,12 +71,13 @@ public:
     item_rgb_default_ctl_.reset(new rviz::ColorProperty(
         "Item (default)", QColor(0, 0, 0), "RGB of item text when not pointed or selected", parent,
         SLOT(updateDrawingProperty()), this));
-    item_bg_rgb_pointed_ctl_.reset(new rviz::ColorProperty(
-        "Item bg (pointed)", QColor(128, 128, 128), "RGB of item background when pointed", parent,
+    item_bg_rgb_pointed_ctl_.reset(
+        new rviz::ColorProperty("Item bg (pointed)", QColor(128, 128, 128),
+                                "RGB to be blended to item background when pointed", parent,
+                                SLOT(updateDrawingProperty()), this));
+    item_rgb_pointed_ctl_.reset(new rviz::ColorProperty(
+        "Item (pointed)", QColor(0, 0, 0), "RGB to be blended to item text when pointed", parent,
         SLOT(updateDrawingProperty()), this));
-    item_rgb_pointed_ctl_.reset(new rviz::ColorProperty("Item (pointed)", QColor(0, 0, 0),
-                                                        "RGB of item text when pointed", parent,
-                                                        SLOT(updateDrawingProperty()), this));
     item_bg_rgb_selected_ctl_.reset(new rviz::ColorProperty(
         "Item bg (selected)", QColor(0, 0, 0), "RGB of item background when selected", parent,
         SLOT(updateDrawingProperty()), this));
