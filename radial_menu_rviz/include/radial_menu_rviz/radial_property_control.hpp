@@ -1,5 +1,5 @@
-#ifndef RADIAL_MENU_RVIZ_PROPERTY_CONTROL_HPP
-#define RADIAL_MENU_RVIZ_PROPERTY_CONTROL_HPP
+#ifndef RADIAL_MENU_RVIZ_RADIAL_PROPERTY_CONTROL_HPP
+#define RADIAL_MENU_RVIZ_RADIAL_PROPERTY_CONTROL_HPP
 
 #include <radial_menu_msgs/State.h>
 #include <radial_menu_rviz/properties.hpp>
@@ -17,11 +17,11 @@
 
 namespace radial_menu_rviz {
 
-class PropertyControl : public QObject {
+class RadialPropertyControl : public QObject {
   Q_OBJECT
 
 public:
-  PropertyControl(rviz::Property *const parent) {
+  RadialPropertyControl(rviz::Property *const parent) {
     // subscription control
     state_topic_ctl_.reset(new rviz::RosTopicProperty(
         /* name = */ "State topic", /* default val = */ "",
@@ -111,17 +111,17 @@ public:
     updatePositionProperty();
   }
 
-  virtual ~PropertyControl() {}
+  virtual ~RadialPropertyControl() {}
 
   const SubscriptionProperty &subscriptionProperty() const { return sub_prop_; }
 
-  const DrawingProperty &drawingProperty() const { return drawing_prop_; }
+  const RadialDrawingProperty &drawingProperty() const { return drawing_prop_; }
 
   const PositionProperty &positionProperty() const { return pos_prop_; }
 
 Q_SIGNALS:
   void subscriptionPropertyChanged(const SubscriptionProperty &prop);
-  void drawingPropertyChanged(const DrawingProperty &prop);
+  void drawingPropertyChanged(const RadialDrawingProperty &prop);
   void positionPropertyChanged(const PositionProperty &prop);
 
 protected Q_SLOTS:
@@ -180,7 +180,7 @@ protected:
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
   boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, text_alpha_ctl_;
-  DrawingProperty drawing_prop_;
+  RadialDrawingProperty drawing_prop_;
 
   // position property & control
   boost::scoped_ptr< rviz::IntProperty > left_ctl_, top_ctl_;

@@ -1,5 +1,5 @@
-#ifndef RADIAL_MENU_RVIZ_IMAGE_DRAWER_HPP
-#define RADIAL_MENU_RVIZ_IMAGE_DRAWER_HPP
+#ifndef RADIAL_MENU_RVIZ_RADIAL_IMAGE_DRAWER_HPP
+#define RADIAL_MENU_RVIZ_RADIAL_IMAGE_DRAWER_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -23,16 +23,16 @@
 
 namespace radial_menu_rviz {
 
-class ImageDrawer {
+class RadialImageDrawer {
 public:
-  ImageDrawer(const radial_menu_msgs::State &state, const DrawingProperty &prop)
+  RadialImageDrawer(const radial_menu_msgs::State &state, const RadialDrawingProperty &prop)
       : state_(state), prop_(prop) {}
 
-  virtual ~ImageDrawer() {}
+  virtual ~RadialImageDrawer() {}
 
   void setState(const radial_menu_msgs::State &state) { state_ = state; }
 
-  void setProperty(const DrawingProperty &prop) { prop_ = prop; }
+  void setProperty(const RadialDrawingProperty &prop) { prop_ = prop; }
 
   QImage draw() const {
     if (state_.is_opened) {
@@ -241,7 +241,7 @@ protected:
 
 protected:
   radial_menu_msgs::State state_;
-  DrawingProperty prop_;
+  RadialDrawingProperty prop_;
 };
 } // namespace radial_menu_rviz
 

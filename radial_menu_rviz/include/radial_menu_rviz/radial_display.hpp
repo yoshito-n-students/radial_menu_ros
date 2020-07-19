@@ -1,11 +1,11 @@
-#ifndef RADIAL_MENU_RVIZ_DISPLAY_HPP
-#define RADIAL_MENU_RVIZ_DISPLAY_HPP
+#ifndef RADIAL_MENU_RVIZ_RADIAL_DISPLAY_HPP
+#define RADIAL_MENU_RVIZ_RADIAL_DISPLAY_HPP
 
 #include <radial_menu_msgs/State.h>
-#include <radial_menu_rviz/image_drawer.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
-#include <radial_menu_rviz/property_control.hpp>
+#include <radial_menu_rviz/radial_image_drawer.hpp>
+#include <radial_menu_rviz/radial_property_control.hpp>
 #include <ros/console.h>
 #include <ros/exception.h>
 #include <ros/subscriber.h>
@@ -17,22 +17,22 @@
 
 namespace radial_menu_rviz {
 
-class Display : public rviz::Display {
+class RadialDisplay : public rviz::Display {
   Q_OBJECT
 
 public:
-  Display() {}
+  RadialDisplay() {}
 
-  virtual ~Display() {}
+  virtual ~RadialDisplay() {}
 
 protected:
   // called once on initialization
   virtual void onInitialize() {
     // property control on the Display panel
-    prop_ctl_.reset(new PropertyControl(this));
+    prop_ctl_.reset(new RadialPropertyControl(this));
 
     // menu image generator
-    drawer_.reset(new ImageDrawer(closedState(), prop_ctl_->drawingProperty()));
+    drawer_.reset(new RadialImageDrawer(closedState(), prop_ctl_->drawingProperty()));
 
     // overlay on the main view
     overlay_.reset(new ImageOverlay());
@@ -40,8 +40,8 @@ protected:
     // slots on properties changed
     connect(prop_ctl_.get(), SIGNAL(subscriptionPropertyChanged(const SubscriptionProperty &)),
             this, SLOT(updateSubscription(const SubscriptionProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(drawingPropertyChanged(const DrawingProperty &)), this,
-            SLOT(updateImage(const DrawingProperty &)));
+    connect(prop_ctl_.get(), SIGNAL(drawingPropertyChanged(const RadialDrawingProperty &)), this,
+            SLOT(updateImage(const RadialDrawingProperty &)));
     connect(prop_ctl_.get(), SIGNAL(positionPropertyChanged(const PositionProperty &)), this,
             SLOT(updatePosition(const PositionProperty &)));
 
@@ -79,8 +79,8 @@ protected Q_SLOTS:
 
     // subscribe the new topic
     try {
-      state_sub_ =
-          ros::NodeHandle().subscribe(prop.topic.toStdString(), 1, &Display::updateState, this);
+      state_sub_ = ros::NodeHandle().subscribe(prop.topic.toStdString(), 1,
+                                               &RadialDisplay::updateState, this);
     } catch (const ros::Exception &error) {
       ROS_ERROR_STREAM(getName().toStdString()
                        << ": error on subscribing topic ('" << prop.topic.toStdString()
@@ -88,7 +88,7 @@ protected Q_SLOTS:
     }
   }
 
-  void updateImage(const DrawingProperty &prop) {
+  void updateImage(const RadialDrawingProperty &prop) {
     drawer_->setProperty(prop);
     overlay_->setImage(drawer_->draw());
   }
@@ -105,13 +105,13 @@ protected:
 
 protected:
   // property control via Rviz
-  boost::scoped_ptr< PropertyControl > prop_ctl_;
+  boost::scoped_ptr< RadialPropertyControl > prop_ctl_;
 
   // menu state subscriber
   ros::Subscriber state_sub_;
 
   // state drawer
-  boost::scoped_ptr< ImageDrawer > drawer_;
+  boost::scoped_ptr< RadialImageDrawer > drawer_;
 
   // overlay on Rviz
   boost::scoped_ptr< ImageOverlay > overlay_;

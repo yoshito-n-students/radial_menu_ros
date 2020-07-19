@@ -12,7 +12,7 @@ struct SubscriptionProperty {
   QString topic;
 };
 
-struct DrawingProperty {
+struct RadialDrawingProperty {
   QFont font;
 
   int title_area_radius;

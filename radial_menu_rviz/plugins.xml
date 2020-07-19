@@ -1,7 +1,7 @@
 <library path="lib/libradial_menu_rviz_plugins">
 
     <class name="radial_menu_rviz/RadialMenu"
-           type="radial_menu_rviz::Display"
+           type="radial_menu_rviz::RadialDisplay"
            base_class_type="rviz::Display">
         <description>
             visualize radial_menu_msgs/State
