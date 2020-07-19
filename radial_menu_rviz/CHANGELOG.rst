@@ -2,6 +2,11 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.3 (2020-07-20)
+------------------
+* Support refactored state message type
+* Add DisplayBase implementing common behaviour between display classes
+
 0.0.2 (2020-07-19)
 ------------------
 * Better looking and more customizable property of Display

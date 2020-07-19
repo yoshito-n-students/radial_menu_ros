@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.3 (2020-07-20)
+------------------
+* Support refactored state message type
+
 0.0.2 (2020-07-19)
 ------------------
 * Use HorizontalDisplay in examples
