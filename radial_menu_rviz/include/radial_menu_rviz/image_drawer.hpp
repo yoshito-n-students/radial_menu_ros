@@ -213,11 +213,11 @@ protected:
   ItemType itemType(const int item_id) const {
     if (item_id < 0 || item_id >= state_.items.size()) {
       return InvalidItem;
-    } else if (item_id == state_.pointed_id) {
-      return PointedItem;
     } else if (std::find(state_.selected_ids.begin(), state_.selected_ids.end(), item_id) !=
                state_.selected_ids.end()) {
       return SelectedItem;
+    } else if (item_id == state_.pointed_id) {
+      return PointedItem;
     } else {
       return DefaultItem;
     }
