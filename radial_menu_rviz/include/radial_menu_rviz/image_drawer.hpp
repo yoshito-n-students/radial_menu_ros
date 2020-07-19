@@ -162,14 +162,14 @@ protected:
         const bool is_pointed(i == state_.pointed_id);
         if (is_selected && is_pointed) {
           const QRgb rgb(blendedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
-          painter.setPen(QPen(rgb));
+          painter.setPen(makeColor(rgb, prop_.text_alpha));
         } else if (is_selected && !is_pointed) {
-          painter.setPen(QPen(prop_.item_rgb_selected));
+          painter.setPen(makeColor(prop_.item_rgb_selected, prop_.text_alpha));
         } else if (!is_selected && is_pointed) {
           const QRgb rgb(blendedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed));
-          painter.setPen(QPen(rgb));
+          painter.setPen(makeColor(rgb, prop_.text_alpha));
         } else { // !is_selected && !is_pointed
-          painter.setPen(QPen(prop_.item_rgb_default));
+          painter.setPen(makeColor(prop_.item_rgb_default, prop_.text_alpha));
         }
         // draw the item text
         QRect rect;
