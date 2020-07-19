@@ -3,7 +3,7 @@ header:
   stamp: {secs: 0, nsecs: 0}
   frame_id: ''
 title: 'compass'
-state: 1
+is_opened: true
 items: ['N', 'NW', 'W', 'SW', 'S', 'SE', 'E', 'NE']
 pointed_id: 3
 selected_ids: [0]
