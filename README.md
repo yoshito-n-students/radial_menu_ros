@@ -72,4 +72,4 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 * A meta-package depending radial_menu_backend, radial_menu_rviz, radial_menu_msgs for future release
 
 ## Pkg: radial_menu_example
-* Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick and a [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not
+* Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick, [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not, and [sub menu example](radial_menu_example/launch/example_sub_menu.launch)
