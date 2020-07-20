@@ -25,13 +25,9 @@ public:
 protected:
   // called once on initialization
   virtual void onInitialize() {
-    // property control on the Display panel
+    // allocate objects
     prop_ctl_.reset(new PropertyControl(this));
-
-    // menu image generator
     drawer_.reset(new ImageDrawer(closedState(), prop_ctl_->drawingProperty()));
-
-    // overlay on the main view
     overlay_.reset(new ImageOverlay());
 
     // apply the initial properties
@@ -71,11 +67,13 @@ protected:
     }
   }
 
+  // update menu image with the given menu state
   void updateImage(const radial_menu_msgs::StateConstPtr &state) {
     drawer_->setState(*state);
     overlay_->setImage(drawer_->draw());
   }
 
+  // update menu image with the given drawing property
   void updateImage(const DrawingProperty &prop) {
     drawer_->setProperty(prop);
     overlay_->setImage(drawer_->draw());
@@ -93,13 +91,10 @@ protected:
 protected:
   // property control via Rviz
   boost::scoped_ptr< PropertyControl > prop_ctl_;
-
   // menu state subscriber
   ros::Subscriber state_sub_;
-
   // state drawer
   boost::scoped_ptr< ImageDrawer > drawer_;
-
   // overlay on Rviz
   boost::scoped_ptr< ImageOverlay > overlay_;
 };
