@@ -9,7 +9,8 @@ Radial menu for quick, accurate and intuitive selection from 10+ items
 
 ## Pkg: radial_menu_backend
 ### Node: example_backend
-updates radial menu state based on joystick input
+* Updates radial menu state based on joystick input
+* Fork this node and add codes to integrate with your system
 
 #### <u>Subscribed topics</u>
 **joy** (sensor_msgs/Joy)
