@@ -109,17 +109,23 @@ protected:
 
     // draw the title area by a filled circle
     if (prop_.title_area_radius > 0) {
-      //
-      rgb_painter.setPen(QPen(prop_.title_bg_rgb));
-      rgb_painter.setBrush(QBrush(prop_.title_bg_rgb));
-      const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
-      alpha_painter.setPen(bg_alpha);
-      alpha_painter.setBrush(bg_alpha);
-      //
       const QPoint relative_corner(prop_.title_area_radius, prop_.title_area_radius);
       const QRect rect(image_center - relative_corner, image_center + relative_corner);
-      rgb_painter.drawEllipse(rect);
-      alpha_painter.drawEllipse(rect);
+      if (prop_.draw_title_area) {
+        //
+        rgb_painter.setPen(QPen(prop_.title_bg_rgb));
+        rgb_painter.setBrush(QBrush(prop_.title_bg_rgb));
+        rgb_painter.drawEllipse(rect);
+        //
+        const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
+        alpha_painter.setPen(bg_alpha);
+        alpha_painter.setBrush(bg_alpha);
+        alpha_painter.drawEllipse(rect);
+      } else {
+        alpha_painter.setPen(QColor(0, 0, 0));
+        alpha_painter.setBrush(QColor(0, 0, 0));
+        alpha_painter.drawEllipse(rect);
+      }
     }
 
     // draw transparent lines between title and item areas
@@ -176,7 +182,7 @@ protected:
     }
 
     // draw the title text at the image center
-    if (!state_.title.empty()) {
+    if (prop_.draw_title_area && !state_.title.empty()) {
       painter.setPen(makeColor(prop_.title_rgb, prop_.text_alpha));
       QRect rect;
       const QString title(QString::fromStdString(state_.title));

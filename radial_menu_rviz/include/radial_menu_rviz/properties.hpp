@@ -15,6 +15,7 @@ struct SubscriptionProperty {
 struct RadialDrawingProperty {
   QFont font;
 
+  bool draw_title_area;
   int title_area_radius;
   QRgb title_bg_rgb, title_rgb;
 
@@ -38,7 +39,7 @@ struct HorizontalDrawingProperty {
   QRgb item_bg_rgb_pointed, item_rgb_pointed;
   QRgb item_bg_rgb_selected, item_rgb_selected;
 
-  int bg_alpha, text_alpha,bg_padding;
+  int bg_alpha, text_alpha, bg_padding;
 };
 
 struct PositionProperty {

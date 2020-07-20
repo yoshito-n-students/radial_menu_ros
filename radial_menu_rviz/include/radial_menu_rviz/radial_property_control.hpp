@@ -43,6 +43,8 @@ public:
                                                SLOT(updateDrawingProperty()), this));
 
     // drawing control (title area)
+    draw_title_area_ctl_.reset(new rviz::BoolProperty("Title area", true, "", parent,
+                                                      SLOT(updateDrawingProperty()), this));
     title_area_radius_ctl_.reset(new rviz::IntProperty(
         "Title area radius", 128, "In pixels", parent, SLOT(updateDrawingProperty()), this));
     title_area_radius_ctl_->setMin(1);
@@ -136,6 +138,7 @@ protected Q_SLOTS:
     drawing_prop_.font.setBold(font_bold_ctl_->getBool());
     drawing_prop_.font.setPointSize(font_size_ctl_->getInt());
 
+    drawing_prop_.draw_title_area = draw_title_area_ctl_->getBool();
     drawing_prop_.title_area_radius = title_area_radius_ctl_->getInt();
     drawing_prop_.title_bg_rgb = title_bg_rgb_ctl_->getColor().rgb();
     drawing_prop_.title_rgb = title_rgb_ctl_->getColor().rgb();
@@ -169,16 +172,22 @@ protected:
   SubscriptionProperty sub_prop_;
 
   // drawing property & control
+  // - font
   boost::scoped_ptr< rviz::EnumProperty > font_ctl_;
   boost::scoped_ptr< rviz::BoolProperty > font_bold_ctl_;
   boost::scoped_ptr< rviz::IntProperty > font_size_ctl_;
+  // - title area
+  boost::scoped_ptr< rviz::BoolProperty > draw_title_area_ctl_;
   boost::scoped_ptr< rviz::IntProperty > title_area_radius_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > title_bg_rgb_ctl_, title_rgb_ctl_;
+  // - line
   boost::scoped_ptr< rviz::IntProperty > line_width_ctl_;
+  // - item area
   boost::scoped_ptr< rviz::IntProperty > item_area_width_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_default_ctl_, item_rgb_default_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
+  // - others
   boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, text_alpha_ctl_;
   RadialDrawingProperty drawing_prop_;
 

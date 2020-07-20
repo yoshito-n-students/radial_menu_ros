@@ -92,6 +92,7 @@ Visualization Manager:
       State topic: /compass_menu_state
       Text alpha: 255
       Title: 255; 250; 255
+      Title area: true
       Title area radius: 96
       Title bg: 10; 36; 99
       Top: 192

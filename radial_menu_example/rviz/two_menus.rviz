@@ -74,6 +74,7 @@ Visualization Manager:
       State topic: /compass_menu_state
       Text alpha: 255
       Title: 46; 40; 42
+      Title area: true
       Title area radius: 96
       Title bg: 237; 184; 139
       Top: 128
@@ -97,6 +98,7 @@ Visualization Manager:
       State topic: /clock_menu_state
       Text alpha: 255
       Title: 244; 237; 234
+      Title area: true
       Title area radius: 128
       Title bg: 18; 38; 58
       Top: 128
