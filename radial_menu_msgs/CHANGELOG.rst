@@ -2,6 +2,10 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.4 (2020-07-21)
+------------------
+* No changes
+
 0.0.3 (2020-07-20)
 ------------------
 * Refactor the open/close state in State to an boolean

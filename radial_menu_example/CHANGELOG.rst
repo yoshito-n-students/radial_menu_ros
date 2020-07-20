@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.4 (2020-07-21)
+------------------
+* Add example_sub_menu.launch
+
 0.0.3 (2020-07-20)
 ------------------
 * Support refactored state message type
