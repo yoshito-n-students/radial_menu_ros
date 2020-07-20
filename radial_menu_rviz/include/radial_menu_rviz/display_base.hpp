@@ -52,11 +52,6 @@ protected:
     state_sub_.shutdown();
   }
 
-  void updateState(const radial_menu_msgs::StateConstPtr &state) {
-    drawer_->setState(*state);
-    overlay_->setImage(drawer_->draw());
-  }
-
   void updateSubscription(const SubscriptionProperty &prop) {
     // unsubscribe
     state_sub_.shutdown();
@@ -67,13 +62,18 @@ protected:
 
     // subscribe the new topic
     try {
-      state_sub_ = ros::NodeHandle().subscribe(prop.topic.toStdString(), 1,
-                                               &DisplayBase::updateState, this);
+      state_sub_ =
+          ros::NodeHandle().subscribe(prop.topic.toStdString(), 1, &DisplayBase::updateImage, this);
     } catch (const ros::Exception &error) {
       ROS_ERROR_STREAM(getName().toStdString()
                        << ": error on subscribing topic ('" << prop.topic.toStdString()
                        << "'): " << error.what());
     }
+  }
+
+  void updateImage(const radial_menu_msgs::StateConstPtr &state) {
+    drawer_->setState(*state);
+    overlay_->setImage(drawer_->draw());
   }
 
   void updateImage(const DrawingProperty &prop) {
