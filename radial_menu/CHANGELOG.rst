@@ -1,6 +1,10 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package radial_menu_ros
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package radial_menu
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+0.0.4 (2020-XX-XX)
+------------------
+* Change package name from radial_menu_ros to radial_menu because _ros is obvious
 
 0.0.3 (2020-07-20)
 ------------------
