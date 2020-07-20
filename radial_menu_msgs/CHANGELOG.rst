@@ -2,6 +2,10 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.0 (2020-XX-XX)
+------------------
+* Supprot submenus (e.g. item width and depth) in State message
+
 0.0.4 (2020-07-21)
 ------------------
 * No changes
