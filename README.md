@@ -22,7 +22,7 @@ Radial menu for quick, accurate and intuitive selection from 10+ items
 
 #### <u>Parameters</u>
 **~allow_multi_selection** (bool, default: false)
-* If true, current selected items will be deselected when a new item is selected
+* If false, current selected items will be deselected when a new item is selected
 
 **~deselect_on_opening** (bool, default: false)
 * If true, current selected items will be deselected when opening the menu
@@ -31,7 +31,7 @@ Radial menu for quick, accurate and intuitive selection from 10+ items
 * If true, current selected items will be deselected when closing the menu
 
 **~auto_select** (bool, default: false)
-* If true, the last pointed item will be autonomously selected
+* If true, the last pointed item will be autonomously selected. Close the menu before unpoint not to select.
 
 **~open_button** (int, default: 1)
 * Button to keep opening the menu
