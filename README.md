@@ -1,6 +1,6 @@
 # radial_menu_ros
 
-Radial menu for quick, accurate and intuitive selection from 10+ items
+Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 
 ![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_v0_0_2.png)
 
