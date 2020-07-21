@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /CompassMenu1
+        - /CardMenu1
       Splitter Ratio: 0.5
     Tree Height: 1077
   - Class: rviz/Selection
@@ -53,32 +53,14 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Bg alpha: 255
-      Bg padding: 16
-      Class: radial_menu_rviz/HorizontalMenu
-      Enabled: true
-      Font: DejaVu Sans Mono
-      Font bold: true
-      Font size: 12
-      Item (pointed): 20; 49; 9
-      Item (selected): 20; 49; 9
-      Item bg (pointed): 208; 214; 179
-      Item bg (selected): 170; 174; 127
-      Left: 64
-      Line width: 16
-      Name: HorizontalMenu
-      State topic: /compass_menu_state
-      Text alpha: 255
-      Title: 247; 247; 247
-      Title bg: 20; 49; 9
-      Top: 32
-      Value: true
     - Bg alpha: 128
+      Center x: 512
+      Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
       Font: DejaVu Sans Mono
       Font bold: true
-      Font size: 14
+      Font size: 12
       Item (default): 10; 36; 99
       Item (pointed): 10; 36; 99
       Item (selected): 255; 250; 255
@@ -86,16 +68,14 @@ Visualization Manager:
       Item bg (default): 255; 250; 255
       Item bg (pointed): 62; 146; 204
       Item bg (selected): 10; 36; 99
-      Left: 64
-      Line width: 16
-      Name: CompassMenu
-      State topic: /compass_menu_state
+      Line width: 8
+      Name: CardMenu
+      State topic: /card_menu_state
       Text alpha: 255
       Title: 255; 250; 255
       Title area: true
       Title area radius: 96
       Title bg: 10; 36; 99
-      Top: 192
       Value: true
   Enabled: true
   Global Options:
