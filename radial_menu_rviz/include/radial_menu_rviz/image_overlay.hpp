@@ -42,6 +42,11 @@ public:
 
     overlay_ = Ogre::OverlayManager::getSingleton().create("ImageOverlay_" + suffix_);
     overlay_->add2D(panel_);
+
+    //
+    setOrigin(QPoint(0, 0));
+    setAlignment(0);
+    setImage(QImage());
   }
 
   virtual ~ImageOverlay() {
@@ -64,26 +69,36 @@ public:
 
   void hide() { overlay_->hide(); }
 
-  void setTopLeft(const QPoint &pos) {
-    panel_->setPosition(/* left = */ pos.x(), /* top = */ pos.y());
+  void setOrigin(const QPoint &pos) { origin_ = pos; }
+
+  void setAlignment(const int flags) {
+    alignment_ = flags;
+    // if no horizontal alignment flags, use Qt::AlignLeft
+    if (!(alignment_ & (Qt::AlignLeft | Qt::AlignRight | Qt::AlignHCenter))) {
+      alignment_ |= Qt::AlignLeft;
+    }
+    // if no vertical alignment flags, use Qt::AlignTop
+    if (!(alignment_ & (Qt::AlignTop | Qt::AlignBottom | Qt::AlignVCenter))) {
+      alignment_ |= Qt::AlignTop;
+    }
   }
 
   void setImage(const QImage &unformatted_image) {
-    // format the given image if required
-    QImage image;
+    // format the given image
     if (unformatted_image.width() == 0 || unformatted_image.height() == 0) {
-      // if the given image is empty, will create a transparent texture
-      image = formattedImage(QSize(1, 1), Qt::transparent);
+      image_ = formattedImage(QSize(1, 1), Qt::transparent);
     } else if (unformatted_image.format() != QImage::Format_ARGB32) {
-      image = unformatted_image.convertToFormat(QImage::Format_ARGB32);
+      image_ = unformatted_image.convertToFormat(QImage::Format_ARGB32);
     } else {
-      image = unformatted_image;
+      image_ = unformatted_image;
     }
+  }
 
+  void update() {
     // destroy the current texture if size are diffrent
     // because we cannot change size of texture after creation
     if (!texture_.isNull() &&
-        (image.width() != texture_->getWidth() || image.height() != texture_->getHeight())) {
+        (image_.width() != texture_->getWidth() || image_.height() != texture_->getHeight())) {
       material_->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
       Ogre::TextureManager::getSingleton().remove(texture_->getName());
       texture_.setNull();
@@ -93,8 +108,8 @@ public:
     if (texture_.isNull()) {
       texture_ = Ogre::TextureManager::getSingleton().createManual(
           "ImageOverlayPanelMaterialTexture_" + suffix_,
-          Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D, image.width(),
-          image.height(), /* num of mipmaps = */ 0, Ogre::PF_A8R8G8B8);
+          Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::TEX_TYPE_2D,
+          image_.width(), image_.height(), /* num of mipmaps = */ 0, Ogre::PF_A8R8G8B8);
       // associate the texture & material
       material_->getTechnique(0)->getPass(0)->createTextureUnitState(texture_->getName());
       material_->getTechnique(0)->getPass(0)->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
@@ -102,11 +117,27 @@ public:
       panel_->setDimensions(texture_->getWidth(), texture_->getHeight());
     }
 
+    // set top-left position of the panel according to the alignment
+    if (alignment_ & Qt::AlignLeft) {
+      panel_->setLeft(origin_.x());
+    } else if (alignment_ & Qt::AlignRight) {
+      panel_->setLeft(origin_.x() - panel_->getWidth());
+    } else if (alignment_ & Qt::AlignHCenter) {
+      panel_->setLeft(origin_.x() - panel_->getWidth() / 2);
+    }
+    if (alignment_ & Qt::AlignTop) {
+      panel_->setTop(origin_.y());
+    } else if (alignment_ & Qt::AlignBottom) {
+      panel_->setTop(origin_.y() - panel_->getHeight());
+    } else if (alignment_ & Qt::AlignVCenter) {
+      panel_->setTop(origin_.y() - panel_->getHeight() / 2);
+    }
+
     // copy pixel data from the given image to the texture
     {
       const Ogre::HardwarePixelBufferSharedPtr buffer(texture_->getBuffer());
       buffer->lock(Ogre::HardwareBuffer::HBL_NORMAL);
-      std::memcpy(buffer->getCurrentLock().data, image.constBits(), buffer->getSizeInBytes());
+      std::memcpy(buffer->getCurrentLock().data, image_.constBits(), buffer->getSizeInBytes());
       buffer->unlock();
     }
   }
@@ -124,6 +155,10 @@ private:
   Ogre::PanelOverlayElement *panel_;
   Ogre::MaterialPtr material_;
   Ogre::TexturePtr texture_;
+
+  QPoint origin_;
+  int alignment_;
+  QImage image_;
 };
 
 } // namespace radial_menu_rviz

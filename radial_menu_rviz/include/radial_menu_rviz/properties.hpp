@@ -43,7 +43,7 @@ struct HorizontalDrawingProperty {
 };
 
 struct PositionProperty {
-  QPoint top_left;
+  QPoint origin;
 };
 
 } // namespace radial_menu_rviz

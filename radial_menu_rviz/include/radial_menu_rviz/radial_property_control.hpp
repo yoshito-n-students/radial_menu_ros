@@ -100,12 +100,14 @@ public:
     text_alpha_ctl_->setMax(255);
 
     // position control
-    left_ctl_.reset(new rviz::IntProperty("Left", 128, "Position of menu's left edge in pixels",
-                                          parent, SLOT(updatePositionProperty()), this));
-    left_ctl_->setMin(0);
-    top_ctl_.reset(new rviz::IntProperty("Top", 128, "Position of menu's top edge in pixels",
-                                         parent, SLOT(updatePositionProperty()), this));
-    top_ctl_->setMin(0);
+    center_x_ctl_.reset(new rviz::IntProperty("Center x", 256,
+                                              "X position of menu's center in pixels", parent,
+                                              SLOT(updatePositionProperty()), this));
+    center_x_ctl_->setMin(0);
+    center_y_ctl_.reset(new rviz::IntProperty("Center y", 256,
+                                              "Y position of menu's center in pixels", parent,
+                                              SLOT(updatePositionProperty()), this));
+    center_y_ctl_->setMin(0);
 
     // manually call slots to populate the initial properties
     updateSubscriptionProperty();
@@ -160,8 +162,8 @@ protected Q_SLOTS:
   }
 
   void updatePositionProperty() {
-    pos_prop_.top_left.setX(left_ctl_->getInt());
-    pos_prop_.top_left.setY(top_ctl_->getInt());
+    pos_prop_.origin.setX(center_x_ctl_->getInt());
+    pos_prop_.origin.setY(center_y_ctl_->getInt());
 
     Q_EMIT positionPropertyChanged(pos_prop_);
   }
@@ -192,7 +194,7 @@ protected:
   RadialDrawingProperty drawing_prop_;
 
   // position property & control
-  boost::scoped_ptr< rviz::IntProperty > left_ctl_, top_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > center_x_ctl_, center_y_ctl_;
   PositionProperty pos_prop_;
 };
 } // namespace radial_menu_rviz

@@ -28,6 +28,9 @@ protected:
   virtual void onInitialize() {
     Base::onInitialize();
 
+    // origin in the position property indicates top-left position
+    overlay_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
     // slots on properties changed
     connect(prop_ctl_.get(), SIGNAL(subscriptionPropertyChanged(const SubscriptionProperty &)),
             this, SLOT(updateSubscription(const SubscriptionProperty &)));

@@ -71,15 +71,20 @@ protected:
   void updateImage(const radial_menu_msgs::StateConstPtr &state) {
     drawer_->setState(*state);
     overlay_->setImage(drawer_->draw());
+    overlay_->update();
   }
 
   // update menu image with the given drawing property
   void updateImage(const DrawingProperty &prop) {
     drawer_->setProperty(prop);
     overlay_->setImage(drawer_->draw());
+    overlay_->update();
   }
 
-  void updatePosition(const PositionProperty &prop) { overlay_->setTopLeft(prop.top_left); }
+  void updatePosition(const PositionProperty &prop) {
+    overlay_->setOrigin(prop.origin);
+    overlay_->update();
+  }
 
   static radial_menu_msgs::State closedState() {
     radial_menu_msgs::State state;

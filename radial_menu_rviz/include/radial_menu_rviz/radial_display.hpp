@@ -27,6 +27,9 @@ protected:
   virtual void onInitialize() {
     Base::onInitialize();
 
+    // origin in the position property indicates the image center
+    overlay_->setAlignment(Qt::AlignCenter);
+    
     // slots on properties changed
     connect(prop_ctl_.get(), SIGNAL(subscriptionPropertyChanged(const SubscriptionProperty &)),
             this, SLOT(updateSubscription(const SubscriptionProperty &)));

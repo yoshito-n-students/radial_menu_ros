@@ -143,8 +143,8 @@ protected Q_SLOTS:
   }
 
   void updatePositionProperty() {
-    pos_prop_.top_left.setX(left_ctl_->getInt());
-    pos_prop_.top_left.setY(top_ctl_->getInt());
+    pos_prop_.origin.setX(left_ctl_->getInt());
+    pos_prop_.origin.setY(top_ctl_->getInt());
 
     Q_EMIT positionPropertyChanged(pos_prop_);
   }
