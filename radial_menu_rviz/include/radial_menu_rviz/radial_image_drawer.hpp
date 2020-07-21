@@ -102,14 +102,14 @@ protected:
                                          item_id) != state_.selected_ids.end());
         const bool is_pointed(item_id == state_.pointed_id);
         if (is_selected && is_pointed) {
-          const QRgb rgb(blendedRgb(prop_.item_bg_rgb_selected, prop_.item_bg_rgb_pointed));
+          const QRgb rgb(averagedRgb(prop_.item_bg_rgb_selected, prop_.item_bg_rgb_pointed));
           rgb_painter.setPen(QPen(rgb));
           rgb_painter.setBrush(QBrush(rgb));
         } else if (is_selected && !is_pointed) {
           rgb_painter.setPen(QPen(prop_.item_bg_rgb_selected));
           rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_selected));
         } else if (!is_selected && is_pointed) {
-          const QRgb rgb(blendedRgb(prop_.item_bg_rgb_default, prop_.item_bg_rgb_pointed));
+          const QRgb rgb(averagedRgb(prop_.item_bg_rgb_default, prop_.item_bg_rgb_pointed));
           rgb_painter.setPen(QPen(rgb));
           rgb_painter.setBrush(QBrush(rgb));
         } else { // !is_selected && !is_pointed
@@ -196,12 +196,12 @@ protected:
                                        item_id) != state_.selected_ids.end());
       const bool is_pointed(item_id == state_.pointed_id);
       if (is_selected && is_pointed) {
-        const QRgb rgb(blendedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
+        const QRgb rgb(averagedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
         painter.setPen(makeColor(rgb, prop_.text_alpha));
       } else if (is_selected && !is_pointed) {
         painter.setPen(makeColor(prop_.item_rgb_selected, prop_.text_alpha));
       } else if (!is_selected && is_pointed) {
-        const QRgb rgb(blendedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed));
+        const QRgb rgb(averagedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed));
         painter.setPen(makeColor(rgb, prop_.text_alpha));
       } else { // !is_selected && !is_pointed
         painter.setPen(makeColor(prop_.item_rgb_default, prop_.text_alpha));
@@ -294,7 +294,7 @@ protected:
     return QPoint(-static_cast< int >(v), -static_cast< int >(u));
   }
 
-  static QRgb blendedRgb(const QRgb &rgb1, const QRgb &rgb2) {
+  static QRgb averagedRgb(const QRgb &rgb1, const QRgb &rgb2) {
     const QColor color1(rgb1), color2(rgb2);
     return QColor((color1.red() + color2.red()) / 2, (color1.green() + color2.green()) / 2,
                   (color1.blue() + color2.blue()) / 2)
