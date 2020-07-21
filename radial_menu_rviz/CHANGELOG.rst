@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.0 (2020-XX-XX)
+------------------
+* Support submenus in RadialMenu
+
 0.0.4 (2020-07-21)
 ------------------
 * Add draw_title_area property
