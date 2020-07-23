@@ -50,20 +50,32 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>joy</build_depend>
+  <build_depend>message_filters</build_depend>
   <build_depend>radial_menu_backend</build_depend>
+  <build_depend>radial_menu_msgs</build_depend>
   <build_depend>radial_menu_rviz</build_depend>
+  <build_depend>roscpp</build_depend>
   <build_depend>roslaunch</build_depend>
   <build_depend>rviz</build_depend>
+  <build_depend>sensor_msgs</build_depend>
   <build_export_depend>joy</build_export_depend>
+  <build_export_depend>message_filters</build_export_depend>
   <build_export_depend>radial_menu_backend</build_export_depend>
+  <build_export_depend>radial_menu_msgs</build_export_depend>
   <build_export_depend>radial_menu_rviz</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>roslaunch</build_export_depend>
   <build_export_depend>rviz</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
   <exec_depend>joy</exec_depend>
+  <exec_depend>message_filters</exec_depend>
   <exec_depend>radial_menu_backend</exec_depend>
+  <exec_depend>radial_menu_msgs</exec_depend>
   <exec_depend>radial_menu_rviz</exec_depend>
+  <exec_depend>roscpp</exec_depend>
   <exec_depend>roslaunch</exec_depend>
   <exec_depend>rviz</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

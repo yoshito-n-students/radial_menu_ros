@@ -9,10 +9,14 @@ project(radial_menu_example)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   joy
+  message_filters
   radial_menu_backend
+  radial_menu_msgs
   radial_menu_rviz
+  roscpp
   roslaunch
   rviz
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES radial_menu_example
-#  CATKIN_DEPENDS joy radial_menu_ros roslaunch rviz
+  CATKIN_DEPENDS joy message_filters radial_menu_backend radial_menu_msgs radial_menu_rviz roscpp roslaunch rviz sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -135,7 +139,10 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/radial_menu_example_node.cpp)
+add_executable(
+  example_integration
+  src/example_integration.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -145,12 +152,17 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(
+  example_integration
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(
+  example_integration
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
