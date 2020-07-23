@@ -1,7 +1,7 @@
 <launch>
 
-    <node name="card_menu_pub" pkg="rostopic" type="rostopic"
-          args="pub card_menu_state radial_menu_msgs/State --file=$(find radial_menu_example)/launch/card_menu_state.yaml --rate=1" />
+    <node name="teleop_menu_pub" pkg="rostopic" type="rostopic"
+          args="pub teleop_menu_state radial_menu_msgs/State --file=$(find radial_menu_example)/launch/teleop_menu_state.yaml --rate=1" />
 
     <node name="rviz" pkg="rviz" type="rviz" 
           args="--display-config $(find radial_menu_example)/rviz/one_menu.rviz" />
