@@ -121,12 +121,13 @@ public:
 
   bool canAscend() const { return !isRoot(); }
 
-  // deselect all sibilings, unpoint this, unselect this
+  // deselect all sibilings and parent, unpoint this, unselect this
   MenuPtr ascend() {
     if (canAscend()) {
       for (std::size_t id = 0; id < numSibilings(); ++id) {
         sibiling(id)->is_selected_ = false;
       }
+      parent_->is_selected_ = false;
       is_pointed_ = false;
       is_selected_ = false;
       return parent_;
