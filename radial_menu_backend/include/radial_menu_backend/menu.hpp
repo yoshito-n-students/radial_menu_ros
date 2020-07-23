@@ -3,12 +3,12 @@
 
 #include <cstdint>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include <radial_menu_msgs/State.h>
 #include <ros/console.h>
+#include <ros/exception.h>
 #include <ros/param.h>
 #include <ros/time.h>
 #include <xmlrpcpp/XmlRpcValue.h>
@@ -44,8 +44,8 @@ public:
     } else if (!parent_ && id == 0) {
       return shared_from_this();
     }
-    throw std::logic_error("Menu::sibiling() const: Invalid id (" +
-                           boost::lexical_cast< std::string >(id) + ")");
+    throw ros::Exception("Menu::sibiling() const: Invalid id (" +
+                         boost::lexical_cast< std::string >(id) + ")");
   }
 
   MenuPtr sibiling(const std::size_t id) {
@@ -54,8 +54,8 @@ public:
     } else if (!parent_ && id == 0) {
       return shared_from_this();
     }
-    throw std::logic_error("Menu::sibiling(): Invalid id (" +
-                           boost::lexical_cast< std::string >(id) + ")");
+    throw ros::Exception("Menu::sibiling(): Invalid id (" + boost::lexical_cast< std::string >(id) +
+                         ")");
   }
 
   // pointing
@@ -83,7 +83,7 @@ public:
       is_selected_ = true;
       return;
     }
-    throw std::logic_error("Menu::select(): Cannot select '" + title_ + "'");
+    throw ros::Exception("Menu::select(): Cannot select '" + title_ + "'");
   }
 
   // deselect
@@ -95,7 +95,7 @@ public:
       is_selected_ = false;
       return;
     }
-    throw std::logic_error("Menu::deselect(): Cannot deselect '" + title_ + "'");
+    throw ros::Exception("Menu::deselect(): Cannot deselect '" + title_ + "'");
   }
 
   // descending
@@ -112,7 +112,7 @@ public:
       is_selected_ = true;
       return children_.front();
     }
-    throw std::logic_error("Menu::descend(): Cannot descend from '" + title_ + "'");
+    throw ros::Exception("Menu::descend(): Cannot descend from '" + title_ + "'");
   }
 
   // ascending
@@ -132,7 +132,7 @@ public:
       is_selected_ = false;
       return parent_;
     }
-    throw std::logic_error("Menu::ascend(): Cannot ascend from '" + title_ + "'");
+    throw ros::Exception("Menu::ascend(): Cannot ascend from '" + title_ + "'");
   }
 
   // reset

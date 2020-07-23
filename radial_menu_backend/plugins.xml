@@ -1,0 +1,10 @@
+<library path="lib/libradial_menu_backend_plugins">
+
+  <class name="radial_menu_backend/Backend" type="radial_menu_backend::BackendNodelet" 
+         base_class_type="nodelet::Nodelet">
+    <description>
+      Subscribes sensor_msgs/Joy and publish radial_menu_msgs/State
+    </description>
+  </class>
+
+</library>

@@ -2,6 +2,10 @@
 Changelog for package radial_menu_backend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.2 (2020-XX-XX)
+------------------
+* backend as a nodelet
+
 0.1.1 (2020-07-23)
 ------------------
 * Port to ROS kinetic

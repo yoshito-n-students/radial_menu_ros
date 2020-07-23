@@ -1,5 +1,5 @@
-#ifndef RADIAL_MENU_BACKEND_MENU_CONTROLLER_HPP
-#define RADIAL_MENU_BACKEND_MENU_CONTROLLER_HPP
+#ifndef RADIAL_MENU_BACKEND_BACKEND_CONTROLLER_HPP
+#define RADIAL_MENU_BACKEND_BACKEND_CONTROLLER_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -7,19 +7,19 @@
 #include <vector>
 
 #include <radial_menu_backend/menu.hpp>
-#include <radial_menu_backend/menu_config.hpp>
+#include <radial_menu_backend/backend_config.hpp>
 #include <radial_menu_msgs/State.h>
 #include <sensor_msgs/Joy.h>
 
 namespace radial_menu_backend {
 
-class MenuController;
-typedef boost::shared_ptr< MenuController > MenuControllerPtr;
-typedef boost::shared_ptr< const MenuController > MenuControllerConstPtr;
+class BackendController;
+typedef boost::shared_ptr< BackendController > BackendControllerPtr;
+typedef boost::shared_ptr< const BackendController > BackendControllerConstPtr;
 
-class MenuController {
+class BackendController {
 public:
-  MenuController(const MenuPtr menu, const MenuConfig &config)
+  BackendController(const MenuPtr menu, const BackendConfig &config)
       : menu_(menu), was_enabled_(false), last_pointed_(), select_was_pressed_(false),
         ascend_was_pressed_(false), config_(config) {
     menu_ = menu_->reset(); // reset and move to the root
@@ -28,7 +28,7 @@ public:
     }
   }
 
-  virtual ~MenuController() {}
+  virtual ~BackendController() {}
 
   radial_menu_msgs::StatePtr update(const sensor_msgs::Joy &joy) {
     // reset the menu based on enable/disable state if required
@@ -141,7 +141,7 @@ protected:
   MenuPtr last_pointed_;
   bool select_was_pressed_, ascend_was_pressed_;
 
-  const MenuConfig config_;
+  const BackendConfig config_;
 };
 } // namespace radial_menu_backend
 
