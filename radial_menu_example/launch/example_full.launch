@@ -4,34 +4,68 @@
         <param name="dev" value="/dev/input/by-id/usb-Sony_Interactive_Entertainment_Wireless_Controller-if03-joystick" />
     </node>
 
-    <node name="compass_menu_backend" pkg="radial_menu_backend" type="example_backend">
-        <remap from="radial_menu_state" to="compass_menu_state" />
+    <node name="reboot_menu_backend" pkg="radial_menu_backend" type="backend" output="screen">
+        <remap from="radial_menu_state" to="reboot_menu_state" />
         <rosparam>
-            title: "compass"
-            items: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"]
-            allow_multi_selection: false
-            deselect_on_opening: false
-            deselect_on_closing: false
-            auto_select: false
-            open_button: 1      # PS4's circle
-            select_button: 5    # PS4's R1
+            menu:
+                Reboot:
+                    - All
+                    - Actuators:
+                        - All
+                        - Wheels:
+                            - All
+                            - Front Right
+                            - Front Left
+                            - Rear Right
+                            - Rear Left
+                        - Arm:
+                            - All
+                            - Shoulder
+                            - Elbow
+                            - Wrist
+                            - Gripper
+                    - Sensors:
+                        - All
+                        - Cameras:
+                            - All
+                            - Front
+                            - Rear
+                        - Lilar
+                    - Computer
+                    - Lights
+            allow_multi_selection: true
+            reset_on_enabling: false
+            reset_on_disabling: true
+            auto_select: true
+            enable_button: 1    # PS4's circle
+            select_button: -1   # disabled
+            ascend_button: 4    # PS4's L1
             pointing_axis_v: 1  # PS4's LEFT Y
             pointing_axis_h: 0  # PS4's LEFT X
             pointing_axis_threshold: 0.5
         </rosparam>
     </node>
 
-    <node name="clock_menu_backend" pkg="radial_menu_backend" type="example_backend">
-        <remap from="radial_menu_state" to="clock_menu_state" />
+    <node name="preset_menu_backend" pkg="radial_menu_backend" type="backend" output="screen">
+        <remap from="radial_menu_state" to="preset_menu_state" />
         <rosparam>
-            title: "clock"
-            items: ["12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]
-            allow_multi_selection: true
-            deselect_on_opening: false
-            deselect_on_closing: false
+            menu:
+                Preset:
+                    - Base:
+                        - Return to Home
+                        - Call Help
+                    - Arm:
+                        - Home
+                        - Door
+                        - Pick
+                        - Fold
+            allow_multi_selection: false
+            reset_on_enabling: true
+            reset_on_disabling: false
             auto_select: true
-            open_button: 0      # PS4's cross
+            enable_button: 0    # PS4's cross
             select_button: -1   # disabled
+            ascend_button: 4    # PS4's L1
             pointing_axis_v: 1  # PS4's LEFT Y
             pointing_axis_h: 0  # PS4's LEFT X
             pointing_axis_threshold: 0.5
