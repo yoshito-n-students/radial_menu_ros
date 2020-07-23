@@ -33,7 +33,6 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 
 **~auto_select** (bool, default: false)
 * If true, the last pointed item will be autonomously selected. Close the menu before unpoint not to select.
-* Recommended rather than using select_button when the menu has submenus
 
 **~enable_button** (int, default: 1)
 * Button to keep enabling the menu
@@ -42,7 +41,6 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 **~select_button** (int, default: 5)
 * Button to select an item
 * defaultly PS4's R1 button
-* Less recommended rather than using auto_select when the menu has submenus
 
 **~ascend_button** (int, default: 4)
 * Button to ascend the menu
