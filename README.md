@@ -10,7 +10,7 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 * ROS Noetic on Ubuntu 20.04
 
 ## Pkg: radial_menu_backend
-### Node: backend
+### Nodelet: Backend
 * Updates radial menu state based on joystick input
 * To integrate with your system, subscribe both joy and menu state messages using [message_filters::TimeSynchronizer](http://wiki.ros.org/message_filters#Time_Synchronizer). See [example_integration](radial_menu_example/src/example_integration.cpp).
 
@@ -41,7 +41,7 @@ menu:
             - Motors  # subitems
             - Cameras
                 - Front
-                - "Front\nLeft" # newline
+                - "Front\nLeft"  # multiline item
                 - Rear
                 - "Front\nRight"
         - Arm:
