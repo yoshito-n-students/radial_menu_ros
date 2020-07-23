@@ -260,9 +260,11 @@ public:
   static MenuPtr fromXmlRpcValue(const XmlRpc::XmlRpcValue &src) {
     typedef XmlRpc::XmlRpcValue Src;
 
+    // using const_cast because "XmlRpcValue::begin() const" is not implemented on ROS kinetic :(
     if (src.getType() == Src::TypeStruct && src.size() == 1 &&
-        src.begin()->second.getType() == Src::TypeArray) {
-      const Src::ValueStruct::value_type &src_value(*src.begin());
+        const_cast< XmlRpc::XmlRpcValue & >(src).begin()->second.getType() == Src::TypeArray) {
+      const Src::ValueStruct::value_type &src_value(
+          *const_cast< XmlRpc::XmlRpcValue & >(src).begin());
       MenuPtr menu(new Menu());
       menu->title_ = src_value.first;
       menu->children_.resize(src_value.second.size());
