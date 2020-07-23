@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.1 (2020-07-23)
+------------------
+* No changes
+
 0.1.0 (2020-07-23)
 ------------------
 * Support submenus in RadialMenu

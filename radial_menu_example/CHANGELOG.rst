@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.1 (2020-07-23)
+------------------
+* Add an integration example
+
 0.1.0 (2020-07-23)
 ------------------
 * Supprot the latest state message type
