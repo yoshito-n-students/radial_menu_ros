@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.2 (2020-XX-XX)
+------------------
+* Use backend nodelets in the full example
+
 0.1.1 (2020-07-23)
 ------------------
 * Add an integration example
