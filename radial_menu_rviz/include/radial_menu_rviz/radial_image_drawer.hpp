@@ -226,7 +226,7 @@ protected:
       // draw the title text at the image center
       QRect rect;
       const QString title(QString::fromStdString(state_.title));
-      rect = QFontMetrics(prop_.font).boundingRect(title);
+      rect = QFontMetrics(prop_.font).boundingRect(QRect(), Qt::AlignCenter, title);
       rect.moveCenter(image->rect().center());
       painter.drawText(rect, Qt::AlignCenter, title);
     }
