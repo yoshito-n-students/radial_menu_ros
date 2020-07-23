@@ -22,6 +22,33 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 * The stamp in a message is copied from the source joy message
 
 #### <u>Parameters</u>
+**~menu** (struct, required)
+* Tree structure of the menu like below
+```
+# A simple example
+menu:
+    MoveCmd:     # title
+        - Front  # items
+        - Left
+        - Back
+        - Right
+```
+```
+# A complex example
+menu:
+    Reboot:           # title
+        - Base:       # items
+            - Motors  # subitems
+            - Cameras
+                - Front
+                - "Front\nLeft" # newline
+                - Rear
+                - "Front\nRight"
+        - Arm:
+            - Motors
+            - ...
+```
+
 **~allow_multi_selection** (bool, default: false)
 * If false, current selected items will be deselected when a new item is selected
 
