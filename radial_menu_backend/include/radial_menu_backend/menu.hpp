@@ -169,14 +169,14 @@ public:
 
   // type conversion
 
-  radial_menu_msgs::StatePtr toState(const ros::Time &stamp, const bool is_opened) const {
+  radial_menu_msgs::StatePtr toState(const ros::Time &stamp, const bool is_enabled) const {
     struct Impl {
       static radial_menu_msgs::StatePtr toState(const MenuConstPtr &root, const ros::Time &stamp,
-                                                const bool is_opened) {
+                                                const bool is_enabled) {
         radial_menu_msgs::StatePtr state(new radial_menu_msgs::State());
         state->header.stamp = stamp;
         state->title = root->title_;
-        state->is_opened = is_opened;
+        state->is_enabled = is_enabled;
         state->pointed_id = -1;
         updateState(root, &state->items, &state->widths, &state->pointed_id, &state->selected_ids);
         return state;
@@ -214,7 +214,7 @@ public:
       }
     };
 
-    return Impl::toState(root(), stamp, is_opened);
+    return Impl::toState(root(), stamp, is_enabled);
   }
 
   std::string toString() const {

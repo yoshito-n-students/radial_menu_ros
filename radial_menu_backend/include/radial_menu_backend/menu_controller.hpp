@@ -46,7 +46,7 @@ public:
     MenuPtr pointed;
     menu_->unpointAll();
 
-    // if menu is opened, determine the pointed item based on the pointing axis angle
+    // if menu is enabled, determine the pointed item based on the pointing axis angle
     if (is_enabled) {
       const double value_v(config_.invert_pointing_axis_v
                                ? -axisValue(joy, config_.pointing_axis_v)

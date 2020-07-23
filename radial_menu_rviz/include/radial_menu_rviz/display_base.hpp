@@ -27,7 +27,7 @@ protected:
   virtual void onInitialize() {
     // allocate objects
     prop_ctl_.reset(new PropertyControl(this));
-    drawer_.reset(new ImageDrawer(closedState(), prop_ctl_->drawingProperty()));
+    drawer_.reset(new ImageDrawer(disabledState(), prop_ctl_->drawingProperty()));
     overlay_.reset(new ImageOverlay());
 
     // apply the initial properties
@@ -53,7 +53,7 @@ protected:
     state_sub_.shutdown();
 
     // destroy the last state from the previous session
-    drawer_->setState(closedState());
+    drawer_->setState(disabledState());
     updateImage(prop_ctl_->drawingProperty());
 
     // subscribe the new topic
@@ -86,9 +86,9 @@ protected:
     overlay_->update();
   }
 
-  static radial_menu_msgs::State closedState() {
+  static radial_menu_msgs::State disabledState() {
     radial_menu_msgs::State state;
-    state.is_opened = false;
+    state.is_enabled = false;
     state.pointed_id = -1;
     return state;
   }

@@ -3,7 +3,7 @@ header:
   stamp: {secs: 0, nsecs: 0}
   frame_id: ''
 title: 'Card'
-is_opened: true
+is_enabled: true
 items: ['Hearts', 'Tiles', 'Clovers', 'Pikes', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'A']
 widths: [4, 13]
 pointed_id: 12

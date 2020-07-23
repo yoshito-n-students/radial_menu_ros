@@ -45,7 +45,7 @@ public:
     }
 
     // if the menu is closed, draw nothing
-    if (!state_.is_opened) {
+    if (!state_.is_enabled) {
       return QImage();
     }
 
