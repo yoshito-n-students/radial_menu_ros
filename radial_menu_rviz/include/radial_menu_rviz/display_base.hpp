@@ -2,6 +2,7 @@
 #define RADIAL_MENU_RVIZ_DISPLAY_BASE_HPP
 
 #include <radial_menu_msgs/State.h>
+#include <radial_menu_msgs/utils.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
 #include <ros/console.h>
@@ -27,7 +28,7 @@ protected:
   virtual void onInitialize() {
     // allocate objects
     prop_ctl_.reset(new PropertyControl(this));
-    drawer_.reset(new ImageDrawer(disabledState(), prop_ctl_->drawingProperty()));
+    drawer_.reset(new ImageDrawer(radial_menu_msgs::disabledState(), prop_ctl_->drawingProperty()));
     overlay_.reset(new ImageOverlay());
 
     // apply the initial properties
@@ -53,7 +54,7 @@ protected:
     state_sub_.shutdown();
 
     // destroy the last state from the previous session
-    drawer_->setState(disabledState());
+    drawer_->setState(radial_menu_msgs::disabledState());
     updateImage(prop_ctl_->drawingProperty());
 
     // subscribe the new topic
@@ -84,13 +85,6 @@ protected:
   void updatePosition(const PositionProperty &prop) {
     overlay_->setOrigin(prop.origin);
     overlay_->update();
-  }
-
-  static radial_menu_msgs::State disabledState() {
-    radial_menu_msgs::State state;
-    state.is_enabled = false;
-    state.pointed_id = -1;
-    return state;
   }
 
 protected:
