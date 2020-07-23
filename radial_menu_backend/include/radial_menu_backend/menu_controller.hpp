@@ -20,7 +20,7 @@ typedef boost::shared_ptr< const MenuController > MenuControllerConstPtr;
 class MenuController {
 public:
   MenuController(const MenuPtr menu, const MenuConfig &config)
-      : menu_(menu), was_opened_(false), last_pointed_(), config_(config) {
+      : menu_(menu), was_enabled_(false), last_pointed_(), config_(config) {
     menu_ = menu_->reset(); // reset and move to the root
     if (menu_->canDescend()) {
       menu_ = menu_->descend(); // descend to the first level
@@ -30,12 +30,12 @@ public:
   virtual ~MenuController() {}
 
   radial_menu_msgs::StatePtr update(const sensor_msgs::Joy &joy) {
-    // determine open/close state
-    const bool is_opened(buttonValue(joy, config_.open_button) > 0);
+    // determine enable/disable state
+    const bool is_enabled(buttonValue(joy, config_.enable_button) > 0);
 
     // reset the menu if required
-    if ((config_.reset_on_opening && !was_opened_ && is_opened) ||
-        (config_.reset_on_closing && was_opened_ && !is_opened)) {
+    if ((config_.reset_on_enabling && !was_enabled_ && is_enabled) ||
+        (config_.reset_on_disabling && was_enabled_ && !is_enabled)) {
       menu_ = menu_->reset(); // reset and move to the root
       if (menu_->canDescend()) {
         menu_ = menu_->descend(); // descend to the first level
@@ -47,7 +47,7 @@ public:
     menu_->unpointAll();
 
     // if menu is opened, determine the pointed item based on the pointing axis angle
-    if (is_opened) {
+    if (is_enabled) {
       const double value_v(config_.invert_pointing_axis_v
                                ? -axisValue(joy, config_.pointing_axis_v)
                                : axisValue(joy, config_.pointing_axis_v));
@@ -67,7 +67,7 @@ public:
     }
 
     // if the select button is pressed and an item is pointed, select the pointed item
-    if (is_opened && pointed && buttonValue(joy, config_.select_button) > 0) {
+    if (is_enabled && pointed && buttonValue(joy, config_.select_button) > 0) {
       if (pointed->canSelect()) {
         pointed->select(config_.allow_multi_selection);
       } else if (pointed->canDeselect()) {
@@ -78,7 +78,7 @@ public:
     }
 
     // if auto-select is enabled and no item is pointed, select the last pointed item
-    if (is_opened && !pointed && was_opened && last_pointed_ && config_.auto_select) {
+    if (is_enabled && !pointed && was_enabled_ && last_pointed_ && config_.auto_select) {
       if (last_pointed_->canSelect()) {
         last_pointed_->select(config_.allow_multi_selection);
       } else if (last_pointed_->canDeselect()) {
@@ -89,7 +89,7 @@ public:
     }
 
     // if the ascend button is pressed, ascend from the current level
-    if (is_opened && buttonValue(joy, config_.ascend_button) > 0) {
+    if (is_enabled && buttonValue(joy, config_.ascend_button) > 0) {
       if (menu_->canAscend()) {
         menu_ = menu_->ascend();
       }
@@ -100,10 +100,10 @@ public:
     }
 
     // update memos
-    was_opened_ = is_opened;
+    was_enabled_ = is_enabled;
     last_pointed_ = pointed;
 
-    return menu_->toState(joy.header.stamp, is_opened);
+    return menu_->toState(joy.header.stamp, is_enabled);
   }
 
 private:
@@ -132,7 +132,7 @@ private:
 
 protected:
   MenuPtr menu_;
-  bool was_opened_;
+  bool was_enabled_;
   MenuPtr last_pointed_;
   const MenuConfig config_;
 };
