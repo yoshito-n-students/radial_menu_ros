@@ -134,8 +134,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(
-  example_backend 
-  src/example_backend.cpp
+  backend 
+  src/backend.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -147,14 +147,14 @@ add_executable(
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(
-  example_backend 
+  backend 
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
-  example_backend
+  backend
   ${catkin_LIBRARIES}
 )
 
