@@ -2,6 +2,11 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.0 (2020-XX-XX)
+------------------
+* Supprot the latest state message type
+* Update examples by using submenus
+
 0.0.4 (2020-07-21)
 ------------------
 * Add example_sub_menu.launch
