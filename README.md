@@ -10,36 +10,43 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 * ROS Noetic on Ubuntu 20.04
 
 ## Pkg: radial_menu_backend
-### Node: example_backend
+### Node: backend
 * Updates radial menu state based on joystick input
-* Fork this node and add codes to integrate with your system
+* To integrate with your system, subscribe both joy and menu state messages using [message_filters::TimeSynchronizer](http://wiki.ros.org/message_filters#Time_Synchronizer)
 
 #### <u>Subscribed topics</u>
 **joy** (sensor_msgs/Joy)
 
 #### <u>Published topics</u>
 **radial_menu_state** (radial_menu_msgs/State)
+* The stamp in a message is copied from the source joy message
 
 #### <u>Parameters</u>
 **~allow_multi_selection** (bool, default: false)
 * If false, current selected items will be deselected when a new item is selected
 
-**~deselect_on_opening** (bool, default: false)
-* If true, current selected items will be deselected when opening the menu
+**~reset_on_enabling** (bool, default: false)
+* If true, current selected items will be deselected when enebling the menu
 
-**~deselect_on_closing** (bool, default: false)
-* If true, current selected items will be deselected when closing the menu
+**~reset_on_disabling** (bool, default: false)
+* If true, current selected items will be deselected when disabling the menu
 
 **~auto_select** (bool, default: false)
 * If true, the last pointed item will be autonomously selected. Close the menu before unpoint not to select.
+* Recommended rather than using select_button when the menu has submenues
 
-**~open_button** (int, default: 1)
-* Button to keep opening the menu
-* defaultly PS4's open button
+**~enable_button** (int, default: 1)
+* Button to keep enabling the menu
+* defaultly PS4's circle button
 
-**~select_button** (int, default: 11)
+**~select_button** (int, default: 5)
 * Button to select an item
-* defaultly PS4's L3 button
+* defaultly PS4's R1 button
+* Less recommended rather than using auto_select when the menu has submenues
+
+**~ascend_button** (int, default: 4)
+* Button to ascend the menu
+* defaultly PS4's L1 button
 
 **~pointing_axis_v** (int, default: 1)
 * Vertical axis to point an item
@@ -59,7 +66,7 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 ## Pkg: radial_menu_rviz
 ### Rviz plugin: RadialMenu
 * Visualizes subscribed menu states as a radial menu
-* Shows the menu when the menu is being opened
+* Shows the menu when the menu is being enabled
 
 ### Rviz plugin: HorizontalMenu
 * Visualizes subscribed menu states as a single-lined menu 
@@ -72,4 +79,4 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 * A meta-package depending radial_menu_backend, radial_menu_rviz, radial_menu_msgs for future release
 
 ## Pkg: radial_menu_example
-* Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick, [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not, and [sub menu example](radial_menu_example/launch/example_sub_menu.launch)
+* Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick, [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not
