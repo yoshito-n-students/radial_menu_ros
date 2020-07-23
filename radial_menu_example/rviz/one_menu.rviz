@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TeleopMenu1
+        - /HTeleopMenu1
       Splitter Ratio: 0.5
     Tree Height: 1077
   - Class: rviz/Selection
@@ -53,29 +54,49 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Bg alpha: 128
-      Center x: 512
+    - Bg alpha: 192
+      Center x: 384
       Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
-      Font: DejaVu Sans Mono
+      Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
-      Item (default): 0; 0; 0
-      Item (pointed): 0; 0; 0
-      Item (selected): 255; 255; 255
-      Item area width: 96
-      Item bg (default): 130; 138; 149
-      Item bg (pointed): 42; 183; 202
-      Item bg (selected): 254; 74; 73
+      Item (default): 39; 7; 34
+      Item (pointed): 39; 7; 34
+      Item (selected): 39; 7; 34
+      Item area width: 72
+      Item bg (default): 255; 251; 252
+      Item bg (pointed): 79; 117; 155
+      Item bg (selected): 255; 58; 32
       Line width: 12
       Name: TeleopMenu
       State topic: /teleop_menu_state
       Text alpha: 255
-      Title: 255; 255; 255
+      Title: 255; 251; 252
       Title area: true
-      Title area radius: 96
-      Title bg: 0; 0; 0
+      Title area radius: 64
+      Title bg: 39; 7; 34
+      Value: true
+    - Bg alpha: 192
+      Bg padding: 16
+      Class: radial_menu_rviz/HorizontalMenu
+      Enabled: true
+      Font: Liberation Sans Narrow
+      Font bold: true
+      Font size: 10
+      Item (pointed): 255; 251; 252
+      Item (selected): 255; 251; 252
+      Item bg (pointed): 79; 117; 155
+      Item bg (selected): 255; 58; 32
+      Left: 32
+      Line width: 12
+      Name: HTeleopMenu
+      State topic: /teleop_menu_state
+      Text alpha: 255
+      Title: 255; 251; 252
+      Title bg: 39; 7; 34
+      Top: 32
       Value: true
   Enabled: true
   Global Options:
