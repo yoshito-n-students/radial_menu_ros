@@ -193,7 +193,7 @@ protected:
   // if the text is not drawable, returns null rectangles.
   void elementLayout(const QString &text, QRect *const bg_rect, QRect *const text_rect) const {
     if (!text.isEmpty()) {
-      *text_rect = QFontMetrics(prop_.font).boundingRect(text);
+      *text_rect = QFontMetrics(prop_.font).boundingRect(QRect(), Qt::AlignCenter, text);
       *bg_rect = *text_rect +
                  QMargins(prop_.bg_padding, prop_.bg_padding, prop_.bg_padding, prop_.bg_padding);
       const QPoint offset(-bg_rect->topLeft());

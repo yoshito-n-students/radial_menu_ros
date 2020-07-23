@@ -209,7 +209,7 @@ protected:
       // draw the item text
       QRect rect;
       const QString item(QString::fromStdString(state_.items[item_id]));
-      rect = font_metrics.boundingRect(item);
+      rect = font_metrics.boundingRect(QRect(), Qt::AlignCenter, item);
       rect.moveCenter(relativeItemCenter(item_id - first_item_id, depth));
       rect.translate(image_center);
       painter.drawText(rect, Qt::AlignCenter, item);

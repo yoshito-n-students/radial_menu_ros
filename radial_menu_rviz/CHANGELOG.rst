@@ -5,6 +5,7 @@ Changelog for package radial_menu_rviz
 0.1.0 (2020-XX-XX)
 ------------------
 * Support submenus in RadialMenu
+* Supprot multiline texts in RadialMenu and HorizontalMenu
 
 0.0.4 (2020-07-21)
 ------------------
