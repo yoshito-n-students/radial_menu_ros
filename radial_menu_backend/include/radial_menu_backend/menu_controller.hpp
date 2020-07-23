@@ -20,7 +20,7 @@ typedef boost::shared_ptr< const MenuController > MenuControllerConstPtr;
 class MenuController {
 public:
   MenuController(const MenuPtr menu, const MenuConfig &config)
-      : menu_(menu), was_opened_(false), config_(config) {
+      : menu_(menu), was_opened_(false), last_pointed_(), config_(config) {
     menu_ = menu_->reset(); // reset and move to the root
     if (menu_->canDescend()) {
       menu_ = menu_->descend(); // descend to the first level
@@ -78,7 +78,7 @@ public:
     }
 
     // if auto-select is enabled and no item is pointed, select the last pointed item
-    if (is_opened && !pointed && last_pointed_ && config_.auto_select) {
+    if (is_opened && !pointed && was_opened && last_pointed_ && config_.auto_select) {
       if (last_pointed_->canSelect()) {
         last_pointed_->select(config_.allow_multi_selection);
       } else if (last_pointed_->canDeselect()) {
