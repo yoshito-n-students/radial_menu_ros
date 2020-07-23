@@ -18,7 +18,7 @@ ros::Publisher state_pub;
 void onJoyRecieved(const sensor_msgs::JoyConstPtr &joy) {
   // update menu state and publish
   state_pub.publish(controller->update(*joy));
-  ROS_INFO_STREAM("Updated menu:\n" << menu->toString());
+  // ROS_INFO_STREAM("Updated menu:\n" << menu->toString());
 }
 
 int main(int argc, char *argv[]) {
@@ -30,12 +30,14 @@ int main(int argc, char *argv[]) {
   if (!menu) {
     return 1;
   }
+  ROS_INFO_STREAM("Menu:\n" << menu->toString());
 
   // menu controller
   controller.reset(new rmb::MenuController(menu, rmb::MenuConfig::fromParamNs("~")));
 
   //
   state_pub = nh.advertise< radial_menu_msgs::State >("radial_menu_state", 1, true);
+  state_pub.publish(menu->toState(ros::Time::now(), /* is_enabled = */ false));
   ros::Subscriber joy_sub(nh.subscribe("joy", 1, onJoyRecieved));
 
   //
