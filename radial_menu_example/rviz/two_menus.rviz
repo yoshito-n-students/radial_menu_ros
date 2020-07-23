@@ -6,9 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /CompassMenu1
-        - /ClockMenu1
-        - /HClockMenu1
+        - /TeleopMenu1
+        - /RebootMenu1
+        - /HRebootMenu1
       Splitter Ratio: 0.5196969509124756
     Tree Height: 956
   - Class: rviz/Selection
@@ -55,92 +55,92 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Bg alpha: 196
+    - Bg alpha: 128
+      Center x: 512
+      Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
-      Font: DejaVu Sans Mono
+      Font: Liberation Sans Narrow
       Font bold: true
-      Font size: 14
-      Item (default): 46; 40; 42
-      Item (pointed): 46; 40; 42
-      Item (selected): 46; 40; 42
+      Font size: 12
+      Item (default): 10; 36; 99
+      Item (pointed): 10; 36; 99
+      Item (selected): 255; 250; 255
       Item area width: 128
-      Item bg (default): 237; 184; 139
-      Item bg (pointed): 205; 83; 52
-      Item bg (selected): 23; 190; 187
-      Left: 64
-      Line width: 16
-      Name: CompassMenu
-      State topic: /compass_menu_state
+      Item bg (default): 255; 250; 255
+      Item bg (pointed): 62; 146; 204
+      Item bg (selected): 10; 36; 99
+      Line width: 12
+      Name: TeleopMenu
+      State topic: /teleop_menu_state
       Text alpha: 255
-      Title: 46; 40; 42
+      Title: 255; 250; 255
       Title area: true
       Title area radius: 96
-      Title bg: 237; 184; 139
-      Top: 128
+      Title bg: 10; 36; 99
       Value: true
     - Bg alpha: 128
+      Center x: 512
+      Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
-      Font: DejaVu Sans Mono
+      Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
-      Item (default): 18; 38; 58
-      Item (pointed): 18; 38; 58
-      Item (selected): 18; 38; 58
-      Item area width: 64
-      Item bg (default): 244; 237; 234
-      Item bg (pointed): 197; 216; 209
-      Item bg (selected): 6; 188; 193
-      Left: 640
+      Item (default): 39; 7; 34
+      Item (pointed): 39; 7; 34
+      Item (selected): 39; 7; 34
+      Item area width: 96
+      Item bg (default): 255; 251; 252
+      Item bg (pointed): 79; 117; 155
+      Item bg (selected): 255; 58; 32
       Line width: 8
-      Name: ClockMenu
-      State topic: /clock_menu_state
+      Name: RebootMenu
+      State topic: /reboot_menu_state
       Text alpha: 255
-      Title: 244; 237; 234
+      Title: 255; 251; 252
       Title area: true
-      Title area radius: 128
-      Title bg: 18; 38; 58
-      Top: 128
+      Title area radius: 48
+      Title bg: 39; 7; 34
       Value: true
-    - Bg alpha: 196
+    - Bg alpha: 128
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
-      Font: DejaVu Sans Mono
+      Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
-      Item (pointed): 46; 40; 42
-      Item (selected): 46; 40; 42
-      Item bg (pointed): 205; 83; 52
-      Item bg (selected): 23; 190; 187
-      Left: 64
+      Item (pointed): 10; 36; 99
+      Item (selected): 255; 250; 255
+      Item bg (pointed): 159; 198; 230
+      Item bg (selected): 10; 36; 99
+      Left: 640
       Line width: 8
-      Name: HCompassMenu
-      State topic: /compass_menu_state
+      Name: HTeleopMenu
+      State topic: /teleop_menu_state
       Text alpha: 255
-      Title: 46; 40; 42
-      Title bg: 237; 184; 139
+      Title: 10; 36; 99
+      Title bg: 255; 250; 255
       Top: 32
       Value: true
-    - Bg alpha: 255
+    - Bg alpha: 128
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
-      Font: DejaVu Sans Mono
+      Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
-      Item (pointed): 18; 38; 58
-      Item (selected): 18; 38; 58
-      Item bg (pointed): 197; 216; 209
-      Item bg (selected): 6; 188; 193
-      Left: 640
+      Item (pointed): 39; 7; 34
+      Item (selected): 39; 7; 34
+      Item bg (pointed): 79; 117; 155
+      Item bg (selected): 255; 58; 32
+      Left: 64
       Line width: 8
-      Name: HClockMenu
-      State topic: /clock_menu_state
+      Name: HRebootMenu
+      State topic: /reboot_menu_state
       Text alpha: 255
-      Title: 244; 237; 234
-      Title bg: 18; 38; 58
+      Title: 255; 251; 252
+      Title bg: 39; 7; 34
       Top: 32
       Value: true
   Enabled: true

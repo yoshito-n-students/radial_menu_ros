@@ -4,64 +4,52 @@
         <param name="dev" value="/dev/input/by-id/usb-Sony_Interactive_Entertainment_Wireless_Controller-if03-joystick" />
     </node>
 
-    <node name="reboot_menu_backend" pkg="radial_menu_backend" type="backend" output="screen">
-        <remap from="radial_menu_state" to="reboot_menu_state" />
+    <node name="teleop_menu_backend" pkg="radial_menu_backend" type="backend" output="screen">
+        <remap from="radial_menu_state" to="teleop_menu_state" />
         <rosparam>
             menu:
-                Reboot:
-                    - All
-                    - Actuators:
-                        - All
-                        - Wheels:
-                            - All
-                            - Front Right
-                            - Front Left
-                            - Rear Right
-                            - Rear Left
-                        - Arm:
-                            - All
-                            - Shoulder
-                            - Elbow
-                            - Wrist
-                            - Gripper
-                    - Sensors:
-                        - All
-                        - Cameras:
-                            - All
-                            - Front
-                            - Rear
-                        - Lilar
-                    - Computer
-                    - Lights
-            allow_multi_selection: true
+                "Teleop\nMode":
+                    - "Base\nPose"
+                    - "Base\nTwist"
+                    - "Arm\nFK"
+                    - "Arm\nIK"
+                    - "Arm\nGripper"
+            allow_multi_selection: false
             reset_on_enabling: false
-            reset_on_disabling: true
-            auto_select: true
+            reset_on_disabling: false
+            auto_select: false
             enable_button: 1    # PS4's circle
-            select_button: -1   # disabled
-            ascend_button: 4    # PS4's L1
+            select_button: 5    # PS4's R1
+            ascend_button: -1   # disabled
             pointing_axis_v: 1  # PS4's LEFT Y
             pointing_axis_h: 0  # PS4's LEFT X
             pointing_axis_threshold: 0.5
         </rosparam>
     </node>
 
-    <node name="preset_menu_backend" pkg="radial_menu_backend" type="backend" output="screen">
-        <remap from="radial_menu_state" to="preset_menu_state" />
+    <node name="reboot_menu_backend" pkg="radial_menu_backend" type="backend" output="screen">
+        <remap from="radial_menu_state" to="reboot_menu_state" />
         <rosparam>
             menu:
-                Preset:
+                Reboot:
+                    - All
                     - Base:
-                        - Return to Home
-                        - Call Help
+                        - All
+                        - PC
+                        - Motors
+                        - Cameras:
+                            - Front
+                            - Rear
+                        - Lidar
                     - Arm:
-                        - Home
-                        - Door
-                        - Pick
-                        - Fold
+                        - Motors
+                        - Cameras:
+                            - Elbow
+                            - Palm
+                        - LED
             allow_multi_selection: false
-            reset_on_enabling: true
-            reset_on_disabling: false
+            reset_on_enabling: false
+            reset_on_disabling: true
             auto_select: true
             enable_button: 0    # PS4's cross
             select_button: -1   # disabled
