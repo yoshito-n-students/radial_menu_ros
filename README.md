@@ -2,7 +2,7 @@
 
 Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 
-![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_v0_0_2.png)
+![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_sub_menu_v0_1_0.png)
 
 ## Tested environments
 * ROS Kinetic on Ubuntu 16.04
