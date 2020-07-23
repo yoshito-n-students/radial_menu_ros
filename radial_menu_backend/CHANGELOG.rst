@@ -2,9 +2,10 @@
 Changelog for package radial_menu_backend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.1.0 (2020-XX-XX)
+0.1.0 (2020-07-23)
 ------------------
 * Support submenus
+* More stable selection/descending by watching change in button values
 
 0.0.4 (2020-07-21)
 ------------------

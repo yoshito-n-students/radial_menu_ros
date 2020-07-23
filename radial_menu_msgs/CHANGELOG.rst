@@ -2,7 +2,7 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.1.0 (2020-XX-XX)
+0.1.0 (2020-07-23)
 ------------------
 * Add widths field in State message to support submenus
 * Rename is_opened to is_enabled in State message
