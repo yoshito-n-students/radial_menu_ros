@@ -54,8 +54,8 @@ protected:
     state_sub_.shutdown();
 
     // destroy the last state from the previous session
-    drawer_->setState(radial_menu_msgs::disabledState());
-    updateImage(prop_ctl_->drawingProperty());
+    state_.reset();
+    updateImage(radial_menu_msgs::disabledStatePtr());
 
     // subscribe the new topic
     try {
@@ -70,9 +70,12 @@ protected:
 
   // update menu image with the given menu state
   void updateImage(const radial_menu_msgs::StateConstPtr &state) {
-    drawer_->setState(*state);
-    overlay_->setImage(drawer_->draw());
-    overlay_->update();
+    if (radial_menu_msgs::changed(state, state_)) {
+      drawer_->setState(*state);
+      overlay_->setImage(drawer_->draw());
+      overlay_->update();
+      state_ = state;
+    }
   }
 
   // update menu image with the given drawing property
@@ -92,6 +95,7 @@ protected:
   boost::scoped_ptr< PropertyControl > prop_ctl_;
   // menu state subscriber
   ros::Subscriber state_sub_;
+  radial_menu_msgs::StateConstPtr state_;
   // state drawer
   boost::scoped_ptr< ImageDrawer > drawer_;
   // overlay on Rviz

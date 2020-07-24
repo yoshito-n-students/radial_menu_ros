@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.4 (2020-XX-XX)
+------------------
+* Skip redrawing the menu when incoming state equals to the previous state
+
 0.1.3 (2020-07-24)
 ------------------
 * Break texts according to area width in RadialMenu
