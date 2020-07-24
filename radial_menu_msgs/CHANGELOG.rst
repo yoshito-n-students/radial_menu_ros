@@ -2,6 +2,10 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.2 (2020-07-24)
+------------------
+* No changes
+
 0.1.1 (2020-07-23)
 ------------------
 * Add utility functions regarding State msg
