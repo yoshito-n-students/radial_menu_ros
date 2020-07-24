@@ -39,7 +39,7 @@ menu:
     Reboot:           # title
         - Base:       # items
             - Motors  # subitems
-            - Cameras
+            - Cameras:
                 - Front
                 - "Front\nLeft"  # multiline item
                 - Rear
