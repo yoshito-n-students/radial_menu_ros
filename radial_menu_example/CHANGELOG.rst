@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.3 (2020-07-24)
+------------------
+* Remove newlines in examples because Rviz frontends now automatically breaks texts
+
 0.1.2 (2020-07-24)
 ------------------
 * Add an integration example

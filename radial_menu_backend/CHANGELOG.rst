@@ -2,6 +2,10 @@
 Changelog for package radial_menu_backend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.3 (2020-07-24)
+------------------
+* No changes
+
 0.1.2 (2020-07-24)
 ------------------
 * Backend as a nodelet
