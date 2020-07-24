@@ -1,6 +1,6 @@
 # radial_menu_ros
 
-Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
+Radial menu on ROS for quick, accurate and intuitive selection by a joystick from 10+ items
 
 ![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_sub_menu_v0_1_0.png)
 
@@ -24,7 +24,7 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 #### <u>Parameters</u>
 **~menu** (struct, required)
 * Tree structure of the menu like below
-```
+```YAML
 # A simple example
 menu:
     MoveCmd:     # title
@@ -33,7 +33,7 @@ menu:
         - Back
         - Right
 ```
-```
+```YAML
 # A complex example
 menu:
     Reboot:           # title
