@@ -109,7 +109,7 @@ public:
     return menu_->toState(joy.header.stamp, is_enabled);
   }
 
-private:
+protected:
   // utility static functions
 
   // return button value without id range error
