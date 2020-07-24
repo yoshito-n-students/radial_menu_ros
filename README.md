@@ -12,7 +12,7 @@ Radial menu on ROS for quick, accurate and intuitive selection from 10+ items
 ## Pkg: radial_menu_backend
 ### Nodelet: Backend
 * Updates radial menu state based on joystick input
-* To integrate with your system, subscribe both joy and menu state messages using [message_filters::TimeSynchronizer](http://wiki.ros.org/message_filters#Time_Synchronizer). See [example_integration](radial_menu_example/src/example_integration.cpp).
+* To integrate with your system, subscribe both joy and menu state messages using [message_filters::TimeSynchronizer](http://wiki.ros.org/message_filters#Time_Synchronizer), watch which menu items are selected and process the joy messages when the menu is disabled (i.e. the menu does not own the joy messages). See [example_integration](radial_menu_example/src/example_integration.cpp).
 
 #### <u>Subscribed topics</u>
 **joy** (sensor_msgs/Joy)
