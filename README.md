@@ -1,6 +1,6 @@
 # radial_menu_ros
 
-Radial menu on ROS for quick, accurate and intuitive selection by a joystick from 10+ items
+Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick from 10+ items
 
 ![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_sub_menu_v0_1_0.png)
 
@@ -18,7 +18,7 @@ Radial menu on ROS for quick, accurate and intuitive selection by a joystick fro
 **joy** (sensor_msgs/Joy)
 
 #### <u>Published topics</u>
-**radial_menu_state** (radial_menu_msgs/State)
+**radial_menu_state** ([radial_menu_msgs/State](radial_menu_msgs/msg/State.msg))
 * The stamp in a message is copied from the source joy message
 
 #### <u>Parameters</u>
@@ -104,4 +104,4 @@ menu:
 * A meta-package depending radial_menu_backend, radial_menu_rviz, radial_menu_msgs for future release
 
 ## Pkg: radial_menu_example
-* Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick, [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not
+* Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick and a [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not
