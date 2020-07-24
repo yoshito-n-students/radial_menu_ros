@@ -6,8 +6,8 @@
 #include <cstdint> // for std::int32_t
 #include <vector>
 
-#include <radial_menu_backend/menu.hpp>
 #include <radial_menu_backend/backend_config.hpp>
+#include <radial_menu_backend/menu.hpp>
 #include <radial_menu_msgs/State.h>
 #include <sensor_msgs/Joy.h>
 
@@ -20,8 +20,8 @@ typedef boost::shared_ptr< const BackendController > BackendControllerConstPtr;
 class BackendController {
 public:
   BackendController(const MenuPtr menu, const BackendConfig &config)
-      : menu_(menu), was_enabled_(false), last_pointed_(), select_was_pressed_(false),
-        ascend_was_pressed_(false), config_(config) {
+      : menu_(menu), enable_was_pressed_(false), select_was_pressed_(false),
+        ascend_was_pressed_(false), last_pointed_menu_(), config_(config) {
     menu_ = menu_->reset(); // reset and move to the root
     if (menu_->canDescend()) {
       menu_ = menu_->descend(); // descend to the first level
@@ -32,65 +32,49 @@ public:
 
   radial_menu_msgs::StatePtr update(const sensor_msgs::Joy &joy) {
     // reset the menu based on enable/disable state if required
-    const bool is_enabled(buttonValue(joy, config_.enable_button) > 0);
-    if ((config_.reset_on_enabling && !was_enabled_ && is_enabled) ||
-        (config_.reset_on_disabling && was_enabled_ && !is_enabled)) {
+    const bool enable_is_pressed(buttonValue(joy, config_.enable_button) > 0);
+    if ((config_.reset_on_enabling && !enable_was_pressed_ && enable_is_pressed) ||
+        (config_.reset_on_disabling && enable_was_pressed_ && !enable_is_pressed)) {
       menu_ = menu_->reset(); // reset and move to the root
       if (menu_->canDescend()) {
         menu_ = menu_->descend(); // descend to the first level
       }
     }
 
-    // unpoint all items before updating pointed item
-    menu_->unpointAll();
-
-    // if menu is enabled, determine the pointed item based on the pointing axis angle
-    MenuPtr pointed;
-    if (is_enabled) {
-      const double value_v(config_.invert_pointing_axis_v
-                               ? -axisValue(joy, config_.pointing_axis_v)
-                               : axisValue(joy, config_.pointing_axis_v));
-      const double value_h(config_.invert_pointing_axis_h
-                               ? -axisValue(joy, config_.pointing_axis_h)
-                               : axisValue(joy, config_.pointing_axis_h));
-      if (value_v * value_v + value_h * value_h >
-          config_.pointing_axis_threshold * config_.pointing_axis_threshold) {
-        const double point_angle(normalizeAngle(std::atan2(value_h, value_v))); // [0, 2*M_PI)
-        const std::size_t n_sibilings(menu_->numSibilings());
-        const double span_angle(2. * M_PI / n_sibilings);
-        const std::size_t pointed_id(
-            static_cast< std::size_t >(std::round(point_angle / span_angle)) % n_sibilings);
-        pointed = menu_->sibiling(pointed_id);
-        pointed->point();
-      }
+    // if the menu is enabled, point an item
+    const MenuPtr pointed_menu(menuToPoint(joy));
+    if (enable_is_pressed && pointed_menu) {
+      pointed_menu->point();
+    } else {
+      menu_->unpointAll();
     }
 
-    // if the select button is pressed and an item is pointed, select the pointed item
+    // if the select button is newly pressed and an item is pointed, select the pointed item
     const bool select_is_pressed(buttonValue(joy, config_.select_button) > 0);
-    if (is_enabled && pointed && select_is_pressed && !select_was_pressed_) {
-      if (pointed->canSelect()) {
-        pointed->select(config_.allow_multi_selection);
-      } else if (pointed->canDeselect()) {
-        pointed->deselect();
-      } else if (pointed->canDescend()) {
-        menu_ = pointed->descend();
+    if (enable_is_pressed && pointed_menu && select_is_pressed && !select_was_pressed_) {
+      if (pointed_menu->canSelect()) {
+        pointed_menu->select(config_.allow_multi_selection);
+      } else if (pointed_menu->canDeselect()) {
+        pointed_menu->deselect();
+      } else if (pointed_menu->canDescend()) {
+        menu_ = pointed_menu->descend();
       }
     }
 
     // if auto-select is enabled and no item is pointed, select the last pointed item
-    if (config_.auto_select && (is_enabled && !pointed) && (was_enabled_ && last_pointed_)) {
-      if (last_pointed_->canSelect()) {
-        last_pointed_->select(config_.allow_multi_selection);
-      } else if (last_pointed_->canDeselect()) {
-        last_pointed_->deselect();
-      } else if (last_pointed_->canDescend()) {
-        menu_ = last_pointed_->descend();
+    if (config_.auto_select && enable_is_pressed && !pointed_menu && last_pointed_menu_) {
+      if (last_pointed_menu_->canSelect()) {
+        last_pointed_menu_->select(config_.allow_multi_selection);
+      } else if (last_pointed_menu_->canDeselect()) {
+        last_pointed_menu_->deselect();
+      } else if (last_pointed_menu_->canDescend()) {
+        menu_ = last_pointed_menu_->descend();
       }
     }
 
     // if the ascend button is pressed, ascend from the current level
     const bool ascend_is_pressed(buttonValue(joy, config_.ascend_button) > 0);
-    if (is_enabled && ascend_is_pressed && !ascend_was_pressed_) {
+    if (enable_is_pressed && ascend_is_pressed && !ascend_was_pressed_) {
       if (menu_->canAscend()) {
         menu_ = menu_->ascend();
       }
@@ -101,16 +85,35 @@ public:
     }
 
     // update memos
-    was_enabled_ = is_enabled;
-    last_pointed_ = pointed;
+    enable_was_pressed_ = enable_is_pressed;
+    last_pointed_menu_ = pointed_menu;
     select_was_pressed_ = select_is_pressed;
     ascend_was_pressed_ = ascend_is_pressed;
 
-    return menu_->toState(joy.header.stamp, is_enabled);
+    return menu_->toState(joy.header.stamp, enable_is_pressed);
   }
 
 protected:
-  // utility static functions
+  // utility functions
+
+  // the menu to point based on the pointing axis angle
+  MenuPtr menuToPoint(const sensor_msgs::Joy &joy) const {
+    const double value_v(config_.invert_pointing_axis_v ? -axisValue(joy, config_.pointing_axis_v)
+                                                        : axisValue(joy, config_.pointing_axis_v));
+    const double value_h(config_.invert_pointing_axis_h ? -axisValue(joy, config_.pointing_axis_h)
+                                                        : axisValue(joy, config_.pointing_axis_h));
+    if (value_v * value_v + value_h * value_h >
+        config_.pointing_axis_threshold * config_.pointing_axis_threshold) {
+      const double point_angle(normalizeAngle(std::atan2(value_h, value_v))); // [0, 2*M_PI)
+      const std::size_t n_sibilings(menu_->numSibilings());
+      const double span_angle(2. * M_PI / n_sibilings);
+      const std::size_t pointed_id(
+          static_cast< std::size_t >(std::round(point_angle / span_angle)) % n_sibilings);
+      return menu_->sibiling(pointed_id);
+    } else {
+      return MenuPtr();
+    }
+  }
 
   // return button value without id range error
   static int buttonValue(const sensor_msgs::Joy &joy, const int id) {
@@ -137,9 +140,8 @@ protected:
   MenuPtr menu_;
 
   // memo
-  bool was_enabled_;
-  MenuPtr last_pointed_;
-  bool select_was_pressed_, ascend_was_pressed_;
+  bool enable_was_pressed_, select_was_pressed_, ascend_was_pressed_;
+  MenuPtr last_pointed_menu_;
 
   const BackendConfig config_;
 };
