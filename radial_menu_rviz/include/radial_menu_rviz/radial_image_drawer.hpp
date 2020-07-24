@@ -188,6 +188,8 @@ protected:
     const QFontMetrics font_metrics(prop_.font);
     const QPoint image_center(image->rect().center());
     const int first_item_id(firstItemId(depth)), last_item_id(lastItemId(depth));
+    const QRect constraint_rect(
+        QRect(QPoint(0, 0), QSize(prop_.item_area_width, prop_.item_area_width)));
 
     // draw item texts
     for (int item_id = first_item_id; item_id <= last_item_id; ++item_id) {
@@ -209,10 +211,10 @@ protected:
       // draw the item text
       QRect rect;
       const QString item(QString::fromStdString(state_.items[item_id]));
-      rect = font_metrics.boundingRect(QRect(), Qt::AlignCenter, item);
+      rect = font_metrics.boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, item);
       rect.moveCenter(relativeItemCenter(item_id - first_item_id, depth));
       rect.translate(image_center);
-      painter.drawText(rect, Qt::AlignCenter, item);
+      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, item);
     }
   }
 
@@ -226,9 +228,12 @@ protected:
       // draw the title text at the image center
       QRect rect;
       const QString title(QString::fromStdString(state_.title));
-      rect = QFontMetrics(prop_.font).boundingRect(QRect(), Qt::AlignCenter, title);
+      const QRect constraint_rect(QPoint(0, 0),
+                                  QSize(2 * prop_.title_area_radius, 2 * prop_.title_area_radius));
+      rect = QFontMetrics(prop_.font)
+                 .boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, title);
       rect.moveCenter(image->rect().center());
-      painter.drawText(rect, Qt::AlignCenter, title);
+      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, title);
     }
   }
 

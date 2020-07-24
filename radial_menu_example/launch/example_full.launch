@@ -9,12 +9,12 @@
         <remap from="radial_menu_state" to="teleop_menu_state" />
         <rosparam>
             menu:
-                "Teleop\nMode":
-                    - "Base\nPose"
-                    - "Base\nTwist"
-                    - "Arm\nFK"
-                    - "Arm\nIK"
-                    - "Arm\nGripper"
+                Teleop Mode:
+                    - Base Pose
+                    - Base Twist
+                    - Arm FK
+                    - Arm IK
+                    - Arm Gripper
             allow_multi_selection: false
             reset_on_enabling: false
             reset_on_disabling: false

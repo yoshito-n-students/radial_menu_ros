@@ -38,14 +38,14 @@ menu:
 menu:
     Reboot:           # title
         - Base:       # items
-            - Motors  # subitems
+            - Wheels  # subitems
             - Cameras:
                 - Front
-                - "Front\nLeft"  # multiline item
+                - Front Left
                 - Rear
-                - "Front\nRight"
+                - Front Right
         - Arm:
-            - Motors
+            - Joints
             - ...
 ```
 

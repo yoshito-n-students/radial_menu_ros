@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.3 (2020-07-25)
+------------------
+* Break texts according to area width in RadialMenu
+
 0.1.2 (2020-07-24)
 ------------------
 * No changes
