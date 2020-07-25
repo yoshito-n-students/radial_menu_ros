@@ -2,6 +2,10 @@
 Changelog for package radial_menu_backend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.4 (2020-XX-XX)
+------------------
+* Fix circular reference in menu tree
+
 0.1.3 (2020-07-24)
 ------------------
 * No changes
