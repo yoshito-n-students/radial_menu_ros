@@ -30,21 +30,20 @@ protected:
 public:
   // id utilities
 
-  int numSibilings() const { return sibilingsOf(current_level_).size(); }
-
   int idByAngle(double angle) const {
     // make the given angle positive, or the returned value may be going to be negative
     while (angle < 0.) {
       angle += 2. * M_PI;
     }
-    const int n_sibilings(numSibilings());
+    const int n_sibilings(sibilingsOf(current_level_).size());
     const double span_angle(2. * M_PI / n_sibilings);
     return static_cast< int >(std::round(angle / span_angle)) % n_sibilings;
   }
 
   int pointedId() const {
-    for (int id = 0; id < numSibilings(); ++id) {
-      if (sibilingOf(current_level_, id)->is_pointed) {
+    const std::vector< ItemPtr > sibilings(sibilingsOf(current_level_));
+    for (int id = 0; id < sibilings.size(); ++id) {
+      if (sibilings[id]->is_pointed) {
         return id;
       }
     }
@@ -158,10 +157,7 @@ public:
   // ascending
 
   // can ascend if the current level is not the first
-  bool canAscend() const {
-    const ItemConstPtr parent(parentOf(current_level_));
-    return parent && parent != root_;
-  }
+  bool canAscend() const { return parentOf(current_level_) != root_; }
 
   // unpoint and deselect all sibilings, deselect and move to the parent
   void ascend() {
@@ -205,12 +201,7 @@ public:
                               std::vector< std::int32_t > *const widths,
                               std::int32_t *const pointed_id,
                               std::vector< std::int32_t > *const selected_ids) {
-        // terminate if the parent menu has no children
         const std::size_t n_children(parent->children.size());
-        if (n_children <= 0) {
-          return;
-        }
-        // update states
         widths->push_back(n_children);
         const std::size_t id_offset(items->size());
         ItemConstPtr next_parent;
@@ -246,40 +237,34 @@ public:
 
   std::string toString() const {
     struct Internal {
-      static std::string childToString(const ItemConstPtr &item, const std::size_t n_indent) {
+      static std::string toString(const ItemConstPtr &item, const std::size_t depth = 0) {
         std::string str;
-        str += std::string(n_indent, ' ') + "[" + (item->is_pointed ? "P" : " ") +
-               (item->is_selected ? "S" : " ") + "] " + item->title + "\n";
+        if (depth <= 0) { // root item
+          str += item->title + "\n";
+        } else { // non-root item
+          str += std::string(depth * 2, ' ') + "[" + (item->is_pointed ? "P" : " ") +
+                 (item->is_selected ? "S" : " ") + "] " + item->title + "\n";
+        }
         for (const ItemConstPtr &child : item->children) {
-          str += childToString(child, n_indent + 2);
+          str += toString(child, depth + 1);
         }
         return str;
       }
     };
 
-    std::string str;
-    str += root_->title + "\n";
-    for (const ItemConstPtr &child : root_->children) {
-      str += Internal::childToString(child, 2);
-    }
-    return str;
+    return Internal::toString(root_);
   }
 
   // factory methods
 
-  // Converts XmlRpcValue from rosparam like:
-  //   "MLB":
-  //     - "American":
-  //       - "East":
-  //         - "Baltimore"
-  //         - "Boston"
+  // Converts XmlRpcValue like:
+  //   MenuTitle:
+  //     - Item1:
+  //       - SubItem1
+  //       - SubItem2:
   //         - ...
-  //       - "Central":
-  //         - "Chicago"
-  //         - ...
-  //       - "West":
-  //         - ....
-  //     - "National":
+  //       - SubItem3
+  //     - Item2:
   //       - ...
   static MenuPtr fromXmlRpcValue(const XmlRpc::XmlRpcValue &src) {
     struct Internal {
@@ -289,15 +274,14 @@ public:
         // using const_cast because "XmlRpcValue::begin() const"
         // is not implemented on ROS kinetic :(
         if (src.getType() == Src::TypeStruct && src.size() == 1 &&
-            const_cast< XmlRpc::XmlRpcValue & >(src).begin()->second.getType() == Src::TypeArray) {
-          const Src::ValueStruct::value_type &src_value(
-              *const_cast< XmlRpc::XmlRpcValue & >(src).begin());
+            const_cast< Src & >(src).begin()->second.getType() == Src::TypeArray) {
+          const Src::ValueStruct::value_type &src_value(*const_cast< Src & >(src).begin());
           ItemPtr item(new Item());
           item->title = src_value.first;
           item->children.resize(src_value.second.size());
-          for (int i = 0; i < src_value.second.size(); ++i) {
-            ItemPtr &child(item->children[i]);
-            child = itemFromXmlRpcValue(src_value.second[i]);
+          for (int id = 0; id < src_value.second.size(); ++id) {
+            ItemPtr &child(item->children[id]);
+            child = itemFromXmlRpcValue(src_value.second[id]);
             if (!child) {
               return ItemPtr();
             }
@@ -308,9 +292,9 @@ public:
 
         if (src.getType() == Src::TypeString) {
           ItemPtr item(new Item());
-          // XmlRpcValue does not have const conversion to std::string
+          // XmlRpcValue does not have const conversion to std::string &
           // so we have to copy XmlRpcValue before conversion :(
-          item->title = static_cast< std::string >(Src(src));
+          item->title = static_cast< std::string & >(Src(src));
           return item;
         }
 
