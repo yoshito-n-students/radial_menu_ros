@@ -2,7 +2,7 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.1.4 (2020-XX-XX)
+0.1.4 (2020-07-26)
 ------------------
 * Skip redrawing the menu when incoming state equals to the previous state
 
