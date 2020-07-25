@@ -1,6 +1,7 @@
 #ifndef RADIAL_MENU_BACKEND_MENU_HPP
 #define RADIAL_MENU_BACKEND_MENU_HPP
 
+#include <cmath>
 #include <cstdint>
 #include <sstream>
 #include <string>
@@ -13,9 +14,8 @@
 #include <ros/time.h>
 #include <xmlrpcpp/XmlRpcValue.h>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 namespace radial_menu_backend {
 
@@ -23,188 +23,208 @@ class Menu;
 typedef boost::shared_ptr< Menu > MenuPtr;
 typedef boost::shared_ptr< const Menu > MenuConstPtr;
 
-// Minimal implementation of a radial menu data.
-// A menu must be created via fromXmlRpcValue().
-// Navigation must start from the root menu
-// and performed by sibiling(), descend() or ascend().
-class Menu : public boost::enable_shared_from_this< Menu > {
+class Menu {
 protected:
-  Menu() : is_selected_(false), is_pointed_(false) {}
+  Menu() {}
 
 public:
-  virtual ~Menu() {}
+  // id utilities
 
-  // horizontal navigation
+  int numSibilings() const { return sibilingsOf(current_level_).size(); }
 
-  std::size_t numSibilings() const { return parent_ ? parent_->children_.size() : 1; }
-
-  MenuConstPtr sibiling(const std::size_t id) const {
-    if (parent_ && id >= 0 && id < parent_->children_.size()) {
-      return parent_->children_[id];
-    } else if (!parent_ && id == 0) {
-      return shared_from_this();
+  int idByAngle(double angle) const {
+    // make the given angle positive, or the returned value may be going to be negative
+    while (angle < 0.) {
+      angle += 2. * M_PI;
     }
-    throw ros::Exception("Menu::sibiling() const: Invalid id (" +
-                         boost::lexical_cast< std::string >(id) + ")");
+    const int n_sibilings(numSibilings());
+    const double span_angle(2. * M_PI / n_sibilings);
+    return static_cast< int >(std::round(angle / span_angle)) % n_sibilings;
   }
 
-  MenuPtr sibiling(const std::size_t id) {
-    if (parent_ && id >= 0 && id < parent_->children_.size()) {
-      return parent_->children_[id];
-    } else if (!parent_ && id == 0) {
-      return shared_from_this();
+  int pointedId() const {
+    for (int id = 0; id < numSibilings(); ++id) {
+      if (sibilingOf(current_level_, id)->is_pointed) {
+        return id;
+      }
     }
-    throw ros::Exception("Menu::sibiling(): Invalid id (" + boost::lexical_cast< std::string >(id) +
-                         ")");
+    return -1;
   }
 
   // pointing
 
-  // unpoint all sibilings and then point this
-  void point() {
-    for (std::size_t id = 0; id < numSibilings(); ++id) {
-      sibiling(id)->is_pointed_ = false;
+  // can point if the specified sibiling is not pointed
+  bool canPoint(const int id) const {
+    const ItemConstPtr sibiling(sibilingOf(current_level_, id));
+    return sibiling ? !sibiling->is_pointed : false;
+  }
+
+  // unpoint all sibilings and point the specified sibiling
+  void point(const int id) {
+    if (canPoint(id)) {
+      for (const ItemPtr &sibiling : sibilingsOf(current_level_)) {
+        sibiling->is_pointed = false;
+      }
+      sibilingOf(current_level_, id)->is_pointed = true;
+      return;
     }
-    is_pointed_ = true;
+    throw ros::Exception("Menu::point()");
+  }
+
+  // unpointing
+
+  // can unpoint if the specified sibiling is pointed
+  bool canUnpoint(const int id) const {
+    const ItemConstPtr sibiling(sibilingOf(current_level_, id));
+    return sibiling ? sibiling->is_pointed : false;
+  }
+
+  // just unpoint the specified sibiling
+  void unpoint(const int id) {
+    if (canUnpoint(id)) {
+      sibilingOf(current_level_, id)->is_pointed = false;
+      return;
+    }
+    throw ros::Exception("Menu::unpoint()");
   }
 
   // select
 
-  bool canSelect() const { return !is_selected_ && children_.empty(); }
+  // can select if the specified sibiling has no children and is not selected
+  bool canSelect(const int id) const {
+    const ItemConstPtr sibiling(sibilingOf(current_level_, id));
+    return sibiling ? (sibiling->children.empty() && !sibiling->is_selected) : false;
+  }
 
-  // deselect all sibilings, if multi-selection is not allowed, and then select this
-  void select(const bool allow_multi_selection) {
-    if (canSelect()) {
+  // deselect all sibilings and select the specified sibiling.
+  // deselect will be skipped if allow_multi_selection is true.
+  void select(const int id, const bool allow_multi_selection) {
+    if (canSelect(id)) {
       if (!allow_multi_selection) {
-        for (std::size_t id = 0; id < numSibilings(); ++id) {
-          sibiling(id)->is_selected_ = false;
+        for (const ItemPtr &sibiling : sibilingsOf(current_level_)) {
+          sibiling->is_selected = false;
         }
       }
-      is_selected_ = true;
+      sibilingOf(current_level_, id)->is_selected = true;
       return;
     }
-    throw ros::Exception("Menu::select(): Cannot select '" + title_ + "'");
+    throw ros::Exception("Menu::select()");
   }
 
   // deselect
 
-  bool canDeselect() const { return is_selected_ && children_.empty(); }
+  // can deselect if the specified sibiling has no children and is selected
+  bool canDeselect(const int id) const {
+    const ItemConstPtr sibiling(sibilingOf(current_level_, id));
+    return sibiling ? (sibiling->children.empty() && sibiling->is_selected) : false;
+  }
 
-  void deselect() {
-    if (canDeselect()) {
-      is_selected_ = false;
+  // just deselect the specified sibiling
+  void deselect(const int id) {
+    if (canDeselect(id)) {
+      sibilingOf(current_level_, id)->is_selected = false;
       return;
     }
-    throw ros::Exception("Menu::deselect(): Cannot deselect '" + title_ + "'");
+    throw ros::Exception("Menu::deselect()");
   }
 
   // descending
 
-  bool canDescend() const { return !children_.empty(); }
+  // can descend if the specified sibiling has a child
+  bool canDescend(const int id) const {
+    const ItemConstPtr sibiling(sibilingOf(current_level_, id));
+    return sibiling ? !sibiling->children.empty() : false;
+  }
 
-  // deselect all sibilings, unpoint this, select this
-  MenuPtr descend() {
-    if (canDescend()) {
-      for (std::size_t id = 0; id < numSibilings(); ++id) {
-        sibiling(id)->is_selected_ = false;
+  // unpoint and deselect all sibilings, select the specified sibiling
+  // and move to the child level of the specified sibiling.
+  // deselect will be skipped if allow_multi_selection is true.
+  void descend(const int id, const bool allow_multi_selection) {
+    if (canDescend(id)) {
+      for (const ItemPtr &sibiling : sibilingsOf(current_level_)) {
+        sibiling->is_pointed = false;
+        if (!allow_multi_selection) {
+          sibiling->is_selected = false;
+        }
       }
-      is_pointed_ = false;
-      is_selected_ = true;
-      return children_.front();
+      const ItemPtr sibiling(sibilingOf(current_level_, id));
+      sibiling->is_selected = true;
+      current_level_ = childLevelOf(sibiling);
+      return;
     }
-    throw ros::Exception("Menu::descend(): Cannot descend from '" + title_ + "'");
+    throw ros::Exception("Menu::descend()");
   }
 
   // ascending
 
-  bool isRoot() const { return !parent_; }
+  // can ascend if the current level is not the first
+  bool canAscend() const {
+    const ItemConstPtr parent(parentOf(current_level_));
+    return parent && parent != root_;
+  }
 
-  bool canAscend() const { return !isRoot(); }
-
-  // deselect all sibilings and parent, unpoint this, unselect this
-  MenuPtr ascend() {
+  // unpoint and deselect all sibilings, deselect and move to the parent
+  void ascend() {
     if (canAscend()) {
-      for (std::size_t id = 0; id < numSibilings(); ++id) {
-        sibiling(id)->is_selected_ = false;
+      for (const ItemPtr &sibiling : sibilingsOf(current_level_)) {
+        sibiling->is_pointed = false;
+        sibiling->is_selected = false;
       }
-      parent_->is_selected_ = false;
-      is_pointed_ = false;
-      is_selected_ = false;
-      return parent_;
+      const ItemPtr parent(parentOf(current_level_));
+      parent->is_selected = false;
+      current_level_ = levelOf(parent);
+      return;
     }
-    throw ros::Exception("Menu::ascend(): Cannot ascend from '" + title_ + "'");
+    throw ros::Exception("Menu::ascend()");
   }
 
   // reset
 
-  // ascend to the root, deselect and unpoint all items on the menu
-  MenuPtr reset() {
-    struct Impl {
-      static void reset(const MenuPtr &menu) {
-        menu->is_pointed_ = false;
-        menu->is_selected_ = false;
-        for (const MenuPtr &child : menu->children_) {
+  // unpoint and deselect all items in the menu and move to the first level
+  void reset() {
+    struct Internal {
+      static void reset(const ItemPtr &item) {
+        item->is_pointed = false;
+        item->is_selected = false;
+        for (const ItemPtr &child : item->children) {
           reset(child);
         }
       }
     };
 
-    const MenuPtr r(root());
-    Impl::reset(r);
-    return r;
+    Internal::reset(root_);
+    current_level_ = childLevelOf(root_);
   }
 
-  void unpointAll() {
-    struct Impl {
-      static void unpointAll(const MenuPtr &menu) {
-        menu->is_pointed_ = false;
-        for (const MenuPtr &child : menu->children_) {
-          unpointAll(child);
-        }
-      }
-    };
-
-    Impl::unpointAll(root());
-  }
-
-  // type conversion
+  // exporting
 
   radial_menu_msgs::StatePtr toState(const ros::Time &stamp, const bool is_enabled) const {
-    struct Impl {
-      static radial_menu_msgs::StatePtr toState(const MenuConstPtr &root, const ros::Time &stamp,
-                                                const bool is_enabled) {
-        radial_menu_msgs::StatePtr state(new radial_menu_msgs::State());
-        state->header.stamp = stamp;
-        state->title = root->title_;
-        state->is_enabled = is_enabled;
-        state->pointed_id = -1;
-        updateState(root, &state->items, &state->widths, &state->pointed_id, &state->selected_ids);
-        return state;
-      }
-
+    struct Internal {
       // update State msg by populating state of child menus
-      static void updateState(const MenuConstPtr &parent, std::vector< std::string > *const items,
+      static void updateState(const ItemConstPtr &parent, std::vector< std::string > *const items,
                               std::vector< std::int32_t > *const widths,
                               std::int32_t *const pointed_id,
                               std::vector< std::int32_t > *const selected_ids) {
         // terminate if the parent menu has no children
-        const std::size_t n_children(parent->children_.size());
+        const std::size_t n_children(parent->children.size());
         if (n_children <= 0) {
           return;
         }
         // update states
         widths->push_back(n_children);
         const std::size_t id_offset(items->size());
-        MenuConstPtr next_parent;
+        ItemConstPtr next_parent;
         for (std::size_t child_id = 0; child_id < n_children; ++child_id) {
-          const MenuConstPtr child(parent->children_[child_id]);
-          items->push_back(child->title_);
-          if (child->is_pointed_) {
+          const ItemConstPtr child(parent->children[child_id]);
+          items->push_back(child->title);
+          if (child->is_pointed) {
             *pointed_id = child_id + id_offset;
           }
-          if (child->is_selected_) {
+          if (child->is_selected) {
             selected_ids->push_back(child_id + id_offset);
-            next_parent = child;
+            if (!child->children.empty()) {
+              next_parent = child;
+            }
           }
         }
         // ascend to a child selected
@@ -214,33 +234,37 @@ public:
       }
     };
 
-    return Impl::toState(root(), stamp, is_enabled);
+    radial_menu_msgs::StatePtr state(new radial_menu_msgs::State());
+    state->header.stamp = stamp;
+    state->title = root_->title;
+    state->is_enabled = is_enabled;
+    state->pointed_id = -1;
+    Internal::updateState(root_, &state->items, &state->widths, &state->pointed_id,
+                          &state->selected_ids);
+    return state;
   }
 
   std::string toString() const {
-    struct Impl {
-      static std::string toString(const MenuConstPtr &menu, const std::size_t n_indent) {
+    struct Internal {
+      static std::string childToString(const ItemConstPtr &item, const std::size_t n_indent) {
         std::string str;
-        str += std::string(n_indent, ' ') + "[" + (menu->is_pointed_ ? "P" : " ") +
-               (menu->is_selected_ ? "S" : " ") + "] " + menu->title_ + "\n";
-        for (const MenuConstPtr &child : menu->children_) {
-          str += toString(child, n_indent + 2);
+        str += std::string(n_indent, ' ') + "[" + (item->is_pointed ? "P" : " ") +
+               (item->is_selected ? "S" : " ") + "] " + item->title + "\n";
+        for (const ItemConstPtr &child : item->children) {
+          str += childToString(child, n_indent + 2);
         }
         return str;
       }
     };
 
-    return Impl::toString(root(), 0);
+    std::string str;
+    str += root_->title + "\n";
+    for (const ItemConstPtr &child : root_->children) {
+      str += Internal::childToString(child, 2);
+    }
+    return str;
   }
 
-protected:
-  // internal use
-
-  MenuConstPtr root() const { return parent_ ? parent_->root() : shared_from_this(); }
-
-  MenuPtr root() { return parent_ ? parent_->root() : shared_from_this(); }
-
-public:
   // factory methods
 
   // Converts XmlRpcValue from rosparam like:
@@ -258,54 +282,110 @@ public:
   //     - "National":
   //       - ...
   static MenuPtr fromXmlRpcValue(const XmlRpc::XmlRpcValue &src) {
-    typedef XmlRpc::XmlRpcValue Src;
+    struct Internal {
+      static ItemPtr itemFromXmlRpcValue(const XmlRpc::XmlRpcValue &src) {
+        typedef XmlRpc::XmlRpcValue Src;
 
-    // using const_cast because "XmlRpcValue::begin() const" is not implemented on ROS kinetic :(
-    if (src.getType() == Src::TypeStruct && src.size() == 1 &&
-        const_cast< XmlRpc::XmlRpcValue & >(src).begin()->second.getType() == Src::TypeArray) {
-      const Src::ValueStruct::value_type &src_value(
-          *const_cast< XmlRpc::XmlRpcValue & >(src).begin());
-      MenuPtr menu(new Menu());
-      menu->title_ = src_value.first;
-      menu->children_.resize(src_value.second.size());
-      for (int i = 0; i < src_value.second.size(); ++i) {
-        MenuPtr &child(menu->children_[i]);
-        child = fromXmlRpcValue(src_value.second[i]);
-        if (!child) {
-          return MenuPtr();
+        // using const_cast because "XmlRpcValue::begin() const"
+        // is not implemented on ROS kinetic :(
+        if (src.getType() == Src::TypeStruct && src.size() == 1 &&
+            const_cast< XmlRpc::XmlRpcValue & >(src).begin()->second.getType() == Src::TypeArray) {
+          const Src::ValueStruct::value_type &src_value(
+              *const_cast< XmlRpc::XmlRpcValue & >(src).begin());
+          ItemPtr item(new Item());
+          item->title = src_value.first;
+          item->children.resize(src_value.second.size());
+          for (int i = 0; i < src_value.second.size(); ++i) {
+            ItemPtr &child(item->children[i]);
+            child = itemFromXmlRpcValue(src_value.second[i]);
+            if (!child) {
+              return ItemPtr();
+            }
+            child->parent = item;
+          }
+          return item;
         }
-        child->parent_ = menu;
+
+        if (src.getType() == Src::TypeString) {
+          ItemPtr item(new Item());
+          // XmlRpcValue does not have const conversion to std::string
+          // so we have to copy XmlRpcValue before conversion :(
+          item->title = static_cast< std::string >(Src(src));
+          return item;
+        }
+
+        std::ostringstream oss;
+        src.write(oss);
+        ROS_ERROR_STREAM("Menu::fromXmlRpcValue(): Error on parsing '" << oss.str()
+                                                                       << "': Unexpected format");
+        return ItemPtr();
       }
-      return menu;
-    }
+    };
 
-    if (src.getType() == Src::TypeString) {
-      MenuPtr menu(new Menu());
-      // XmlRpcValue does not have const conversion to std::string
-      // so we have to copy XmlRpcValue before conversion :(
-      menu->title_ = static_cast< std::string >(Src(src));
-      return menu;
+    MenuPtr menu(new Menu());
+    menu->root_ = Internal::itemFromXmlRpcValue(src);
+    if (!menu->root_) {
+      // no message here because already printed in Internal::itemFromXmlRpcValue()
+      return MenuPtr();
     }
-
-    std::ostringstream oss;
-    src.write(oss);
-    ROS_ERROR_STREAM("Menu::fromXmlRpcValue(): Error on parsing '" << oss.str()
-                                                                   << "': Unexpected format");
-    return MenuPtr();
+    menu->current_level_ = childLevelOf(menu->root_);
+    if (!menu->current_level_) {
+      ROS_ERROR_STREAM("Menu::fromXmlRpcValue(): The menu '" << menu->root_->title
+                                                             << "' must have one child at least");
+      return MenuPtr();
+    }
+    return menu;
   }
 
   static MenuPtr fromParam(const std::string &key) {
     XmlRpc::XmlRpcValue value;
-    return ros::param::get(key, value) ? fromXmlRpcValue(value) : MenuPtr();
+    if (!ros::param::get(key, value)) {
+      ROS_ERROR_STREAM("Menu::fromParam(): Cannot get the param '" << key << "'");
+      return MenuPtr();
+    }
+    return fromXmlRpcValue(value);
   }
 
 protected:
-  std::string title_;
-  MenuPtr parent_;
-  std::vector< MenuPtr > children_;
+  struct Item;
+  typedef boost::shared_ptr< Item > ItemPtr;
+  typedef boost::shared_ptr< const Item > ItemConstPtr;
+  typedef boost::weak_ptr< Item > ItemWeakPtr;
 
-  bool is_selected_, is_pointed_;
+  static ItemPtr parentOf(const ItemConstPtr &item) {
+    return item ? item->parent.lock() : ItemPtr();
+  }
+
+  static std::vector< ItemPtr > sibilingsOf(const ItemConstPtr &item) {
+    const ItemPtr parent(parentOf(item));
+    return parent ? parent->children : std::vector< ItemPtr >();
+  }
+
+  static ItemPtr sibilingOf(const ItemConstPtr &item, const int id) {
+    const std::vector< ItemPtr > sibilings(sibilingsOf(item));
+    return (id >= 0 && id < sibilings.size()) ? sibilings[id] : ItemPtr();
+  }
+
+  // level (i.e. the first sibiling) of the given item
+  static ItemPtr levelOf(const ItemConstPtr &item) { return sibilingOf(item, 0); }
+
+  static ItemPtr childLevelOf(const ItemConstPtr &item) {
+    return (item && !item->children.empty()) ? levelOf(item->children.front()) : ItemPtr();
+  }
+
+protected:
+  struct Item {
+    Item() : is_pointed(false), is_selected(false) {}
+
+    std::string title;
+    ItemWeakPtr parent;
+    std::vector< ItemPtr > children;
+    bool is_pointed, is_selected;
+  };
+
+  ItemPtr root_, current_level_;
 };
+
 } // namespace radial_menu_backend
 
 #endif
