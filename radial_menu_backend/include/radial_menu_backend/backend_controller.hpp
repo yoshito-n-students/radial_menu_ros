@@ -66,7 +66,7 @@ public:
         adaptiveSelect(last_pointed_id);
       }
 
-      // if the ascend button is pressed, ascend from the current level
+      // if the ascend button is newly pressed, ascend from the current level
       if (ascend_is_pressed && !ascend_was_pressed_) {
         if (menu_->canAscend()) {
           menu_->ascend();
