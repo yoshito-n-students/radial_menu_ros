@@ -9,10 +9,14 @@ Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick fr
 * ROS Melodic on Ubuntu 18.04
 * ROS Noetic on Ubuntu 20.04
 
+## Usage
+* Subscribe both joy and menu state messages using [message_filters::TimeSynchronizer](http://wiki.ros.org/message_filters#Time_Synchronizer), watch which menu items are selected and process the joy messages when the menu is disabled (i.e. the menu does not own the joy messages). See an example node graph below or [example_teleop_node.cpp](radial_menu_example/src/example_teleop_node.cpp). The teleop_node in the graph can be replaced to your node.
+
+![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/example_integration_v0_2_1.png)
+
 ## Pkg: radial_menu_backend
 ### Nodelet: Backend
 * Updates radial menu state based on joystick input
-* To integrate with your system, subscribe both joy and menu state messages using [message_filters::TimeSynchronizer](http://wiki.ros.org/message_filters#Time_Synchronizer), watch which menu items are selected and process the joy messages when the menu is disabled (i.e. the menu does not own the joy messages). See [example_teleop_node.cpp](radial_menu_example/src/example_teleop_node.cpp).
 
 #### <u>Subscribed topics</u>
 **joy** (sensor_msgs/Joy)
