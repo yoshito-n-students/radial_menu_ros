@@ -53,33 +53,33 @@ menu:
 * If false, current selected items will be deselected when a new item is selected
 
 **~reset_on_enabling** (bool, default: false)
-* If true, current selected items will be deselected when enebling the menu
+* If true, current selected items will be deselected when enabling the menu
 
 **~reset_on_disabling** (bool, default: false)
 * If true, current selected items will be deselected when disabling the menu
 
 **~auto_select** (bool, default: false)
-* If true, the last pointed item will be autonomously selected. Close the menu before unpoint not to select.
+* If true, the last pointed item will be autonomously selected. Disable the menu before unpoint not to select.
 
 **~enable_button** (int, default: 1)
 * Button to keep enabling the menu
-* defaultly PS4's circle button
+* PS4's circle button as default
 
 **~select_button** (int, default: 5)
-* Button to select an item
-* defaultly PS4's R1 button
+* Button to select or deselect an item, or descend the menu
+* PS4's R1 button as default
 
 **~ascend_button** (int, default: 4)
 * Button to ascend the menu
-* defaultly PS4's L1 button
+* PS4's L1 button as default
 
 **~pointing_axis_v** (int, default: 1)
 * Vertical axis to point an item
-* defaultly PS4's LEFT Y axis
+* PS4's LEFT Y axis as default
 
 **~pointing_axis_h** (int, default: 0)
 * Horizontal axis to point an item
-* defaultly PS4's LEFT X axis
+* PS4's LEFT X axis as default
 
 **~invert_pointing_axis_v** (bool, default: false)
 
