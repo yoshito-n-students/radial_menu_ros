@@ -2,6 +2,10 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.0 (2020-07-26)
+------------------
+* Install targets
+
 0.1.4 (2020-07-26)
 ------------------
 * No changes
