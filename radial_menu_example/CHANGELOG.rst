@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.1 (2020-XX-XX)
+------------------
+* Specialize the example integration node to a teleop application
+
 0.2.0 (2020-07-26)
 ------------------
 * Install targets

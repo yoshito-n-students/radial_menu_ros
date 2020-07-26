@@ -65,4 +65,6 @@
     <node name="rviz" pkg="rviz" type="rviz" 
           args="--display-config $(find radial_menu_example)/rviz/two_menus.rviz" />
 
+    <node name="teleop_node" pkg="radial_menu_example" type="example_teleop_node" output="screen" />
+
 </launch>

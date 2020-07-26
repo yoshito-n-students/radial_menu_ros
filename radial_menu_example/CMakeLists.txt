@@ -140,8 +140,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(
-  example_integration
-  src/example_integration.cpp
+  example_teleop_node
+  src/example_teleop_node.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -153,14 +153,14 @@ add_executable(
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(
-  example_integration
+  example_teleop_node
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
-  example_integration
+  example_teleop_node
   ${catkin_LIBRARIES}
 )
 
@@ -181,7 +181,7 @@ target_link_libraries(
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 install(
-  TARGETS example_integration
+  TARGETS example_teleop_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
