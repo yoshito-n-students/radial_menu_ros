@@ -2,6 +2,10 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.1 (2020-XX-XX)
+------------------
+* Fix comments for State::widths
+
 0.2.0 (2020-07-26)
 ------------------
 * Install targets
