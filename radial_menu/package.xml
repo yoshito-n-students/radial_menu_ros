@@ -50,6 +50,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>radial_menu_backend</exec_depend>
+  <exec_depend>radial_menu_model</exec_depend>
   <exec_depend>radial_menu_msgs</exec_depend>
   <exec_depend>radial_menu_rviz</exec_depend>
 
