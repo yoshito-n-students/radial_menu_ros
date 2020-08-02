@@ -9,6 +9,7 @@
 #include <rviz/properties/int_property.h>
 #include <rviz/properties/property.h>
 #include <rviz/properties/ros_topic_property.h>
+#include <rviz/properties/string_property.h>
 
 #include <QFontDatabase>
 #include <QStringList>
@@ -22,13 +23,18 @@ class RadialPropertyControl : public QObject {
 
 public:
   RadialPropertyControl(rviz::Property *const parent) {
+    // description control
+    desc_param_ctl_.reset(new rviz::StringProperty(
+        /* name = */ "Menu description", /* default val = */ "",
+        /* desc = */ "ROS parameter describing the menu tree model", /* parent = */ parent,
+        /* slot = */ SLOT(updateDescriptionProperty()), /* receiver = */ this));
+
     // subscription control
     state_topic_ctl_.reset(new rviz::RosTopicProperty(
-        /* name = */ "State topic", /* default val = */ "",
+        "State topic", "",
         /* msg type = */ ros::message_traits::datatype< radial_menu_msgs::State >(),
-        /* desc = */ "Subscribed topic of radial_menu_msgs::State to visualize",
-        /* parent = */ parent,
-        /* slot = */ SLOT(updateSubscriptionProperty()), /* receiver = */ this));
+        "Subscribed topic of radial_menu_msgs::State to visualize", parent,
+        SLOT(updateSubscriptionProperty()), this));
 
     // drawing control (font)
     font_ctl_.reset(new rviz::EnumProperty("Font", "DejaVu Sans Mono", "", parent,
@@ -117,6 +123,8 @@ public:
 
   virtual ~RadialPropertyControl() {}
 
+  const DescriptionProperty &descriptionProperty() const { return desc_prop_; }
+
   const SubscriptionProperty &subscriptionProperty() const { return sub_prop_; }
 
   const RadialDrawingProperty &drawingProperty() const { return drawing_prop_; }
@@ -124,11 +132,18 @@ public:
   const PositionProperty &positionProperty() const { return pos_prop_; }
 
 Q_SIGNALS:
+  void descriptionPropertyChanged(const DescriptionProperty &prop);
   void subscriptionPropertyChanged(const SubscriptionProperty &prop);
   void drawingPropertyChanged(const RadialDrawingProperty &prop);
   void positionPropertyChanged(const PositionProperty &prop);
 
 protected Q_SLOTS:
+  void updateDescriptionProperty() {
+    desc_prop_.param_name = desc_param_ctl_->getString();
+
+    Q_EMIT descriptionPropertyChanged(desc_prop_);
+  }
+
   void updateSubscriptionProperty() {
     sub_prop_.topic = state_topic_ctl_->getTopic();
 
@@ -169,6 +184,10 @@ protected Q_SLOTS:
   }
 
 protected:
+  // description property & control
+  boost::scoped_ptr< rviz::StringProperty > desc_param_ctl_;
+  DescriptionProperty desc_prop_;
+
   // subscription property & control
   boost::scoped_ptr< rviz::RosTopicProperty > state_topic_ctl_;
   SubscriptionProperty sub_prop_;

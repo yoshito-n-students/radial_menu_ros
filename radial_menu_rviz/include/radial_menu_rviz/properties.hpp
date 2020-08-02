@@ -8,6 +8,10 @@
 
 namespace radial_menu_rviz {
 
+struct DescriptionProperty {
+  QString param_name;
+};
+
 struct SubscriptionProperty {
   QString topic;
 };
