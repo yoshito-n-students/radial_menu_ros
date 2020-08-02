@@ -8,6 +8,7 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  radial_menu_model
   radial_menu_msgs
   roscpp
   rviz
@@ -106,7 +107,7 @@ add_definitions(-DQT_NO_KEYWORDS)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES radial_menu_rviz_plugins
-  CATKIN_DEPENDS radial_menu_msgs roscpp rviz
+  CATKIN_DEPENDS radial_menu_model radial_menu_msgs roscpp rviz
 #  DEPENDS system_lib
 )
 
