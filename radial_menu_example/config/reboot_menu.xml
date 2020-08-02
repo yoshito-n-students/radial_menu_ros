@@ -1,0 +1,21 @@
+<item name="Reboot">
+    <item name="All" />
+    <item name="Base">
+        <item name="All" />
+        <item name="PC" />
+        <item name="Motors" />
+        <item name="Cameras">
+            <item name="Front" />
+            <item name="Rear" />
+        </item>
+        <item name="Lidar" />
+    </item>
+    <item name="Arm">
+        <item name="Motors" />
+        <item name="Cameras">
+            <item name="Elbow" />
+            <item name="Palm" />
+        </item>
+        <item name="LED" />
+    </item>
+</item>

@@ -52,6 +52,7 @@
   <build_depend>joy</build_depend>
   <build_depend>message_filters</build_depend>
   <build_depend>radial_menu_backend</build_depend>
+  <build_depend>radial_menu_model</build_depend>
   <build_depend>radial_menu_msgs</build_depend>
   <build_depend>radial_menu_rviz</build_depend>
   <build_depend>roscpp</build_depend>
@@ -61,6 +62,7 @@
   <build_export_depend>joy</build_export_depend>
   <build_export_depend>message_filters</build_export_depend>
   <build_export_depend>radial_menu_backend</build_export_depend>
+  <build_export_depend>radial_menu_model</build_export_depend>
   <build_export_depend>radial_menu_msgs</build_export_depend>
   <build_export_depend>radial_menu_rviz</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
@@ -70,6 +72,7 @@
   <exec_depend>joy</exec_depend>
   <exec_depend>message_filters</exec_depend>
   <exec_depend>radial_menu_backend</exec_depend>
+  <exec_depend>radial_menu_model</exec_depend>
   <exec_depend>radial_menu_msgs</exec_depend>
   <exec_depend>radial_menu_rviz</exec_depend>
   <exec_depend>roscpp</exec_depend>

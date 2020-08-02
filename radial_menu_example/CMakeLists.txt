@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   joy
   message_filters
   radial_menu_backend
+  radial_menu_model
   radial_menu_msgs
   radial_menu_rviz
   roscpp
@@ -111,7 +112,17 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES radial_menu_example
-  CATKIN_DEPENDS joy message_filters radial_menu_backend radial_menu_msgs radial_menu_rviz roscpp roslaunch rviz sensor_msgs
+  CATKIN_DEPENDS 
+  joy 
+  message_filters 
+  radial_menu_backend 
+  radial_menu_model 
+  radial_menu_msgs 
+  radial_menu_rviz 
+  roscpp 
+  roslaunch 
+  rviz 
+  sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -143,6 +154,10 @@ add_executable(
   example_teleop_node
   src/example_teleop_node.cpp
 )
+add_executable(
+  random_model_operations
+  src/random_model_operations.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -157,10 +172,19 @@ add_dependencies(
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )
+add_dependencies(
+  random_model_operations
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
   example_teleop_node
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(
+  random_model_operations
   ${catkin_LIBRARIES}
 )
 

@@ -1,0 +1,7 @@
+<launch>
+
+    <param name="menu_description" textfile="$(find radial_menu_example)/config/reboot_menu.xml" />
+
+    <node name="random_model_operations" pkg="radial_menu_example" type="random_model_operations" output="screen" /> 
+
+</launch>
