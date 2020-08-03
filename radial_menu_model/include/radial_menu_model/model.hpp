@@ -25,27 +25,42 @@ typedef boost::shared_ptr< Model > ModelPtr;
 typedef boost::shared_ptr< const Model > ModelConstPtr;
 
 class Model {
-protected:
-  Model() {}
-
 public:
+  Model() {
+    resetDescription();
+    resetState();
+  }
+
   virtual ~Model() {}
 
-  // monitoring
+  // **************
+  // Current status
+  // **************
+
+  ItemConstPtr root() const { return current_level_->root(); }
 
   ItemConstPtr currentLevel() const { return current_level_; }
 
-  bool isPointed(const ItemConstPtr &item) const {
-    return (item && item->item_id_ >= 0 && item->item_id_ < items_.size())
-               ? (item->item_id_ == state_.pointed_id)
-               : false;
+  ItemConstPtr pointed() const {
+    return (state_.pointed_id >= 0 && state_.pointed_id < items_.size()) ? items_[state_.pointed_id]
+                                                                         : ItemConstPtr();
+  }
+
+  bool isPointed(const ItemConstPtr &item) const { return !item && item == pointed(); }
+
+  std::vector< ItemConstPtr > selected() const {
+    std::vector< ItemConstPtr > items;
+    for (const std::int32_t iid : state_.selected_ids) {
+      if (iid >= 0 && iid < items_.size()) {
+        items.push_back(items_[iid]);
+      }
+    }
+    return items;
   }
 
   bool isSelected(const ItemConstPtr &item) const {
-    const std::vector< std::int32_t > &ids(state_.selected_ids);
-    return (item && item->item_id_ >= 0 && item->item_id_ < items_.size())
-               ? (std::find(ids.begin(), ids.end(), item->item_id_) != ids.end())
-               : false;
+    const std::vector< ItemConstPtr > items;
+    return !item && std::find(items.begin(), items.end(), item) != items.end();
   }
 
   int sibilingIdByAngle(double angle) const {
@@ -67,15 +82,120 @@ public:
     return -1;
   }
 
-  // state
+  // ***********
+  // Description
+  // ***********
 
-  radial_menu_msgs::State exportState(const ros::Time &stamp, const bool is_enabled) const {
-    radial_menu_msgs::State s(state_);
-    s.header.stamp = stamp;
-    s.is_enabled = is_enabled;
-    return s;
+  // set new model tree description. also rests the state
+  bool setDescription(const std::string &new_desc) {
+    namespace bpt = boost::property_tree;
+
+    struct Internal {
+      static bool elementToItems(const bpt::ptree::value_type &elm,
+                                 std::vector< ItemConstPtr > *const items,
+                                 const ItemPtr &parent_item = ItemPtr()) {
+        // is the element name "item"?
+        if (elm.first != "item") {
+          ROS_ERROR_STREAM("Model::setDescription(): Invalid element '" << elm.first << "'");
+          return false;
+        }
+
+        // does the element have the attribute "name"?
+        const boost::optional< std::string > name(
+            elm.second.get_optional< std::string >("<xmlattr>.name"));
+        if (!name) {
+          ROS_ERROR("Model::setDescription(): No attribute 'name'");
+          return false;
+        }
+
+        // create an item and append it to the given list
+        const ItemPtr item(new Item());
+        item->item_id_ = items->size();
+        item->name_ = *name;
+        if (parent_item) {
+          item->parent_ = parent_item;
+          parent_item->children_.push_back(item);
+        }
+        items->push_back(item);
+
+        // recursively update the given list
+        for (const bpt::ptree::value_type &child_elm : elm.second) {
+          if (child_elm.first == "<xmlattr>") {
+            continue;
+          }
+          if (!elementToItems(child_elm, items, item)) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+    };
+
+    // parse the given xml string
+    bpt::ptree xml;
+    try {
+      std::istringstream iss(new_desc);
+      bpt::read_xml(iss, xml, bpt::xml_parser::no_comments);
+    } catch (const bpt::ptree_error &ex) {
+      ROS_ERROR_STREAM("Model::setDescription(): " << ex.what());
+      return false;
+    }
+
+    // find the root xml element
+    if (xml.size() != 1) {
+      ROS_ERROR("Model::setDescription(): Non unique root element in xml");
+      return false;
+    }
+    const bpt::ptree::value_type &root_elm(xml.front());
+
+    // populate items in the item tree
+    std::vector< ItemConstPtr > new_items;
+    if (!Internal::elementToItems(root_elm, &new_items)) {
+      return false;
+    }
+
+    // set the initial level of the model
+    const ItemConstPtr new_current_level(new_items.front()->childLevel());
+    if (!new_current_level) {
+      ROS_ERROR("Model::setDescription(): No children of the root item");
+      return false;
+    }
+
+    // set new description (also reset the state)
+    items_ = new_items;
+    current_level_ = new_current_level;
+    state_ = defaultState();
+    return true;
   }
 
+  // set new description obtained from a ROS param server
+  bool setDescriptionFromParam(const std::string &param_name) {
+    std::string new_desc;
+    if (ros::param::get(param_name, new_desc)) {
+      return setDescription(new_desc);
+    } else {
+      ROS_ERROR_STREAM("Model::setDescriptionFromParam(): Cannot get the param '" << param_name
+                                                                                  << "'");
+      return false;
+    }
+  }
+
+  bool resetDescription() { return setDescription(defaultDescription()); }
+
+  static std::string defaultDescription() {
+    return "<item name=\"Menu\">\n"
+           "  <item name=\"Item\" />\n"
+           "</item>";
+  }
+
+  // *****
+  // State
+  // *****
+
+  const radial_menu_msgs::State &state() const { return state_; }
+
+  // set new state. also update the current level
   void setState(const radial_menu_msgs::State &new_state) {
     state_ = new_state;
 
@@ -93,7 +213,26 @@ public:
     }
   }
 
-  // pointing
+  void resetState() { setState(defaultState()); }
+
+  static radial_menu_msgs::State defaultState() {
+    radial_menu_msgs::State state;
+    state.is_enabled = false;
+    state.pointed_id = -1;
+    return state;
+  }
+
+  // ********
+  // Enabling
+  // ********
+
+  bool isEnabled() const { return state_.is_enabled; }
+
+  void setEnabled(const bool is_enabled) { state_.is_enabled = is_enabled; }
+
+  // *********************
+  // Pointing / Unpointing
+  // *********************
 
   // can point if the specified sibiling is not pointed
   bool canPoint(const int sid) const {
@@ -110,8 +249,6 @@ public:
     throw ros::Exception("Model::point()");
   }
 
-  // unpointing
-
   // can unpoint if the specified sibiling is pointed
   bool canUnpoint(const int sid) const {
     const ItemConstPtr sibiling(current_level_->sibiling(sid));
@@ -127,7 +264,9 @@ public:
     throw ros::Exception("Model::unpoint()");
   }
 
-  // select
+  // ****************************
+  // Leaf selection / deselection
+  // ****************************
 
   // can select if the specified sibiling has no children and is not selected
   bool canSelect(const int sid) const {
@@ -150,8 +289,6 @@ public:
     throw ros::Exception("Model::select()");
   }
 
-  // deselect
-
   // can deselect if the specified sibiling has no children and is selected
   bool canDeselect(const int sid) const {
     const ItemConstPtr sibiling(current_level_->sibiling(sid));
@@ -167,7 +304,9 @@ public:
     throw ros::Exception("Model::deselect()");
   }
 
-  // descending
+  // **********************
+  // Descending / Ascending
+  // **********************
 
   // can descend if the specified sibiling has a child
   bool canDescend(const int sid) const {
@@ -194,8 +333,6 @@ public:
     throw ros::Exception("Model::descend()");
   }
 
-  // ascending
-
   // can ascend if the current level is not the first
   bool canAscend() const { return current_level_->parent() != current_level_->root(); }
 
@@ -213,15 +350,9 @@ public:
     throw ros::Exception("Model::ascend()");
   }
 
-  // reset
-
-  // reset state and move to the first level
-  void reset() {
-    current_level_ = current_level_->root()->childLevel();
-    state_ = defaultState();
-  }
-
-  // debug
+  // *****
+  // Debug
+  // *****
 
   std::string toString() const {
     struct Internal {
@@ -245,111 +376,11 @@ public:
     return Internal::toString(this, current_level_->root());
   }
 
-public:
-  static radial_menu_msgs::State defaultState() {
-    radial_menu_msgs::State state;
-    state.is_enabled = false;
-    state.pointed_id = -1;
-    return state;
-  }
-
-  static ModelPtr fromXml(const std::string &xml_str) {
-    namespace bpt = boost::property_tree;
-
-    struct Internal {
-      // <item name="NAME">
-      //     <item name="" />
-      //     ...
-      // </item>
-      static bool appendItems(const bpt::ptree::value_type &elm,
-                              std::vector< ItemConstPtr > *const items,
-                              const ItemPtr &parent = ItemPtr()) {
-        // is the element name "item"?
-        if (elm.first != "item") {
-          ROS_ERROR_STREAM("Model::fromXml(): Invalid element '" << elm.first << "'");
-          return false;
-        }
-
-        // does the element have the attribute "name"?
-        const boost::optional< std::string > name(
-            elm.second.get_optional< std::string >("<xmlattr>.name"));
-        if (!name) {
-          ROS_ERROR("Model::fromXml(): No name attribute");
-          return false;
-        }
-
-        // create an item and append it to the given list
-        const ItemPtr item(new Item());
-        item->item_id_ = items->size();
-        item->name_ = *name;
-        if (parent) {
-          item->parent_ = parent;
-          parent->children_.push_back(item);
-        }
-        items->push_back(item);
-
-        // recursively update the given list
-        for (const bpt::ptree::value_type &child_elm : elm.second) {
-          if (child_elm.first == "<xmlattr>") {
-            continue;
-          }
-          if (!appendItems(child_elm, items, item)) {
-            return false;
-          }
-        }
-
-        return true;
-      }
-    };
-
-    // parse the given xml string
-    bpt::ptree xml;
-    try {
-      std::istringstream iss(xml_str);
-      bpt::read_xml(iss, xml, bpt::xml_parser::no_comments);
-    } catch (const bpt::ptree_error &ex) {
-      ROS_ERROR_STREAM("Model::fromXml(): " << ex.what());
-      return ModelPtr();
-    }
-
-    // find the root xml element
-    if (xml.size() != 1) {
-      ROS_ERROR("Model::fromXml(): Non unique root element in xml");
-      return ModelPtr();
-    }
-    const bpt::ptree::value_type &root_elm(xml.front());
-
-    // populate items in the item tree
-    ModelPtr model(new Model());
-    if (!Internal::appendItems(root_elm, &model->items_)) {
-      return ModelPtr();
-    }
-
-    // set the initial level of the model
-    model->current_level_ = model->items_.front()->childLevel();
-    if (!model->current_level_) {
-      ROS_ERROR("Model::fromXml(): No children of the root item");
-      return ModelPtr();
-    }
-
-    // set the initial state
-    model->state_.is_enabled = false;
-    model->state_.pointed_id = -1;
-
-    return model;
-  }
-
-  static ModelPtr fromParam(const std::string &key) {
-    std::string xml_str;
-    if (ros::param::get(key, xml_str)) {
-      return fromXml(xml_str);
-    } else {
-      ROS_ERROR_STREAM("Model::fromParam(): Cannot get the param '" << key << "'");
-      return ModelPtr();
-    }
-  }
-
 protected:
+  // ************
+  // Internal use
+  // ************
+
   void forceSelect(const ItemConstPtr &item) {
     std::vector< std::int32_t > &ids(state_.selected_ids);
     if (std::find(ids.begin(), ids.end(), item->item_id_) == ids.end()) {
