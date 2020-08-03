@@ -28,7 +28,7 @@ int randomSid(const int n_sibilings) {
 // Operations on a menu model
 // **************************
 
-bool point(const rmm::ModelPtr &model) {
+bool point(rmm::Model *const model) {
   const int sid(randomSid(model->currentLevel()->numSibilings()));
   if (model->canPoint(sid)) {
     ROS_INFO_STREAM("Pointing sibiling[" << sid << "] ...");
@@ -39,7 +39,7 @@ bool point(const rmm::ModelPtr &model) {
   }
 }
 
-bool unpoint(const rmm::ModelPtr &model) {
+bool unpoint(rmm::Model *const model) {
   const int sid(model->pointedSibilingId());
   if (model->canUnpoint(sid)) {
     ROS_INFO_STREAM("Unpointing sibiling[" << sid << "] ...");
@@ -50,7 +50,7 @@ bool unpoint(const rmm::ModelPtr &model) {
   }
 }
 
-bool select(const rmm::ModelPtr &model) {
+bool select(rmm::Model *const model) {
   const int sid(randomSid(model->currentLevel()->numSibilings()));
   if (model->canSelect(sid)) {
     ROS_INFO_STREAM("Selecting sibiling[" << sid << "] ...");
@@ -61,7 +61,7 @@ bool select(const rmm::ModelPtr &model) {
   }
 }
 
-bool deselect(const rmm::ModelPtr &model) {
+bool deselect(rmm::Model *const model) {
   const int sid(randomSid(model->currentLevel()->numSibilings()));
   if (model->canDeselect(sid)) {
     ROS_INFO_STREAM("Deselecting sibiling[" << sid << "] ...");
@@ -72,7 +72,7 @@ bool deselect(const rmm::ModelPtr &model) {
   }
 }
 
-bool descend(const rmm::ModelPtr &model) {
+bool descend(rmm::Model *const model) {
   const int sid(randomSid(model->currentLevel()->numSibilings()));
   if (model->canDescend(sid)) {
     ROS_INFO_STREAM("Descending from sibiling[" << sid << "] ...");
@@ -83,7 +83,7 @@ bool descend(const rmm::ModelPtr &model) {
   }
 }
 
-bool ascend(const rmm::ModelPtr &model) {
+bool ascend(rmm::Model *const model) {
   if (model->canAscend()) {
     ROS_INFO("Ascending ...");
     model->ascend();
@@ -102,23 +102,23 @@ int main(int argc, char *argv[]) {
   ros::NodeHandle nh;
 
   // load a menu from param
-  rmm::ModelPtr model(rmm::Model::fromParam("menu_description"));
-  if (!model) {
+  rmm::Model model;
+  if (!model.setDescriptionFromParam("menu_description")) {
     return 1;
   }
-  ROS_INFO_STREAM("Model:\n" << model->toString());
-  ROS_INFO_STREAM("State:\n" << model->exportState(ros::Time::now(), false));
+  ROS_INFO_STREAM("Model:\n" << model.toString());
+  ROS_INFO_STREAM("State:\n" << model.state());
 
   // perform random operations on the menu model
-  typedef bool (*Operation)(const rmm::ModelPtr &);
+  typedef bool (*Operation)(rmm::Model *const);
   std::array< Operation, 6 > operations = {point, unpoint, select, deselect, descend, ascend};
   for (int i = 0; i < 20; ++i) {
     // shuffle operation order and try one by one until the first success
     std::shuffle(operations.begin(), operations.end(), randomEngine());
     for (const Operation op : operations) {
-      if ((*op)(model)) {
-        ROS_INFO_STREAM("Model:\n" << model->toString());
-        ROS_INFO_STREAM("State:\n" << model->exportState(ros::Time::now(), true));
+      if ((*op)(&model)) {
+        ROS_INFO_STREAM("Model:\n" << model.toString());
+        ROS_INFO_STREAM("State:\n" << model.state());
         break;
       }
     }
