@@ -7,8 +7,6 @@ Panels:
         - /Global Options1
         - /Status1
         - /TeleopMenu1
-        - /RebootMenu1
-        - /HRebootMenu1
       Splitter Ratio: 0.5196969509124756
     Tree Height: 956
   - Class: rviz/Selection
@@ -66,11 +64,12 @@ Visualization Manager:
       Item (default): 10; 36; 99
       Item (pointed): 10; 36; 99
       Item (selected): 255; 250; 255
-      Item area width: 128
+      Item area width: 80
       Item bg (default): 255; 250; 255
       Item bg (pointed): 62; 146; 204
       Item bg (selected): 10; 36; 99
       Line width: 12
+      Menu description: /teleop_menu_description
       Name: TeleopMenu
       State topic: /teleop_menu_state
       Text alpha: 255
@@ -95,6 +94,7 @@ Visualization Manager:
       Item bg (pointed): 79; 117; 155
       Item bg (selected): 255; 58; 32
       Line width: 8
+      Menu description: /reboot_menu_description
       Name: RebootMenu
       State topic: /reboot_menu_state
       Text alpha: 255
@@ -116,6 +116,7 @@ Visualization Manager:
       Item bg (selected): 10; 36; 99
       Left: 640
       Line width: 8
+      Menu description: /teleop_menu_description
       Name: HTeleopMenu
       State topic: /teleop_menu_state
       Text alpha: 255
@@ -136,6 +137,7 @@ Visualization Manager:
       Item bg (selected): 255; 58; 32
       Left: 64
       Line width: 8
+      Menu description: /reboot_menu_description
       Name: HRebootMenu
       State topic: /reboot_menu_state
       Text alpha: 255
