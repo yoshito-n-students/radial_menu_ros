@@ -2,9 +2,9 @@
 Changelog for package radial_menu_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.2.1 (2020-XX-XX)
+0.3.0 (2020-08-03)
 ------------------
-* Fix comments for State::widths
+* Remove fields about menu tree model from State message because menu tree model is provided from a parameter
 
 0.2.0 (2020-07-26)
 ------------------

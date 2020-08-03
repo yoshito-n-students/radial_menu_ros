@@ -2,9 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.2.1 (2020-XX-XX)
+0.3.0 (2020-08-03)
 ------------------
-* Specialize the example integration node to a teleop application
+* Support the latest version of other packages
+* Rviz frontend example with random model manipulation
 
 0.2.0 (2020-07-26)
 ------------------
