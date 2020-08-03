@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <vector>
 
-#include <radial_menu_msgs/State.h>
+#include <radial_menu_model/model.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
 #include <ros/console.h>
@@ -27,12 +27,15 @@ namespace radial_menu_rviz {
 
 class HorizontalImageDrawer {
 public:
-  HorizontalImageDrawer(const radial_menu_msgs::State &state, const HorizontalDrawingProperty &prop)
-      : state_(state), prop_(prop) {}
+  HorizontalImageDrawer(const radial_menu_model::ModelConstPtr &model,
+                        const HorizontalDrawingProperty &prop) {
+    setModel(model);
+    setProperty(prop);
+  }
 
   virtual ~HorizontalImageDrawer() {}
 
-  void setState(const radial_menu_msgs::State &state) { state_ = state; }
+  void setModel(const radial_menu_model::ModelConstPtr &model) { model_ = model; }
 
   void setProperty(const HorizontalDrawingProperty &prop) { prop_ = prop; }
 
@@ -116,7 +119,7 @@ protected:
 
     // evaluate the title
     {
-      const QString text(QString::fromStdString(state_.title));
+      const QString text(QString::fromStdString(model_->root()->name()));
       QRect bg_rect, text_rect;
       elementLayout(text, &bg_rect, &text_rect);
       if (bg_rect.isValid() && text_rect.isValid()) {
@@ -128,30 +131,31 @@ protected:
     }
 
     // evaluate the selected items
-    for (const std::int32_t id : state_.selected_ids) {
-      if (id >= 0 && id < state_.items.size()) {
-        const QString text(QString::fromStdString(state_.items[id]));
-        QRect bg_rect, text_rect;
-        elementLayout(text, &bg_rect, &text_rect);
-        if (bg_rect.isValid() && text_rect.isValid()) {
-          element_types->push_back(SelectedElement);
-          bg_rects->push_back(bg_rect);
-          text_rects->push_back(text_rect);
-          texts->push_back(text);
-        }
+    for (const radial_menu_model::ItemConstPtr &item : model_->selected()) {
+      const QString text(QString::fromStdString(item->name()));
+      QRect bg_rect, text_rect;
+      elementLayout(text, &bg_rect, &text_rect);
+      if (bg_rect.isValid() && text_rect.isValid()) {
+        element_types->push_back(SelectedElement);
+        bg_rects->push_back(bg_rect);
+        text_rects->push_back(text_rect);
+        texts->push_back(text);
       }
     }
 
     // evaluate the pointed item
-    if (state_.pointed_id >= 0 && state_.pointed_id < state_.items.size()) {
-      const QString text(QString::fromStdString(state_.items[state_.pointed_id]));
-      QRect bg_rect, text_rect;
-      elementLayout(text, &bg_rect, &text_rect);
-      if (bg_rect.isValid() && text_rect.isValid()) {
-        element_types->push_back(PointedElement);
-        bg_rects->push_back(bg_rect);
-        text_rects->push_back(text_rect);
-        texts->push_back(text);
+    {
+      const radial_menu_model::ItemConstPtr item(model_->pointed());
+      if (item) {
+        const QString text(QString::fromStdString(item->name()));
+        QRect bg_rect, text_rect;
+        elementLayout(text, &bg_rect, &text_rect);
+        if (bg_rect.isValid() && text_rect.isValid()) {
+          element_types->push_back(PointedElement);
+          bg_rects->push_back(bg_rect);
+          text_rects->push_back(text_rect);
+          texts->push_back(text);
+        }
       }
     }
 
@@ -213,7 +217,7 @@ protected:
   }
 
 protected:
-  radial_menu_msgs::State state_;
+  radial_menu_model::ModelConstPtr model_;
   HorizontalDrawingProperty prop_;
 };
 } // namespace radial_menu_rviz

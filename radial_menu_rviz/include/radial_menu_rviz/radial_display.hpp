@@ -29,8 +29,10 @@ protected:
 
     // origin in the position property indicates the image center
     overlay_->setAlignment(Qt::AlignCenter);
-    
+
     // slots on properties changed
+    connect(prop_ctl_.get(), SIGNAL(descriptionPropertyChanged(const DescriptionProperty &)),
+            this, SLOT(updateDescription(const DescriptionProperty &)));
     connect(prop_ctl_.get(), SIGNAL(subscriptionPropertyChanged(const SubscriptionProperty &)),
             this, SLOT(updateSubscription(const SubscriptionProperty &)));
     connect(prop_ctl_.get(), SIGNAL(drawingPropertyChanged(const RadialDrawingProperty &)), this,
@@ -40,6 +42,8 @@ protected:
   }
 
 protected Q_SLOTS:
+  void updateDescription(const DescriptionProperty &prop) { Base::updateDescription(prop); }
+
   void updateSubscription(const SubscriptionProperty &prop) { Base::updateSubscription(prop); }
 
   void updateImage(const RadialDrawingProperty &prop) { Base::updateImage(prop); }

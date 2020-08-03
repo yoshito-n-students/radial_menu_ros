@@ -1,6 +1,7 @@
 #ifndef RADIAL_MENU_RVIZ_DISPLAY_BASE_HPP
 #define RADIAL_MENU_RVIZ_DISPLAY_BASE_HPP
 
+#include <radial_menu_model/model.hpp>
 #include <radial_menu_msgs/State.h>
 #include <radial_menu_msgs/utils.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
@@ -28,11 +29,13 @@ protected:
   virtual void onInitialize() {
     // allocate objects
     prop_ctl_.reset(new PropertyControl(this));
-    drawer_.reset(new ImageDrawer(radial_menu_msgs::disabledState(), prop_ctl_->drawingProperty()));
+    model_.reset(new radial_menu_model::Model());
+    drawer_.reset(new ImageDrawer(model_, prop_ctl_->drawingProperty()));
     overlay_.reset(new ImageOverlay());
 
     // apply the initial properties
     // (except subscription. it will be executed in onEnable().)
+    updateDescription(prop_ctl_->descriptionProperty());
     updateImage(prop_ctl_->drawingProperty());
     updatePosition(prop_ctl_->positionProperty());
   }
@@ -49,13 +52,20 @@ protected:
     state_sub_.shutdown();
   }
 
+  void updateDescription(const DescriptionProperty &prop) {
+    if (model_->setDescriptionFromParam(prop.param_name.toStdString())) {
+      updateImage();
+    }
+  }
+
   void updateSubscription(const SubscriptionProperty &prop) {
     // unsubscribe
     state_sub_.shutdown();
 
     // destroy the last state from the previous session
+    model_->resetState();
     state_.reset();
-    updateImage(radial_menu_msgs::disabledStatePtr());
+    updateImage();
 
     // subscribe the new topic
     try {
@@ -68,21 +78,25 @@ protected:
     }
   }
 
+  // update menu image based on the current configs
+  void updateImage() {
+    overlay_->setImage(drawer_->draw());
+    overlay_->update();
+  }
+
   // update menu image with the given menu state
   void updateImage(const radial_menu_msgs::StateConstPtr &state) {
     if (radial_menu_msgs::changed(state, state_)) {
-      drawer_->setState(*state);
-      overlay_->setImage(drawer_->draw());
-      overlay_->update();
+      model_->setState(*state);
       state_ = state;
+      updateImage();
     }
   }
 
   // update menu image with the given drawing property
   void updateImage(const DrawingProperty &prop) {
     drawer_->setProperty(prop);
-    overlay_->setImage(drawer_->draw());
-    overlay_->update();
+    updateImage();
   }
 
   void updatePosition(const PositionProperty &prop) {
@@ -93,6 +107,8 @@ protected:
 protected:
   // property control via Rviz
   boost::scoped_ptr< PropertyControl > prop_ctl_;
+  // menu tree model
+  radial_menu_model::ModelPtr model_;
   // menu state subscriber
   ros::Subscriber state_sub_;
   radial_menu_msgs::StateConstPtr state_;

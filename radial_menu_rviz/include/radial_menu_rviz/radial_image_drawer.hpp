@@ -5,7 +5,7 @@
 #include <cmath>
 #include <vector>
 
-#include <radial_menu_msgs/State.h>
+#include <radial_menu_model/model.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
 
@@ -25,32 +25,27 @@ namespace radial_menu_rviz {
 
 class RadialImageDrawer {
 public:
-  RadialImageDrawer(const radial_menu_msgs::State &state, const RadialDrawingProperty &prop) {
-    setState(state);
+  RadialImageDrawer(const radial_menu_model::ModelConstPtr &model,
+                    const RadialDrawingProperty &prop) {
+    setModel(model);
     setProperty(prop);
   }
 
   virtual ~RadialImageDrawer() {}
 
-  void setState(const radial_menu_msgs::State &state) { state_ = state; }
+  void setModel(const radial_menu_model::ModelConstPtr &model) { model_ = model; }
 
   void setProperty(const RadialDrawingProperty &prop) { prop_ = prop; }
 
   QImage draw() const {
-    // if state is invalid, draw nothing
-    const int max_depth(static_cast< int >(state_.widths.size()) - 1);
-    const int max_item_id(static_cast< int >(state_.items.size()) - 1);
-    if (max_depth < 0 || lastItemId(max_depth) != max_item_id) {
-      return QImage();
-    }
-
-    // if the menu is closed, draw nothing
-    if (!state_.is_enabled) {
+    // if the menu is disabled, draw nothing
+    if (!model_->isEnabled()) {
       return QImage();
     }
 
     // draw menu elements
-    QImage image(ImageOverlay::formattedImage(imageSize(max_depth), Qt::transparent));
+    QImage image(
+        ImageOverlay::formattedImage(imageSize(model_->currentLevel()->depth()), Qt::transparent));
     drawBackgrounds(&image);
     drawTexts(&image);
     return image;
@@ -65,8 +60,9 @@ protected:
     alpha_image.fill(QColor(0, 0, 0)); // defaultly transparent
 
     // draw item areas from outer to inner, and then the title area
-    for (int depth = state_.widths.size() - 1; depth >= 0; --depth) {
-      drawItemBackgrounds(image, &alpha_image, depth);
+    for (radial_menu_model::ItemConstPtr level = model_->currentLevel(); level != model_->root();
+         level = level->parentLevel()) {
+      drawItemBackgrounds(image, &alpha_image, level);
     }
     drawTitleBackground(image, &alpha_image);
 
@@ -74,7 +70,8 @@ protected:
     image->setAlphaChannel(alpha_image);
   }
 
-  void drawItemBackgrounds(QImage *const image, QImage *const alpha_image, const int depth) const {
+  void drawItemBackgrounds(QImage *const image, QImage *const alpha_image,
+                           const radial_menu_model::ItemConstPtr &level) const {
     // painters
     QPainter rgb_painter(image), alpha_painter(alpha_image);
     rgb_painter.setRenderHint(QPainter::Antialiasing);
@@ -82,10 +79,10 @@ protected:
 
     // common properties
     const QPoint image_center(image->rect().center());
-    const int first_item_id(firstItemId(depth)), last_item_id(lastItemId(depth));
+    const int depth(level->depth()), width(level->numSibilings());
 
     // draw item areas by pies
-    if (first_item_id <= last_item_id) {
+    if (width > 0) {
       // set tools for alpha painter
       const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
       alpha_painter.setPen(bg_alpha);
@@ -94,13 +91,12 @@ protected:
       QRect rect;
       rect.setSize(imageSize(depth));
       rect.moveCenter(image_center);
-      const int span_angle(pieSpanAngle(depth));
+      const int span_angle(pieSpanAngle(width));
       // draw pies
-      for (int item_id = first_item_id; item_id <= last_item_id; ++item_id) {
+      for (int sid = 0; sid < width; ++sid) {
         // set tools for rgb painter according to item type
-        const bool is_selected(std::find(state_.selected_ids.begin(), state_.selected_ids.end(),
-                                         item_id) != state_.selected_ids.end());
-        const bool is_pointed(item_id == state_.pointed_id);
+        const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
+        const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
         if (is_selected && is_pointed) {
           const QRgb rgb(averagedRgb(prop_.item_bg_rgb_selected, prop_.item_bg_rgb_pointed));
           rgb_painter.setPen(QPen(rgb));
@@ -117,7 +113,7 @@ protected:
           rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_default));
         }
         // draw a pie
-        const int center_angle(pieCenterAngle(item_id - first_item_id, depth));
+        const int center_angle(pieCenterAngle(sid, depth));
         const int start_angle(center_angle - span_angle / 2);
         rgb_painter.drawPie(rect, start_angle, span_angle);
         alpha_painter.drawPie(rect, start_angle, span_angle);
@@ -125,11 +121,10 @@ protected:
     }
 
     // draw transparent lines between item areas
-    if (first_item_id <= last_item_id && prop_.line_width > 0) {
+    if (width > 0 && prop_.line_width > 0) {
       alpha_painter.setPen(QPen(QColor(0, 0, 0), prop_.line_width));
-      for (int item_id = first_item_id; item_id <= last_item_id; ++item_id) {
-        alpha_painter.drawLine(image_center,
-                               image_center + relativeItemLineEnd(item_id - first_item_id, depth));
+      for (int sid = 0; sid < width; ++sid) {
+        alpha_painter.drawLine(image_center, image_center + relativeItemLineEnd(sid, width, depth));
       }
     }
 
@@ -174,29 +169,29 @@ protected:
   }
 
   void drawTexts(QImage *const image) const {
-    for (int depth = state_.widths.size() - 1; depth >= 0; --depth) {
-      drawItemTexts(image, depth);
+    for (radial_menu_model::ItemConstPtr level = model_->currentLevel(); level != model_->root();
+         level = level->parentLevel()) {
+      drawItemTexts(image, level);
     }
     drawTitleText(image);
   }
 
-  void drawItemTexts(QImage *const image, const int depth) const {
+  void drawItemTexts(QImage *const image, const radial_menu_model::ItemConstPtr &level) const {
     QPainter painter(image);
     painter.setFont(prop_.font);
     painter.setRenderHint(QPainter::TextAntialiasing);
 
     const QFontMetrics font_metrics(prop_.font);
     const QPoint image_center(image->rect().center());
-    const int first_item_id(firstItemId(depth)), last_item_id(lastItemId(depth));
+    const int width(level->numSibilings()), depth(level->depth());
     const QRect constraint_rect(
         QRect(QPoint(0, 0), QSize(prop_.item_area_width, prop_.item_area_width)));
 
     // draw item texts
-    for (int item_id = first_item_id; item_id <= last_item_id; ++item_id) {
+    for (int sid = 0; sid < width; ++sid) {
+      const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
       // set tools for the painter according to item type
-      const bool is_selected(std::find(state_.selected_ids.begin(), state_.selected_ids.end(),
-                                       item_id) != state_.selected_ids.end());
-      const bool is_pointed(item_id == state_.pointed_id);
+      const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
       if (is_selected && is_pointed) {
         const QRgb rgb(averagedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
         painter.setPen(makeColor(rgb, prop_.text_alpha));
@@ -210,16 +205,17 @@ protected:
       }
       // draw the item text
       QRect rect;
-      const QString item(QString::fromStdString(state_.items[item_id]));
-      rect = font_metrics.boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, item);
-      rect.moveCenter(relativeItemCenter(item_id - first_item_id, depth));
+      const QString text(QString::fromStdString(item->name()));
+      rect = font_metrics.boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, text);
+      rect.moveCenter(relativeItemCenter(sid, width, depth));
       rect.translate(image_center);
-      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, item);
+      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, text);
     }
   }
 
   void drawTitleText(QImage *const image) const {
-    if (prop_.draw_title_area && !state_.title.empty()) {
+    const QString text(QString::fromStdString(model_->root()->name()));
+    if (prop_.draw_title_area && !text.isEmpty()) {
       // painter
       QPainter painter(image);
       painter.setFont(prop_.font);
@@ -227,70 +223,49 @@ protected:
       painter.setPen(makeColor(prop_.title_rgb, prop_.text_alpha));
       // draw the title text at the image center
       QRect rect;
-      const QString title(QString::fromStdString(state_.title));
       const QRect constraint_rect(QPoint(0, 0),
                                   QSize(2 * prop_.title_area_radius, 2 * prop_.title_area_radius));
       rect = QFontMetrics(prop_.font)
-                 .boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, title);
+                 .boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, text);
       rect.moveCenter(image->rect().center());
-      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, title);
+      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, text);
     }
   }
 
   // helper functions
 
-  // if the depth is -1, returns the size of title area
+  // if the depth is 0, returns the size of title area
   QSize imageSize(const int depth) const {
-    const int len(
-        2 * (prop_.title_area_radius + (prop_.line_width + prop_.item_area_width) * (depth + 1)));
+    const int len(2 *
+                  (prop_.title_area_radius + (prop_.line_width + prop_.item_area_width) * depth));
     return QSize(len, len);
   }
 
-  int menuWidth(const int depth) const {
-    return (depth >= 0 && depth < state_.widths.size()) ? state_.widths[depth] : 0;
-  }
-
-  int firstItemId(const int depth) const {
-    int item_id(0);
-    for (int d = 0; d < depth; ++d) {
-      item_id += menuWidth(d);
-    }
-    return item_id;
-  }
-
-  int lastItemId(const int depth) const { return firstItemId(depth + 1) - 1; }
-
   // angle for QPainter (0 at 3 o'clock, counterclockwise positive, in 1/16 degrees)
-  int pieCenterAngle(const int id, const int depth) const {
-    const int width(menuWidth(depth));
-    return (width == 0) ? 0 : (360 * 16 * id / width + 90 * 16);
+  int pieCenterAngle(const int sid, const int width) const {
+    return (width == 0) ? 0 : (360 * 16 * sid / width + 90 * 16);
   }
 
   // angle for QPainter (in 1/16 degrees)
-  int pieSpanAngle(const int depth) const {
-    const int width(menuWidth(depth));
-    return (width == 0) ? 0 : (360 * 16 / width);
-  }
+  int pieSpanAngle(const int width) const { return (width == 0) ? 0 : (360 * 16 / width); }
 
   // calc the end position of the line between i-th and (i+1)-th item areas,
   // relative to the menu center
-  QPoint relativeItemLineEnd(const int id, const int depth) const {
+  QPoint relativeItemLineEnd(const int sid, const int width, const int depth) const {
     // 0 at twelve o'clock position, counterclockwise positive
-    const int width(menuWidth(depth));
-    const double th((width == 0) ? 0. : (2. * M_PI * (0.5 + id) / width));
+    const double th((width == 0) ? 0. : (2. * M_PI * (0.5 + sid) / width));
     // upward & leftward positive
     const double radius(prop_.title_area_radius +
-                        (prop_.line_width + prop_.item_area_width) * (depth + 1));
+                        (prop_.line_width + prop_.item_area_width) * depth);
     const double u(radius * std::cos(th)), v(radius * std::sin(th));
     // rightward & downward positive
     return QPoint(-static_cast< int >(v), -static_cast< int >(u));
   }
 
   // calc the center position of item text, relative to the menu center
-  QPoint relativeItemCenter(const int id, const int depth) const {
+  QPoint relativeItemCenter(const int sid, const int width, const int depth) const {
     // 0 at twelve o'clock position, counterclockwise positive
-    const int width(menuWidth(depth));
-    const double th((width == 0) ? 0. : (2. * M_PI * id / width));
+    const double th((width == 0) ? 0. : (2. * M_PI * sid / width));
     // upward & leftward positive
     const double radius(prop_.title_area_radius + prop_.line_width * (depth + 1) +
                         prop_.item_area_width * (depth + 0.5));
@@ -314,7 +289,7 @@ protected:
   }
 
 protected:
-  radial_menu_msgs::State state_;
+  radial_menu_model::ModelConstPtr model_;
   RadialDrawingProperty prop_;
 };
 } // namespace radial_menu_rviz
