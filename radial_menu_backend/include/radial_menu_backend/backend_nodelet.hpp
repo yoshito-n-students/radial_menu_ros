@@ -36,7 +36,7 @@ protected:
     controller_ = boost::make_shared< BackendController >(
         model_, BackendConfig::fromParamNs(pnh.getNamespace()));
 
-    state_pub_ = nh.advertise< radial_menu_msgs::State >("radial_menu_state", 1, true);
+    state_pub_ = nh.advertise< radial_menu_msgs::State >("menu_state", 1, true);
     state_pub_.publish(model_->exportState());
     joy_sub_ = nh.subscribe("joy", 1, &BackendNodelet::onJoyRecieved, this);
   }
