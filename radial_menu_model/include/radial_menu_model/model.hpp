@@ -46,7 +46,7 @@ public:
                                                                          : ItemConstPtr();
   }
 
-  bool isPointed(const ItemConstPtr &item) const { return !item && item == pointed(); }
+  bool isPointed(const ItemConstPtr &item) const { return item && item == pointed(); }
 
   std::vector< ItemConstPtr > selected() const {
     std::vector< ItemConstPtr > items;
@@ -59,8 +59,15 @@ public:
   }
 
   bool isSelected(const ItemConstPtr &item) const {
-    const std::vector< ItemConstPtr > items;
-    return !item && std::find(items.begin(), items.end(), item) != items.end();
+    if (!item) {
+      return false;
+    }
+    for (const std::int32_t iid : state_.selected_ids) {
+      if (iid >= 0 && iid < items_.size() && item == items_[iid]) {
+        return true;
+      }
+    }
+    return false;
   }
 
   int sibilingIdByAngle(double angle) const {
@@ -75,7 +82,7 @@ public:
 
   int pointedSibilingId() const {
     for (int sid = 0; sid < current_level_->numSibilings(); ++sid) {
-      if (current_level_->sibiling(sid)->item_id_ == state_.pointed_id) {
+      if (isPointed(current_level_->sibiling(sid))) {
         return sid;
       }
     }
@@ -184,6 +191,7 @@ public:
   bool resetDescription() { return setDescription(defaultDescription()); }
 
   static std::string defaultDescription() {
+    // this is useless as an actual menu, but keeps items_ & current_level_ valid
     return "<item name=\"Menu\">\n"
            "  <item name=\"Item\" />\n"
            "</item>";
@@ -196,7 +204,7 @@ public:
   const radial_menu_msgs::State &state() const { return state_; }
 
   // set new state. also update the current level
-  void setState(const radial_menu_msgs::State &new_state) {
+  bool setState(const radial_menu_msgs::State &new_state) {
     state_ = new_state;
 
     // update the current level by moving to the deepest level of selected items or its children
@@ -211,9 +219,11 @@ public:
         }
       }
     }
+
+    return true;
   }
 
-  void resetState() { setState(defaultState()); }
+  bool resetState() { return setState(defaultState()); }
 
   static radial_menu_msgs::State defaultState() {
     radial_menu_msgs::State state;
