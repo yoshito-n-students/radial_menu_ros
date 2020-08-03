@@ -54,6 +54,7 @@ protected:
 
   void updateDescription(const DescriptionProperty &prop) {
     if (model_->setDescriptionFromParam(prop.param_name.toStdString())) {
+      state_.reset(new radial_menu_msgs::State(model_->state()));
       updateImage();
     }
   }
@@ -64,7 +65,7 @@ protected:
 
     // destroy the last state from the previous session
     model_->resetState();
-    state_.reset();
+    state_.reset(new radial_menu_msgs::State(model_->state()));
     updateImage();
 
     // subscribe the new topic
