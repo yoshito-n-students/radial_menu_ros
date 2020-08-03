@@ -201,7 +201,11 @@ public:
   // State
   // *****
 
-  const radial_menu_msgs::State &state() const { return state_; }
+  radial_menu_msgs::StatePtr exportState(const ros::Time stamp = ros::Time::now()) const {
+    radial_menu_msgs::StatePtr state(new radial_menu_msgs::State(state_));
+    state->header.stamp = stamp;
+    return state;
+  }
 
   // set new state. also update the current level
   bool setState(const radial_menu_msgs::State &new_state) {

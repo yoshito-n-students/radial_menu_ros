@@ -9,7 +9,6 @@
 #include <ros/node_handle.h>
 #include <ros/publisher.h>
 #include <ros/rate.h>
-#include <ros/time.h>
 
 namespace rmm = radial_menu_model;
 
@@ -114,7 +113,7 @@ int main(int argc, char *argv[]) {
   }
   model.setEnabled(true);
   ROS_INFO_STREAM("Model:\n" << model.toString());
-  ROS_INFO_STREAM("State:\n" << model.state());
+  ROS_INFO_STREAM("State:\n" << *model.exportState());
 
   // perform random operations on the menu model
   typedef bool (*Operation)(rmm::Model *const);
@@ -126,14 +125,12 @@ int main(int argc, char *argv[]) {
     for (const Operation op : operations) {
       if ((*op)(&model)) {
         ROS_INFO_STREAM("Model:\n" << model.toString());
-        ROS_INFO_STREAM("State:\n" << model.state());
+        ROS_INFO_STREAM("State:\n" << *model.exportState());
         break;
       }
     }
     //
-    const radial_menu_msgs::StatePtr state(new radial_menu_msgs::State(model.state()));
-    state->header.stamp = ros::Time::now();
-    state_pub.publish(state);
+    state_pub.publish(model.exportState());
     rate.sleep();
   }
 
