@@ -70,23 +70,15 @@ public:
     return false;
   }
 
-  int sibilingIdByAngle(double angle) const {
+  ItemConstPtr sibilingByAngle(double angle) const {
     // make the given angle positive, or the returned value may be going to be negative
     while (angle < 0.) {
       angle += 2. * M_PI;
     }
     const int n_sibilings(current_level_->numSibilings());
     const double span_angle(2. * M_PI / n_sibilings);
-    return static_cast< int >(std::round(angle / span_angle)) % n_sibilings;
-  }
-
-  int pointedSibilingId() const {
-    for (int sid = 0; sid < current_level_->numSibilings(); ++sid) {
-      if (isPointed(current_level_->sibiling(sid))) {
-        return sid;
-      }
-    }
-    return -1;
+    const int sid(static_cast< int >(std::round(angle / span_angle)) % n_sibilings);
+    return current_level_->sibiling(sid);
   }
 
   // ***********
@@ -253,30 +245,28 @@ public:
   // Pointing / Unpointing
   // *********************
 
-  // can point if the specified sibiling is not pointed
-  bool canPoint(const int sid) const {
-    const ItemConstPtr sibiling(current_level_->sibiling(sid));
-    return sibiling ? !isPointed(sibiling) : false;
+  // can point if the given item is in the current level and not pointed
+  bool canPoint(const ItemConstPtr &item) const {
+    return item && item->sibilingLevel() == current_level_ && !isPointed(item);
   }
 
-  // unpoint all sibilings and point the specified sibiling
-  void point(const int sid) {
-    if (canPoint(sid)) {
-      state_.pointed_id = current_level_->sibiling(sid)->item_id_;
+  // move the point to the given item
+  void point(const ItemConstPtr &item) {
+    if (canPoint(item)) {
+      state_.pointed_id = item->item_id_;
       return;
     }
     throw ros::Exception("Model::point()");
   }
 
-  // can unpoint if the specified sibiling is pointed
-  bool canUnpoint(const int sid) const {
-    const ItemConstPtr sibiling(current_level_->sibiling(sid));
-    return sibiling ? isPointed(sibiling) : false;
+  // can unpoint if the given item is in the current level and pointed
+  bool canUnpoint(const ItemConstPtr &item) const {
+    return item && item->sibilingLevel() == current_level_ && isPointed(item);
   }
 
-  // just unpoint the specified sibiling
-  void unpoint(const int sid) {
-    if (canUnpoint(sid)) {
+  // just unpoint the given item
+  void unpoint(const ItemConstPtr &item) {
+    if (canUnpoint(item)) {
       state_.pointed_id = -1;
       return;
     }
@@ -287,37 +277,37 @@ public:
   // Leaf selection / deselection
   // ****************************
 
-  // can select if the specified sibiling has no children and is not selected
-  bool canSelect(const int sid) const {
-    const ItemConstPtr sibiling(current_level_->sibiling(sid));
-    return sibiling ? (sibiling->children_.empty() && !isSelected(sibiling)) : false;
+  // can select if the given item is in the current level, has no children, and is not selected
+  bool canSelect(const ItemConstPtr &item) const {
+    return item && item->sibilingLevel() == current_level_ && item->children_.empty() &&
+           !isSelected(item);
   }
 
-  // deselect all sibilings and select the specified sibiling.
+  // deselect all sibilings and select the given item.
   // deselect will be skipped if allow_multi_selection is true.
-  void select(const int sid, const bool allow_multi_selection) {
-    if (canSelect(sid)) {
+  void select(const ItemConstPtr &item, const bool allow_multi_selection) {
+    if (canSelect(item)) {
       if (!allow_multi_selection) {
         for (const ItemConstPtr &sibiling : current_level_->sibilings()) {
           forceDeselect(sibiling);
         }
       }
-      forceSelect(current_level_->sibiling(sid));
+      forceSelect(item);
       return;
     }
     throw ros::Exception("Model::select()");
   }
 
-  // can deselect if the specified sibiling has no children and is selected
-  bool canDeselect(const int sid) const {
-    const ItemConstPtr sibiling(current_level_->sibiling(sid));
-    return sibiling ? (sibiling->children_.empty() && isSelected(sibiling)) : false;
+  // can deselect if the given item is in the current level, has no children, and is selected
+  bool canDeselect(const ItemConstPtr &item) const {
+    return item && item->sibilingLevel() == current_level_ && item->children_.empty() &&
+           isSelected(item);
   }
 
-  // just deselect the specified sibiling
-  void deselect(const int sid) {
-    if (canDeselect(sid)) {
-      forceDeselect(current_level_->sibiling(sid));
+  // just deselect the given item
+  void deselect(const ItemConstPtr &item) {
+    if (canDeselect(item)) {
+      forceDeselect(item);
       return;
     }
     throw ros::Exception("Model::deselect()");
@@ -327,26 +317,24 @@ public:
   // Descending / Ascending
   // **********************
 
-  // can descend if the specified sibiling has a child
-  bool canDescend(const int sid) const {
-    const ItemConstPtr sibiling(current_level_->sibiling(sid));
-    return sibiling ? !sibiling->children_.empty() : false;
+  // can descend if the given item is in the current level and has a child
+  bool canDescend(const ItemConstPtr &item) const {
+    return item && item->sibilingLevel() == current_level_ && !item->children_.empty();
   }
 
-  // unpoint and deselect all sibilings, select the specified sibiling
-  // and move to the child level of the specified sibiling.
+  // unpoint and deselect all sibilings, select the given item
+  // and move to the child level of the given item.
   // deselect will be skipped if allow_multi_selection is true.
-  void descend(const int sid, const bool allow_multi_selection) {
-    if (canDescend(sid)) {
+  void descend(const ItemConstPtr &item, const bool allow_multi_selection) {
+    if (canDescend(item)) {
       state_.pointed_id = -1;
       if (!allow_multi_selection) {
         for (const ItemConstPtr &sibiling : current_level_->sibilings()) {
           forceDeselect(sibiling);
         }
       }
-      const ItemConstPtr sibiling(current_level_->sibiling(sid));
-      forceSelect(sibiling);
-      current_level_ = sibiling->childLevel();
+      forceSelect(item);
+      current_level_ = item->childLevel();
       return;
     }
     throw ros::Exception("Model::descend()");

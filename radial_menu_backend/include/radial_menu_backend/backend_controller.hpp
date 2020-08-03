@@ -25,16 +25,19 @@ public:
   radial_menu_msgs::StatePtr update(const sensor_msgs::Joy &joy) {
     // reset the menu based on enable/disable state if required
     const bool enable_is_pressed(buttonValue(joy, config_.enable_button) > 0);
-    model_->setEnabled(enable_is_pressed);
     if ((config_.reset_on_enabling && !enable_was_pressed_ && enable_is_pressed) ||
         (config_.reset_on_disabling && enable_was_pressed_ && !enable_is_pressed)) {
       model_->resetState();
     }
 
+    // enable/disable the menu
+    // (resetState() disables the menu so setEnabled() must be called after resetState())
+    model_->setEnabled(enable_is_pressed);
+
     // unpoint if possible
-    const int last_pointed_id(model_->pointedSibilingId());
-    if (model_->canUnpoint(last_pointed_id)) {
-      model_->unpoint(last_pointed_id);
+    const radial_menu_model::ItemConstPtr last_pointed_item(model_->pointed());
+    if (model_->canUnpoint(last_pointed_item)) {
+      model_->unpoint(last_pointed_item);
     }
 
     // do remaining operations if the menu is enabled
@@ -50,19 +53,20 @@ public:
                                : axisValue(joy, config_.pointing_axis_h));
       if (value_v * value_v + value_h * value_h >=
           config_.pointing_axis_threshold * config_.pointing_axis_threshold) {
-        const int id(model_->sibilingIdByAngle(std::atan2(value_h, value_v)));
-        if (model_->canPoint(id)) {
-          model_->point(id);
+        const radial_menu_model::ItemConstPtr item_to_point(
+            model_->sibilingByAngle(std::atan2(value_h, value_v)));
+        if (model_->canPoint(item_to_point)) {
+          model_->point(item_to_point);
         }
       }
 
       // if an item is pointed and the select button is newly pressed, select the pointed item,
       // else if auto-select is enabled and no item is pointed, select the last pointed item
-      const int pointed_id(model_->pointedSibilingId());
-      if (pointed_id >= 0 && select_is_pressed && !select_was_pressed_) {
-        adaptiveSelect(pointed_id);
-      } else if (config_.auto_select && pointed_id < 0 && last_pointed_id >= 0) {
-        adaptiveSelect(last_pointed_id);
+      const radial_menu_model::ItemConstPtr pointed_item(model_->pointed());
+      if (pointed_item && select_is_pressed && !select_was_pressed_) {
+        adaptiveSelect(pointed_item);
+      } else if (config_.auto_select && !pointed_item && last_pointed_item) {
+        adaptiveSelect(last_pointed_item);
       }
 
       // if the ascend button is newly pressed, ascend from the current level
@@ -84,13 +88,13 @@ public:
 protected:
   // utility functions
 
-  void adaptiveSelect(const int sid) {
-    if (model_->canSelect(sid)) {
-      model_->select(sid, config_.allow_multi_selection);
-    } else if (model_->canDeselect(sid)) {
-      model_->deselect(sid);
-    } else if (model_->canDescend(sid)) {
-      model_->descend(sid, config_.allow_multi_selection);
+  void adaptiveSelect(const radial_menu_model::ItemConstPtr &item) {
+    if (model_->canSelect(item)) {
+      model_->select(item, config_.allow_multi_selection);
+    } else if (model_->canDeselect(item)) {
+      model_->deselect(item);
+    } else if (model_->canDescend(item)) {
+      model_->descend(item, config_.allow_multi_selection);
     }
   }
 

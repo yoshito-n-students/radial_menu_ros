@@ -22,8 +22,10 @@ std::default_random_engine &randomEngine() {
   return engine;
 }
 
-int randomSid(const int n_sibilings) {
-  return std::uniform_int_distribution< int >(0, n_sibilings - 1)(randomEngine());
+rmm::ItemConstPtr randomSibiling(const rmm::ItemConstPtr &level) {
+  const int n_sibilings(level->numSibilings());
+  const int random_sid(std::uniform_int_distribution< int >(0, n_sibilings - 1)(randomEngine()));
+  return level->sibiling(random_sid);
 }
 
 // **************************
@@ -31,10 +33,10 @@ int randomSid(const int n_sibilings) {
 // **************************
 
 bool point(rmm::Model *const model) {
-  const int sid(randomSid(model->currentLevel()->numSibilings()));
-  if (model->canPoint(sid)) {
-    ROS_INFO_STREAM("Pointing sibiling[" << sid << "] ...");
-    model->point(sid);
+  const rmm::ItemConstPtr sibiling(randomSibiling(model->currentLevel()));
+  if (model->canPoint(sibiling)) {
+    ROS_INFO_STREAM("Pointing '" << sibiling->name() << "' ...");
+    model->point(sibiling);
     return true;
   } else {
     return false;
@@ -42,10 +44,10 @@ bool point(rmm::Model *const model) {
 }
 
 bool unpoint(rmm::Model *const model) {
-  const int sid(model->pointedSibilingId());
-  if (model->canUnpoint(sid)) {
-    ROS_INFO_STREAM("Unpointing sibiling[" << sid << "] ...");
-    model->unpoint(sid);
+  const rmm::ItemConstPtr sibiling(randomSibiling(model->currentLevel()));
+  if (model->canUnpoint(sibiling)) {
+    ROS_INFO_STREAM("Unpointing '" << sibiling->name() << "' ...");
+    model->unpoint(sibiling);
     return true;
   } else {
     return false;
@@ -53,10 +55,10 @@ bool unpoint(rmm::Model *const model) {
 }
 
 bool select(rmm::Model *const model) {
-  const int sid(randomSid(model->currentLevel()->numSibilings()));
-  if (model->canSelect(sid)) {
-    ROS_INFO_STREAM("Selecting sibiling[" << sid << "] ...");
-    model->select(sid, /* allow_multi_selection = */ true);
+  const rmm::ItemConstPtr sibiling(randomSibiling(model->currentLevel()));
+  if (model->canSelect(sibiling)) {
+    ROS_INFO_STREAM("Selecting '" << sibiling->name() << "' ...");
+    model->select(sibiling, /* allow_multi_selection = */ true);
     return true;
   } else {
     return false;
@@ -64,10 +66,10 @@ bool select(rmm::Model *const model) {
 }
 
 bool deselect(rmm::Model *const model) {
-  const int sid(randomSid(model->currentLevel()->numSibilings()));
-  if (model->canDeselect(sid)) {
-    ROS_INFO_STREAM("Deselecting sibiling[" << sid << "] ...");
-    model->deselect(sid);
+  const rmm::ItemConstPtr sibiling(randomSibiling(model->currentLevel()));
+  if (model->canDeselect(sibiling)) {
+    ROS_INFO_STREAM("Deselecting '" << sibiling->name() << "' ...");
+    model->deselect(sibiling);
     return true;
   } else {
     return false;
@@ -75,10 +77,10 @@ bool deselect(rmm::Model *const model) {
 }
 
 bool descend(rmm::Model *const model) {
-  const int sid(randomSid(model->currentLevel()->numSibilings()));
-  if (model->canDescend(sid)) {
-    ROS_INFO_STREAM("Descending from sibiling[" << sid << "] ...");
-    model->descend(sid, /* allow_multi_selection = */ true);
+  const rmm::ItemConstPtr sibiling(randomSibiling(model->currentLevel()));
+  if (model->canDescend(sibiling)) {
+    ROS_INFO_STREAM("Descending from '" << sibiling << "' ...");
+    model->descend(sibiling, /* allow_multi_selection = */ true);
     return true;
   } else {
     return false;
