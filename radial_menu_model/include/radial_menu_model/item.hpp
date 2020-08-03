@@ -57,7 +57,7 @@ public:
   std::vector< ItemConstPtr > sibilings() const {
     const ItemConstPtr p(parent());
     return p ? std::vector< ItemConstPtr >(p->children_.begin(), p->children_.end())
-             : std::vector< ItemConstPtr >();
+             : std::vector< ItemConstPtr >(1, shared_from_this());
   }
 
   ItemConstPtr sibiling(const int sid) const {
