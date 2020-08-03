@@ -23,6 +23,9 @@ typedef boost::shared_ptr< const Item > ItemConstPtr;
 class Item : public boost::enable_shared_from_this< Item > {
   friend class Model;
 
+public:
+  enum DisplayType { Name, AltTxt, Image };
+
 protected:
   Item() {}
 
@@ -30,6 +33,12 @@ public:
   virtual ~Item() {}
 
   const std::string &name() const { return name_; }
+
+  DisplayType displayType() const { return display_type_; }
+
+  const std::string &altTxt() const { return alt_txt_; }
+
+  const std::string &imagePath() const { return image_path_; }
 
   // root
 
@@ -99,6 +108,8 @@ protected:
 
   std::int32_t item_id_;
   std::string name_;
+  DisplayType display_type_;
+  std::string alt_txt_, image_path_;
   ItemWeakConstPtr parent_;
   std::vector< ItemConstPtr > children_;
 };

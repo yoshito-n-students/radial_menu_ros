@@ -99,23 +99,41 @@ public:
           return false;
         }
 
-        // does the element have the attribute "name"?
-        const boost::optional< std::string > name(
-            elm.second.get_optional< std::string >("<xmlattr>.name"));
-        if (!name) {
-          ROS_ERROR("Model::setDescription(): No attribute 'name'");
-          return false;
-        }
-
         // create an item and append it to the given list
         const ItemPtr item(new Item());
         item->item_id_ = items->size();
-        item->name_ = *name;
         if (parent_item) {
           item->parent_ = parent_item;
           parent_item->children_.push_back(item);
         }
         items->push_back(item);
+
+        // load the item name from the attribute
+        if (!getAttribute(elm, "name", &item->name_)) {
+          ROS_ERROR("Model::setDescription(): No attribute 'name'");
+          return false;
+        }
+
+        // load the display type from the attribute
+        const std::string display(attribute(elm, "display", "name"));
+        if (display == "name") {
+          item->display_type_ = Item::Name;
+        } else if (display == "alttxt") {
+          item->display_type_ = Item::AltTxt;
+          if (!getAttribute(elm, "alttxt", &item->alt_txt_)) {
+            ROS_ERROR("Model::setDescription(): No attribute 'alttxt'");
+            return false;
+          }
+        } else if (display == "image") {
+          item->display_type_ = Item::Image;
+          if (!getAttribute(elm, "path", &item->image_path_)) {
+            ROS_ERROR("Model::setDescription(): No attribute 'path'");
+            return false;
+          }
+        } else {
+          ROS_ERROR_STREAM("Model::setDescription(): Unknown display type '" << display << "'");
+          return false;
+        }
 
         // recursively update the given list
         for (const bpt::ptree::value_type &child_elm : elm.second) {
@@ -128,6 +146,26 @@ public:
         }
 
         return true;
+      }
+
+      // get xml attribute like ros::param::param()
+      static std::string attribute(const bpt::ptree::value_type &elm, const std::string &attr,
+                                   const std::string &default_val) {
+        const boost::optional< std::string > val(
+            elm.second.get_optional< std::string >("<xmlattr>." + attr));
+        return val ? *val : default_val;
+      }
+
+      // get xml attribute like ros::param::getParam()
+      static bool getAttribute(const bpt::ptree::value_type &elm, const std::string &attr,
+                               std::string *const val) {
+        const boost::optional< std::string > opt_val(
+            elm.second.get_optional< std::string >("<xmlattr>." + attr));
+        if (opt_val) {
+          *val = *opt_val;
+          return true;
+        }
+        return false;
       }
     };
 
