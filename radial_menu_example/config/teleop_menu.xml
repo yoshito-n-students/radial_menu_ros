@@ -1,0 +1,17 @@
+<item name="Teleop Mode">
+    <item name="Base">
+        <item name="Pose"/>
+        <item name="Twist"/>
+    </item>
+    <item name="Arm">
+        <item name="FK">
+            <item name="Pose"/>
+            <item name="Twist"/>
+        </item>
+        <item name="IK">
+            <item name="Pose"/>
+            <item name="Twist"/>
+        </item>
+        <item name="Hand"/>
+    </item>
+</item>

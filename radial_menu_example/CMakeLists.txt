@@ -155,8 +155,8 @@ add_executable(
   src/example_teleop_node.cpp
 )
 add_executable(
-  random_model_operations
-  src/random_model_operations.cpp
+  random_model_controller
+  src/random_model_controller.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -173,7 +173,7 @@ add_dependencies(
   ${catkin_EXPORTED_TARGETS}
 )
 add_dependencies(
-  random_model_operations
+  random_model_controller
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 )
@@ -184,7 +184,7 @@ target_link_libraries(
   ${catkin_LIBRARIES}
 )
 target_link_libraries(
-  random_model_operations
+  random_model_controller
   ${catkin_LIBRARIES}
 )
 

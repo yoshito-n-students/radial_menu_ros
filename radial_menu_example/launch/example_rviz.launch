@@ -1,7 +1,8 @@
 <launch>
 
-    <node name="teleop_menu_pub" pkg="rostopic" type="rostopic"
-          args="pub teleop_menu_state radial_menu_msgs/State --file=$(find radial_menu_example)/launch/teleop_menu_state.yaml --rate=1" />
+    <param name="menu_description" textfile="$(find radial_menu_example)/config/teleop_menu.xml" />
+
+    <node name="random_model_controller" pkg="radial_menu_example" type="random_model_controller" output="screen" /> 
 
     <node name="rviz" pkg="rviz" type="rviz" 
           args="--display-config $(find radial_menu_example)/rviz/one_menu.rviz" />

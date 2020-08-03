@@ -70,8 +70,9 @@ Visualization Manager:
       Item bg (pointed): 79; 117; 155
       Item bg (selected): 255; 58; 32
       Line width: 12
+      Menu description: /menu_description
       Name: TeleopMenu
-      State topic: /teleop_menu_state
+      State topic: /menu_state
       Text alpha: 255
       Title: 255; 251; 252
       Title area: true
@@ -91,8 +92,9 @@ Visualization Manager:
       Item bg (selected): 255; 58; 32
       Left: 32
       Line width: 12
+      Menu description: /menu_description
       Name: HTeleopMenu
-      State topic: /teleop_menu_state
+      State topic: /menu_state
       Text alpha: 255
       Title: 255; 251; 252
       Title bg: 39; 7; 34

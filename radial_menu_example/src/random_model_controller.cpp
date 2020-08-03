@@ -3,9 +3,12 @@
 #include <random>
 
 #include <radial_menu_model/model.hpp>
+#include <radial_menu_msgs/State.h>
 #include <ros/console.h>
 #include <ros/init.h>
 #include <ros/node_handle.h>
+#include <ros/publisher.h>
+#include <ros/rate.h>
 #include <ros/time.h>
 
 namespace rmm = radial_menu_model;
@@ -98,21 +101,26 @@ bool ascend(rmm::Model *const model) {
 // *****************
 
 int main(int argc, char *argv[]) {
-  ros::init(argc, argv, "random_model_operation");
+  ros::init(argc, argv, "random_model_controller");
   ros::NodeHandle nh;
+
+  //
+  ros::Publisher state_pub(nh.advertise< radial_menu_msgs::State >("menu_state", 1, true));
 
   // load a menu from param
   rmm::Model model;
   if (!model.setDescriptionFromParam("menu_description")) {
     return 1;
   }
+  model.setEnabled(true);
   ROS_INFO_STREAM("Model:\n" << model.toString());
   ROS_INFO_STREAM("State:\n" << model.state());
 
   // perform random operations on the menu model
   typedef bool (*Operation)(rmm::Model *const);
   std::array< Operation, 6 > operations = {point, unpoint, select, deselect, descend, ascend};
-  for (int i = 0; i < 20; ++i) {
+  ros::Rate rate(1.);
+  while (ros::ok()) {
     // shuffle operation order and try one by one until the first success
     std::shuffle(operations.begin(), operations.end(), randomEngine());
     for (const Operation op : operations) {
@@ -122,6 +130,11 @@ int main(int argc, char *argv[]) {
         break;
       }
     }
+    //
+    const radial_menu_msgs::StatePtr state(new radial_menu_msgs::State(model.state()));
+    state->header.stamp = ros::Time::now();
+    state_pub.publish(state);
+    rate.sleep();
   }
 
   return 0;
