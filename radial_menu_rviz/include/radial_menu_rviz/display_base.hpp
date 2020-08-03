@@ -3,7 +3,6 @@
 
 #include <radial_menu_model/model.hpp>
 #include <radial_menu_msgs/State.h>
-#include <radial_menu_msgs/utils.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
 #include <ros/console.h>
@@ -86,10 +85,11 @@ protected:
   }
 
   // update menu image with the given menu state
-  void updateImage(const radial_menu_msgs::StateConstPtr &state) {
-    if (radial_menu_msgs::changed(state, state_)) {
-      model_->setState(*state);
-      state_ = state;
+  void updateImage(const radial_menu_msgs::StateConstPtr &new_state) {
+    if (state_->is_enabled != new_state->is_enabled || state_->pointed_id != new_state->pointed_id ||
+        state_->selected_ids != new_state->selected_ids) {
+      model_->setState(*new_state);
+      state_ = new_state;
       updateImage();
     }
   }

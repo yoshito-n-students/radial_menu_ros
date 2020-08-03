@@ -2,7 +2,7 @@
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
-#include <radial_menu_msgs/utils.hpp>
+#include <radial_menu_msgs/State.h>
 #include <ros/console.h>
 #include <ros/init.h>
 #include <ros/node_handle.h>
@@ -26,6 +26,7 @@ void onSynchronized(const sensor_msgs::JoyConstPtr &joy,
   } else {
     // if the menu is disabled (i.e. the joy input is not owned by the menu),
     // switch the teleop mode based on the menu item selected
+    /*
     if (rmm::isSelected(*menu, "Base Pose")) {
       new_mode = "Base Pose";
     } else if (rmm::isSelected(*menu, "Base Twist")) {
@@ -39,6 +40,7 @@ void onSynchronized(const sensor_msgs::JoyConstPtr &joy,
     } else {
       new_mode = "None";
     }
+    */
     new_paused = false;
   }
 
