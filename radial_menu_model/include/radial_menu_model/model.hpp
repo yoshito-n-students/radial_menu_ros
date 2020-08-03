@@ -100,6 +100,7 @@ public:
     struct Internal {
       static bool elementToItems(const bpt::ptree::value_type &elm,
                                  std::vector< ItemConstPtr > *const items,
+                                 int *const sibiling_count,
                                  const ItemPtr &parent_item = ItemPtr()) {
         // is the element name "item"?
         if (elm.first != "item") {
@@ -118,19 +119,22 @@ public:
         // create an item and append it to the given list
         const ItemPtr item(new Item());
         item->item_id_ = items->size();
+        item->sibiling_id_ = *sibiling_count;
         item->name_ = *name;
         if (parent_item) {
           item->parent_ = parent_item;
           parent_item->children_.push_back(item);
         }
         items->push_back(item);
+        ++(*sibiling_count);
 
         // recursively update the given list
+        int child_sibiling_count(0);
         for (const bpt::ptree::value_type &child_elm : elm.second) {
           if (child_elm.first == "<xmlattr>") {
             continue;
           }
-          if (!elementToItems(child_elm, items, item)) {
+          if (!elementToItems(child_elm, items, &child_sibiling_count, item)) {
             return false;
           }
         }
@@ -158,7 +162,8 @@ public:
 
     // populate items in the item tree
     std::vector< ItemConstPtr > new_items;
-    if (!Internal::elementToItems(root_elm, &new_items)) {
+    int root_sibiling_count(0);
+    if (!Internal::elementToItems(root_elm, &new_items, &root_sibiling_count)) {
       return false;
     }
 
@@ -374,16 +379,28 @@ public:
         const int depth(item->depth());
         std::string str;
         if (depth <= 0) { // root item
-          str += item->name_ + "\n";
+          str += item->name_ + " " + itemIdStr(item) + "\n";
         } else { // non-root item
-          str += std::string(depth * 2, ' ') + "[" + (model->isPointed(item) ? "P" : " ") +
-                 (model->isSelected(item) ? "S" : " ") +
-                 (item == model->currentLevel() ? "C" : " ") + "] " + item->name_ + "\n";
+          str += std::string(depth * 2, ' ') + itemStateStr(model, item) + " " + item->name_ + " " +
+                 itemIdStr(item) + "\n";
         }
         for (const ItemConstPtr &child : item->children_) {
           str += toString(model, child);
         }
         return str;
+      }
+
+      static std::string itemStateStr(const Model *const model, const ItemConstPtr &item) {
+        std::ostringstream str;
+        str << "[" << (model->isPointed(item) ? "P" : " ") << (model->isSelected(item) ? "S" : " ")
+            << (item == model->currentLevel() ? "C" : " ") << "]";
+        return str.str();
+      }
+
+      static std::string itemIdStr(const ItemConstPtr &item) {
+        std::ostringstream str;
+        str << "(i" << item->item_id_ << "-s" << item->sibiling_id_ << ")";
+        return str.str();
       }
     };
 

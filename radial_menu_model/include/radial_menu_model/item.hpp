@@ -29,6 +29,10 @@ protected:
 public:
   virtual ~Item() {}
 
+  std::int32_t itemId() const { return item_id_; }
+
+  std::int32_t sibilingId() const { return sibiling_id_; }
+
   const std::string &name() const { return name_; }
 
   // root
@@ -97,7 +101,7 @@ public:
 protected:
   typedef boost::weak_ptr< const Item > ItemWeakConstPtr;
 
-  std::int32_t item_id_;
+  std::int32_t item_id_, sibiling_id_;
   std::string name_;
   ItemWeakConstPtr parent_;
   std::vector< ItemConstPtr > children_;
