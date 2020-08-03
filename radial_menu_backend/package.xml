@@ -51,16 +51,19 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>nodelet</build_depend>
   <build_depend>pluginlib</build_depend>
+  <build_depend>radial_menu_model</build_depend>
   <build_depend>radial_menu_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_export_depend>nodelet</build_export_depend>
   <build_export_depend>pluginlib</build_export_depend>
+  <build_export_depend>radial_menu_model</build_export_depend>
   <build_export_depend>radial_menu_msgs</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
   <exec_depend>nodelet</exec_depend>
   <exec_depend>pluginlib</exec_depend>
+  <exec_depend>radial_menu_model</exec_depend>
   <exec_depend>radial_menu_msgs</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>

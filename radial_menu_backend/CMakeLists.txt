@@ -10,6 +10,7 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   nodelet
   pluginlib
+  radial_menu_model
   radial_menu_msgs
   roscpp
   sensor_msgs
@@ -107,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES radial_menu_backend_plugins
-  CATKIN_DEPENDS nodelet pluginlib radial_menu_msgs roscpp sensor_msgs
+  CATKIN_DEPENDS nodelet pluginlib radial_menu_model radial_menu_msgs roscpp sensor_msgs
 #  DEPENDS system_lib
 )
 
