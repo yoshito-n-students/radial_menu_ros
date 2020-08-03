@@ -79,10 +79,10 @@ protected:
 
     // common properties
     const QPoint image_center(image->rect().center());
-    const int depth(level->depth()), width(level->numSibilings());
+    const int n_sibilings(level->numSibilings()), depth(level->depth());
 
     // draw item areas by pies
-    if (width > 0) {
+    if (n_sibilings > 0) {
       // set tools for alpha painter
       const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
       alpha_painter.setPen(bg_alpha);
@@ -91,9 +91,9 @@ protected:
       QRect rect;
       rect.setSize(imageSize(depth));
       rect.moveCenter(image_center);
-      const int span_angle(pieSpanAngle(width));
+      const int span_angle(pieSpanAngle(n_sibilings));
       // draw pies
-      for (int sid = 0; sid < width; ++sid) {
+      for (int sid = 0; sid < n_sibilings; ++sid) {
         // set tools for rgb painter according to item type
         const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
         const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
@@ -113,7 +113,7 @@ protected:
           rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_default));
         }
         // draw a pie
-        const int center_angle(pieCenterAngle(sid, depth));
+        const int center_angle(pieCenterAngle(sid, n_sibilings));
         const int start_angle(center_angle - span_angle / 2);
         rgb_painter.drawPie(rect, start_angle, span_angle);
         alpha_painter.drawPie(rect, start_angle, span_angle);
@@ -121,10 +121,11 @@ protected:
     }
 
     // draw transparent lines between item areas
-    if (width > 0 && prop_.line_width > 0) {
+    if (n_sibilings > 0 && prop_.line_width > 0) {
       alpha_painter.setPen(QPen(QColor(0, 0, 0), prop_.line_width));
-      for (int sid = 0; sid < width; ++sid) {
-        alpha_painter.drawLine(image_center, image_center + relativeItemLineEnd(sid, width, depth));
+      for (int sid = 0; sid < n_sibilings; ++sid) {
+        alpha_painter.drawLine(image_center,
+                               image_center + relativeItemLineEnd(sid, n_sibilings, depth));
       }
     }
 
@@ -183,12 +184,12 @@ protected:
 
     const QFontMetrics font_metrics(prop_.font);
     const QPoint image_center(image->rect().center());
-    const int width(level->numSibilings()), depth(level->depth());
+    const int n_sibilings(level->numSibilings()), depth(level->depth());
     const QRect constraint_rect(
         QRect(QPoint(0, 0), QSize(prop_.item_area_width, prop_.item_area_width)));
 
     // draw item texts
-    for (int sid = 0; sid < width; ++sid) {
+    for (int sid = 0; sid < n_sibilings; ++sid) {
       const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
       // set tools for the painter according to item type
       const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
@@ -207,7 +208,7 @@ protected:
       QRect rect;
       const QString text(QString::fromStdString(item->name()));
       rect = font_metrics.boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, text);
-      rect.moveCenter(relativeItemCenter(sid, width, depth));
+      rect.moveCenter(relativeItemCenter(sid, n_sibilings, depth));
       rect.translate(image_center);
       painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, text);
     }
@@ -242,18 +243,20 @@ protected:
   }
 
   // angle for QPainter (0 at 3 o'clock, counterclockwise positive, in 1/16 degrees)
-  int pieCenterAngle(const int sid, const int width) const {
-    return (width == 0) ? 0 : (360 * 16 * sid / width + 90 * 16);
+  int pieCenterAngle(const int sid, const int n_sibilings) const {
+    return (n_sibilings == 0) ? 0 : (360 * 16 * sid / n_sibilings + 90 * 16);
   }
 
   // angle for QPainter (in 1/16 degrees)
-  int pieSpanAngle(const int width) const { return (width == 0) ? 0 : (360 * 16 / width); }
+  int pieSpanAngle(const int n_sibilings) const {
+    return (n_sibilings == 0) ? 0 : (360 * 16 / n_sibilings);
+  }
 
   // calc the end position of the line between i-th and (i+1)-th item areas,
   // relative to the menu center
-  QPoint relativeItemLineEnd(const int sid, const int width, const int depth) const {
+  QPoint relativeItemLineEnd(const int sid, const int n_sibilings, const int depth) const {
     // 0 at twelve o'clock position, counterclockwise positive
-    const double th((width == 0) ? 0. : (2. * M_PI * (0.5 + sid) / width));
+    const double th((n_sibilings == 0) ? 0. : (2. * M_PI * (0.5 + sid) / n_sibilings));
     // upward & leftward positive
     const double radius(prop_.title_area_radius +
                         (prop_.line_width + prop_.item_area_width) * depth);
@@ -263,12 +266,12 @@ protected:
   }
 
   // calc the center position of item text, relative to the menu center
-  QPoint relativeItemCenter(const int sid, const int width, const int depth) const {
+  QPoint relativeItemCenter(const int sid, const int n_sibilings, const int depth) const {
     // 0 at twelve o'clock position, counterclockwise positive
-    const double th((width == 0) ? 0. : (2. * M_PI * sid / width));
+    const double th((n_sibilings == 0) ? 0. : (2. * M_PI * sid / n_sibilings));
     // upward & leftward positive
-    const double radius(prop_.title_area_radius + prop_.line_width * (depth + 1) +
-                        prop_.item_area_width * (depth + 0.5));
+    const double radius(prop_.title_area_radius + prop_.line_width * depth +
+                        prop_.item_area_width * (depth - 0.5));
     const double u(radius * std::cos(th)), v(radius * std::sin(th));
     // rightward & downward positive
     return QPoint(-static_cast< int >(v), -static_cast< int >(u));
