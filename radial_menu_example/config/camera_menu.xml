@@ -1,0 +1,17 @@
+<item name="Camera Control" display="alttxt" alttxt="Cam Ctl">
+
+    <item name="Pan Tilt">
+        <item name="Up" display="alttxt" alttxt="&#xF102;" />
+        <item name="Left" display="alttxt" alttxt="&#xF100;" />
+        <item name="Down" display="alttxt" alttxt="&#xF103;" />
+        <item name="Right" display="alttxt" alttxt="&#xF101;" />
+    </item>
+
+    <item name="Zoom">
+        <item name="In" display="alttxt" alttxt="&#xF00E;" />
+        <item name="Capture" display="alttxt" alttxt="&#xF019;" />
+        <item name="Out" display="alttxt" alttxt="&#xF010;" />
+        <item name="Home" display="alttxt" alttxt="&#xF015;" />
+    </item>
+
+</item>

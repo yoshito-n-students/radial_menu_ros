@@ -6,8 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TeleopMenu1
-        - /HTeleopMenu1
+        - /CameraMenu1
+        - /HCameraMenu1
       Splitter Ratio: 0.5
     Tree Height: 1077
   - Class: rviz/Selection
@@ -59,19 +59,19 @@ Visualization Manager:
       Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
-      Font: Liberation Sans Narrow
+      Font: FontAwesome
       Font bold: true
-      Font size: 12
+      Font size: 10
       Item (default): 39; 7; 34
       Item (pointed): 39; 7; 34
       Item (selected): 39; 7; 34
-      Item area width: 72
+      Item area width: 80
       Item bg (default): 255; 251; 252
       Item bg (pointed): 79; 117; 155
       Item bg (selected): 255; 58; 32
       Line width: 12
       Menu description: /menu_description
-      Name: TeleopMenu
+      Name: CameraMenu
       State topic: /menu_state
       Text alpha: 255
       Title: 255; 251; 252
@@ -93,7 +93,7 @@ Visualization Manager:
       Left: 32
       Line width: 12
       Menu description: /menu_description
-      Name: HTeleopMenu
+      Name: HCameraMenu
       State topic: /menu_state
       Text alpha: 255
       Title: 255; 251; 252
