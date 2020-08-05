@@ -2,9 +2,12 @@
 #define RADIAL_MENU_RVIZ_ITEM_DRAWER_HPP
 
 #include <radial_menu_model/item.hpp>
+#include <rviz/load_resource.h>
 
+#include <QBitmap>
 #include <QPainter>
 #include <QRect>
+#include <QString>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
@@ -71,15 +74,16 @@ class ImageItemDrawer : public ItemDrawer {
   friend ItemDrawerPtr createItemDrawer(const radial_menu_model::ItemConstPtr &);
 
 protected:
-  ImageItemDrawer(const radial_menu_model::ItemConstPtr &item) : item_(item) {}
+  ImageItemDrawer(const radial_menu_model::ItemConstPtr &item)
+      : bitmap_(rviz::loadPixmap(QString::fromStdString(item->imageUrl()))) {}
 
 public:
   virtual void draw(QPainter *const painter, const QRect &rect) const {
-    ROS_ERROR_STREAM("ImageItemDrawer::draw(): Not implemented");
+    painter->drawPixmap(rect, bitmap_);
   }
 
 protected:
-  const radial_menu_model::ItemConstPtr item_;
+  QBitmap bitmap_;
 };
 
 // ****************

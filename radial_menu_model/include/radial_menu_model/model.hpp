@@ -140,8 +140,8 @@ public:
           }
         } else if (display == "image") {
           item->display_type_ = Item::Image;
-          if (!getAttribute(elm, "path", &item->image_path_)) {
-            ROS_ERROR("Model::setDescription(): No attribute 'path'");
+          if (!getAttribute(elm, "url", &item->image_url_)) {
+            ROS_ERROR("Model::setDescription(): No attribute 'url'");
             return false;
           }
         } else {
