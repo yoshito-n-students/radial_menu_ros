@@ -22,35 +22,47 @@ Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick fr
 **joy** (sensor_msgs/Joy)
 
 #### <u>Published topics</u>
-**radial_menu_state** ([radial_menu_msgs/State](radial_menu_msgs/msg/State.msg))
+**menu_state** ([radial_menu_msgs/State](radial_menu_msgs/msg/State.msg))
 * The stamp in a message is copied from the source joy message
 
 #### <u>Parameters</u>
-**~menu** (struct, required)
-* Tree structure of the menu like below
-```YAML
-# A simple example
-menu:
-    MoveCmd:     # title
-        - Front  # items
-        - Left
-        - Back
-        - Right
+**menu_description** (string, required)
+* Tree structure of the menu in xml format like below
+```XML
+<!-- A simple example -->
+
+<!-- An element must have the attribute 'name'.               -->
+<!-- The 'name' of the root element indicates the menu title. -->
+<item name="MoveCmd">
+    <!-- An element can have child elements -->
+    <item name="Front" />
+    <item name="Left" />
+    <item name="Back" />
+    <item name="Right" />
+</item>
+
+<!-- Multiple root elements are not allowed -->
 ```
-```YAML
-# A complex example
-menu:
-    Reboot:           # title
-        - Base:       # items
-            - Wheels  # subitems
-            - Cameras:
-                - Front
-                - Front Left
-                - Rear
-                - Front Right
-        - Arm:
-            - Joints
-            - ...
+```XML
+<!-- A complex example -->
+
+<!-- An element can optionally have the attribute 'display'. -->
+<!-- Possible values are;                                    -->
+<!--   * 'name' (default): displays the item name            -->
+<!--   * 'alttxt': displays an alternative text              -->
+<!--   * 'image': displays an image                          -->
+<item name="Reboot" display="alttxt" alttxt="&#xF021;">
+    <item name="Base" display="image" url="package://radial_menu_resources/images/base.bmp">
+        <item name="Wheels" display="image" url="file://Photos/wheels.png" />
+        <item name="Cameras">
+            <item name="Front" />
+            ...
+        </item>
+    </item>
+    <item name="Arm">
+        ...
+    </item>
+</item>
 ```
 
 **~allow_multi_selection** (bool, default: false)
@@ -95,17 +107,22 @@ menu:
 ## Pkg: radial_menu_rviz
 ### Rviz plugin: RadialMenu
 * Visualizes subscribed menu states as a radial menu
+* Supports display types of items
 * Shows the menu when the menu is being enabled
 
 ### Rviz plugin: HorizontalMenu
 * Visualizes subscribed menu states as a single-lined menu 
+* Displays the name of an item regardless of its display type
 * Always shows the menu
+
+## Pkg: radial_menu_model
+* Contains an implementatin of menu tree model, which is commonly used in the backend and rviz packages
 
 ## Pkg: radial_menu_msgs
 * Defines [State](radial_menu_msgs/msg/State.msg) message type
 
 ## Pkg: radial_menu
-* A meta-package depending radial_menu_backend, radial_menu_rviz, radial_menu_msgs for future release
+* A meta-package depending radial_menu_backend, radial_menu_model, radial_menu_rviz, radial_menu_msgs for future release
 
 ## Pkg: radial_menu_example
 * Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick and a [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not
