@@ -434,7 +434,7 @@ public:
 
       static std::string itemIdStr(const ItemConstPtr &item) {
         std::ostringstream str;
-        str << "(" << item->item_id_ << "-d" << item->depth() << ")";
+        str << "(i" << item->item_id_ << "-d" << item->depth() << ")";
         return str.str();
       }
     };
