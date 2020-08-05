@@ -7,11 +7,11 @@
 
 #include <radial_menu_model/model.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
+#include <radial_menu_rviz/item_drawer.hpp>
 #include <radial_menu_rviz/properties.hpp>
 
 #include <QBrush>
 #include <QColor>
-#include <QFontMetrics>
 #include <QImage>
 #include <QPainter>
 #include <QPen>
@@ -182,11 +182,8 @@ protected:
     painter.setFont(prop_.font);
     painter.setRenderHint(QPainter::TextAntialiasing);
 
-    const QFontMetrics font_metrics(prop_.font);
     const QPoint image_center(image->rect().center());
     const int n_sibilings(level->numSibilings()), depth(level->depth());
-    const QRect constraint_rect(
-        QRect(QPoint(0, 0), QSize(prop_.item_area_width, prop_.item_area_width)));
 
     // draw item texts
     for (int sid = 0; sid < n_sibilings; ++sid) {
@@ -204,32 +201,30 @@ protected:
       } else { // !is_selected && !is_pointed
         painter.setPen(makeColor(prop_.item_rgb_default, prop_.text_alpha));
       }
-      // draw the item text
+      // set the item bounding rect
       QRect rect;
-      const QString text(QString::fromStdString(item->name()));
-      rect = font_metrics.boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, text);
+      rect.setWidth(prop_.item_area_width);
+      rect.setHeight(prop_.item_area_width);
       rect.moveCenter(relativeItemCenter(sid, n_sibilings, depth));
       rect.translate(image_center);
-      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, text);
+      // draw the item
+      drawItem(&painter, rect, item);
     }
   }
 
   void drawTitleText(QImage *const image) const {
-    const QString text(QString::fromStdString(model_->root()->name()));
-    if (prop_.draw_title_area && !text.isEmpty()) {
+    if (prop_.draw_title_area) {
       // painter
       QPainter painter(image);
       painter.setFont(prop_.font);
       painter.setRenderHint(QPainter::TextAntialiasing);
       painter.setPen(makeColor(prop_.title_rgb, prop_.text_alpha));
-      // draw the title text at the image center
+      // draw the title item at the image center
       QRect rect;
-      const QRect constraint_rect(QPoint(0, 0),
-                                  QSize(2 * prop_.title_area_radius, 2 * prop_.title_area_radius));
-      rect = QFontMetrics(prop_.font)
-                 .boundingRect(constraint_rect, Qt::AlignCenter | Qt::TextWordWrap, text);
+      rect.setWidth(2 * prop_.title_area_radius);
+      rect.setHeight(2 * prop_.title_area_radius);
       rect.moveCenter(image->rect().center());
-      painter.drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, text);
+      drawItem(&painter, rect, model_->root());
     }
   }
 
