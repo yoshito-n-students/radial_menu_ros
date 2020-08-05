@@ -48,6 +48,11 @@ public:
 
   bool isPointed(const ItemConstPtr &item) const { return item && item == pointed(); }
 
+  bool isPointed(const std::string &path, const char separator = '.') const {
+    const ItemConstPtr p(pointed());
+    return p ? (path == p->path(separator)) : false;
+  }
+
   std::vector< ItemConstPtr > selected() const {
     std::vector< ItemConstPtr > items;
     for (const std::int32_t iid : state_.selected_ids) {
@@ -64,6 +69,15 @@ public:
     }
     for (const std::int32_t iid : state_.selected_ids) {
       if (iid >= 0 && iid < items_.size() && item == items_[iid]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool isSelected(const std::string &path, const char separator = '.') const {
+    for (const std::int32_t iid : state_.selected_ids) {
+      if (iid >= 0 && iid < items_.size() && path == items_[iid]->path(separator)) {
         return true;
       }
     }

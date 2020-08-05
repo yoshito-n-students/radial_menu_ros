@@ -32,7 +32,16 @@ protected:
 public:
   virtual ~Item() {}
 
+  // propaties
+
+  std::int32_t itemId() const { return item_id_; }
+
   const std::string &name() const { return name_; }
+
+  std::string path(const char separator = '.') const {
+    const ItemConstPtr p(parent());
+    return p ? p->path() + separator + name_ : name_;
+  }
 
   DisplayType displayType() const { return display_type_; }
 
@@ -82,6 +91,11 @@ public:
 
   ItemConstPtr sibilingLevel() const { return sibiling(0); }
 
+  int depth() const {
+    const ItemConstPtr p(parent());
+    return p ? p->depth() + 1 : 0;
+  }
+
   // children
 
   int numChildren() const { return children_.size(); }
@@ -95,13 +109,6 @@ public:
   }
 
   ItemConstPtr childLevel() const { return child(0); }
-
-  // misc
-
-  int depth() const {
-    const ItemConstPtr p(parent());
-    return p ? p->depth() + 1 : 0;
-  }
 
 protected:
   typedef boost::weak_ptr< const Item > ItemWeakConstPtr;
