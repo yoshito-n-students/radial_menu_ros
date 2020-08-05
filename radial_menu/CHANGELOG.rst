@@ -2,6 +2,10 @@
 Changelog for package radial_menu
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.1 (2020-08-06)
+------------------
+* No changes
+
 0.3.0 (2020-08-03)
 ------------------
 * Add the radial_menu_model package handling menu item tree model common between backend and frontend
