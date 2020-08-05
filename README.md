@@ -126,3 +126,4 @@ Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick fr
 
 ## Pkg: radial_menu_example
 * Provides a [full example](radial_menu_example/launch/example_full.launch) which requires a joystick and a [Rviz frontend example](radial_menu_example/launch/example_rviz.launch) which does not
+* Examples use the font 'FontAwesome' to display emojis. Install it by `sudo apt install fonts-font-awesome` 
