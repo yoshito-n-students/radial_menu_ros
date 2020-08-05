@@ -1,4 +1,4 @@
-<item name="Teleop Mode">
+<item name="Teleop Mode" display="alttxt" alttxt="&#xf11b;">
     <item name="Base">
         <item name="Pose"/>
         <item name="Twist"/>
