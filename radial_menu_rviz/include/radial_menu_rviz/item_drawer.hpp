@@ -75,7 +75,8 @@ class ImageItemDrawer : public ItemDrawer {
 
 protected:
   ImageItemDrawer(const radial_menu_model::ItemConstPtr &item)
-      : bitmap_(rviz::loadPixmap(QString::fromStdString(item->imageUrl()))) {}
+      : bitmap_(
+            rviz::loadPixmap(QString::fromStdString(item->imageUrl()), /* fill_cache = */ true)) {}
 
 public:
   virtual void draw(QPainter *const painter, const QRect &rect) const {
