@@ -47,7 +47,7 @@ public:
 
   const std::string &altTxt() const { return alt_txt_; }
 
-  const std::string &imageUrl() const { return image_url_; }
+  const std::string &imgURL() const { return img_url_; }
 
   // root
 
@@ -116,7 +116,7 @@ protected:
   std::int32_t item_id_;
   std::string name_;
   DisplayType display_type_;
-  std::string alt_txt_, image_url_;
+  std::string alt_txt_, img_url_;
   ItemWeakConstPtr parent_;
   std::vector< ItemConstPtr > children_;
 };

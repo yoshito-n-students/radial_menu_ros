@@ -52,8 +52,8 @@ Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick fr
 <!--   * 'alttxt': displays an alternative text              -->
 <!--   * 'image': displays an image                          -->
 <item name="Reboot" display="alttxt" alttxt="&#xF021;">
-    <item name="Base" display="image" url="package://radial_menu_resources/images/base.bmp">
-        <item name="Wheels" display="image" url="file://Photos/wheels.png" />
+    <item name="Base" display="image" imgurl="package://radial_menu_resources/images/base.bmp">
+        <item name="Wheels" display="image" imgurl="file://Photos/wheels.png" />
         <item name="Cameras">
             <item name="Front" />
             ...
