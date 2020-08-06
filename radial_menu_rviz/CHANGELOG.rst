@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.2 (2020-XX-XX)
+------------------
+* Support the latest model description
+
 0.3.1 (2020-08-06)
 ------------------
 * Support display types in RadialMenu
