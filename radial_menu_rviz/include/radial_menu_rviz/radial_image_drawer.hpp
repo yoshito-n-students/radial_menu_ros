@@ -7,12 +7,13 @@
 
 #include <radial_menu_model/model.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
-#include <radial_menu_rviz/item_drawer.hpp>
 #include <radial_menu_rviz/properties.hpp>
+#include <rviz/load_resource.h>
 
 #include <QBrush>
 #include <QColor>
 #include <QImage>
+#include <QPaintDevice>
 #include <QPainter>
 #include <QPen>
 #include <QPoint>
@@ -47,7 +48,7 @@ public:
     QImage image(
         ImageOverlay::formattedImage(imageSize(model_->currentLevel()->depth()), Qt::transparent));
     drawBackgrounds(&image);
-    drawTexts(&image);
+    drawForegrounds(&image);
     return image;
   }
 
@@ -59,34 +60,36 @@ protected:
     QImage alpha_image(image->size(), QImage::Format_Grayscale8);
     alpha_image.fill(QColor(0, 0, 0)); // defaultly transparent
 
-    // draw item areas from outer to inner, and then the title area
-    for (radial_menu_model::ItemConstPtr level = model_->currentLevel(); level != model_->root();
-         level = level->parentLevel()) {
-      drawItemBackgrounds(image, &alpha_image, level);
-    }
-    drawTitleBackground(image, &alpha_image);
-
-    // merge the alpha channel to the given image
-    image->setAlphaChannel(alpha_image);
-  }
-
-  void drawItemBackgrounds(QImage *const image, QImage *const alpha_image,
-                           const radial_menu_model::ItemConstPtr &level) const {
     // painters
-    QPainter rgb_painter(image), alpha_painter(alpha_image);
+    QPainter rgb_painter(image), alpha_painter(&alpha_image);
     rgb_painter.setRenderHint(QPainter::Antialiasing);
     alpha_painter.setRenderHint(QPainter::Antialiasing);
 
+    // draw item areas from outer to inner, and then the title area
+    for (radial_menu_model::ItemConstPtr level = model_->currentLevel(); level != model_->root();
+         level = level->parentLevel()) {
+      drawItemBackgrounds(&rgb_painter, &alpha_painter, level);
+    }
+    drawTitleBackground(&rgb_painter, &alpha_painter);
+
+    // merge the alpha channel to the given image
+    rgb_painter.end();
+    alpha_painter.end();
+    image->setAlphaChannel(alpha_image);
+  }
+
+  void drawItemBackgrounds(QPainter *const rgb_painter, QPainter *const alpha_painter,
+                           const radial_menu_model::ItemConstPtr &level) const {
     // common properties
-    const QPoint image_center(image->rect().center());
+    const QPoint image_center(deviceCenter(*rgb_painter->device()));
     const int n_sibilings(level->numSibilings()), depth(level->depth());
 
     // draw item areas by pies
     if (n_sibilings > 0) {
       // set tools for alpha painter
       const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
-      alpha_painter.setPen(bg_alpha);
-      alpha_painter.setBrush(bg_alpha);
+      alpha_painter->setPen(bg_alpha);
+      alpha_painter->setBrush(bg_alpha);
       // pie's property
       QRect rect;
       rect.setSize(imageSize(depth));
@@ -99,90 +102,88 @@ protected:
         const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
         if (is_selected && is_pointed) {
           const QRgb rgb(averagedRgb(prop_.item_bg_rgb_selected, prop_.item_bg_rgb_pointed));
-          rgb_painter.setPen(QPen(rgb));
-          rgb_painter.setBrush(QBrush(rgb));
+          rgb_painter->setPen(QPen(rgb));
+          rgb_painter->setBrush(QBrush(rgb));
         } else if (is_selected && !is_pointed) {
-          rgb_painter.setPen(QPen(prop_.item_bg_rgb_selected));
-          rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_selected));
+          rgb_painter->setPen(QPen(prop_.item_bg_rgb_selected));
+          rgb_painter->setBrush(QBrush(prop_.item_bg_rgb_selected));
         } else if (!is_selected && is_pointed) {
           const QRgb rgb(averagedRgb(prop_.item_bg_rgb_default, prop_.item_bg_rgb_pointed));
-          rgb_painter.setPen(QPen(rgb));
-          rgb_painter.setBrush(QBrush(rgb));
+          rgb_painter->setPen(QPen(rgb));
+          rgb_painter->setBrush(QBrush(rgb));
         } else { // !is_selected && !is_pointed
-          rgb_painter.setPen(QPen(prop_.item_bg_rgb_default));
-          rgb_painter.setBrush(QBrush(prop_.item_bg_rgb_default));
+          rgb_painter->setPen(QPen(prop_.item_bg_rgb_default));
+          rgb_painter->setBrush(QBrush(prop_.item_bg_rgb_default));
         }
         // draw a pie
         const int center_angle(pieCenterAngle(sid, n_sibilings));
         const int start_angle(center_angle - span_angle / 2);
-        rgb_painter.drawPie(rect, start_angle, span_angle);
-        alpha_painter.drawPie(rect, start_angle, span_angle);
+        rgb_painter->drawPie(rect, start_angle, span_angle);
+        alpha_painter->drawPie(rect, start_angle, span_angle);
       }
     }
 
-    // draw transparent lines between item areas
+    // draw transparent lines between sibiling items
     if (n_sibilings > 0 && prop_.line_width > 0) {
-      alpha_painter.setPen(QPen(QColor(0, 0, 0), prop_.line_width));
+      alpha_painter->setPen(QPen(QColor(0, 0, 0), prop_.line_width));
       for (int sid = 0; sid < n_sibilings; ++sid) {
-        alpha_painter.drawLine(image_center,
-                               image_center + relativeItemLineEnd(sid, n_sibilings, depth));
+        alpha_painter->drawLine(image_center,
+                                image_center + relativeItemLineEnd(sid, n_sibilings, depth));
       }
     }
 
     // fill inner area with transparent circle
     {
-      alpha_painter.setPen(QPen(QColor(0, 0, 0), prop_.line_width));
-      alpha_painter.setBrush(QColor(0, 0, 0));
+      alpha_painter->setPen(QPen(QColor(0, 0, 0), prop_.line_width));
+      alpha_painter->setBrush(QColor(0, 0, 0));
       QRect rect;
       rect.setSize(imageSize(depth - 1) + QSize(prop_.line_width, prop_.line_width));
       rect.moveCenter(image_center);
-      alpha_painter.drawEllipse(rect);
+      alpha_painter->drawEllipse(rect);
     }
   }
 
-  void drawTitleBackground(QImage *const image, QImage *const alpha_image) const {
+  void drawTitleBackground(QPainter *const rgb_painter, QPainter *const alpha_painter) const {
     // draw the title area by a filled circle
     if (prop_.title_area_radius > 0) {
-      // painters
-      QPainter rgb_painter(image), alpha_painter(alpha_image);
-      rgb_painter.setRenderHint(QPainter::Antialiasing);
-      alpha_painter.setRenderHint(QPainter::Antialiasing);
       // circle properties
-      const QPoint image_center(image->rect().center());
+      const QPoint image_center(deviceCenter(*rgb_painter->device()));
       const QPoint relative_corner(prop_.title_area_radius, prop_.title_area_radius);
       const QRect rect(image_center - relative_corner, image_center + relative_corner);
       if (prop_.draw_title_area) {
         //
-        rgb_painter.setPen(QPen(prop_.title_bg_rgb));
-        rgb_painter.setBrush(QBrush(prop_.title_bg_rgb));
-        rgb_painter.drawEllipse(rect);
+        rgb_painter->setPen(QPen(prop_.title_bg_rgb));
+        rgb_painter->setBrush(QBrush(prop_.title_bg_rgb));
+        rgb_painter->drawEllipse(rect);
         //
         const QColor bg_alpha(prop_.bg_alpha, prop_.bg_alpha, prop_.bg_alpha);
-        alpha_painter.setPen(bg_alpha);
-        alpha_painter.setBrush(bg_alpha);
-        alpha_painter.drawEllipse(rect);
+        alpha_painter->setPen(bg_alpha);
+        alpha_painter->setBrush(bg_alpha);
+        alpha_painter->drawEllipse(rect);
       } else {
-        alpha_painter.setPen(QColor(0, 0, 0));
-        alpha_painter.setBrush(QColor(0, 0, 0));
-        alpha_painter.drawEllipse(rect);
+        alpha_painter->setPen(QColor(0, 0, 0));
+        alpha_painter->setBrush(QColor(0, 0, 0));
+        alpha_painter->drawEllipse(rect);
       }
     }
   }
 
-  void drawTexts(QImage *const image) const {
-    for (radial_menu_model::ItemConstPtr level = model_->currentLevel(); level != model_->root();
-         level = level->parentLevel()) {
-      drawItemTexts(image, level);
-    }
-    drawTitleText(image);
-  }
-
-  void drawItemTexts(QImage *const image, const radial_menu_model::ItemConstPtr &level) const {
+  void drawForegrounds(QImage *const image) const {
     QPainter painter(image);
     painter.setFont(prop_.font);
     painter.setRenderHint(QPainter::TextAntialiasing);
+    painter.setRenderHint(QPainter::Antialiasing);
 
-    const QPoint image_center(image->rect().center());
+    for (radial_menu_model::ItemConstPtr level = model_->currentLevel(); level != model_->root();
+         level = level->parentLevel()) {
+      drawItemForegrounds(&painter, level);
+    }
+    drawTitleForeground(&painter);
+  }
+
+  void drawItemForegrounds(QPainter *const painter,
+                           const radial_menu_model::ItemConstPtr &level) const {
+    const QPoint image_center(deviceCenter(*painter->device()));
     const int n_sibilings(level->numSibilings()), depth(level->depth());
 
     // draw item texts
@@ -192,14 +193,14 @@ protected:
       const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
       if (is_selected && is_pointed) {
         const QRgb rgb(averagedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
-        painter.setPen(makeColor(rgb, prop_.text_alpha));
+        painter->setPen(makeColor(rgb, prop_.text_alpha));
       } else if (is_selected && !is_pointed) {
-        painter.setPen(makeColor(prop_.item_rgb_selected, prop_.text_alpha));
+        painter->setPen(makeColor(prop_.item_rgb_selected, prop_.text_alpha));
       } else if (!is_selected && is_pointed) {
         const QRgb rgb(averagedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed));
-        painter.setPen(makeColor(rgb, prop_.text_alpha));
+        painter->setPen(makeColor(rgb, prop_.text_alpha));
       } else { // !is_selected && !is_pointed
-        painter.setPen(makeColor(prop_.item_rgb_default, prop_.text_alpha));
+        painter->setPen(makeColor(prop_.item_rgb_default, prop_.text_alpha));
       }
       // set the item bounding rect
       QRect rect;
@@ -208,23 +209,37 @@ protected:
       rect.moveCenter(relativeItemCenter(sid, n_sibilings, depth));
       rect.translate(image_center);
       // draw the item
-      drawItem(&painter, rect, item);
+      drawItemForeground(painter, rect, item);
     }
   }
 
-  void drawTitleText(QImage *const image) const {
+  void drawTitleForeground(QPainter *const painter) const {
     if (prop_.draw_title_area) {
-      // painter
-      QPainter painter(image);
-      painter.setFont(prop_.font);
-      painter.setRenderHint(QPainter::TextAntialiasing);
-      painter.setPen(makeColor(prop_.title_rgb, prop_.text_alpha));
+      painter->setPen(makeColor(prop_.title_rgb, prop_.text_alpha));
       // draw the title item at the image center
       QRect rect;
       rect.setWidth(2 * prop_.title_area_radius);
       rect.setHeight(2 * prop_.title_area_radius);
-      rect.moveCenter(image->rect().center());
-      drawItem(&painter, rect, model_->root());
+      rect.moveCenter(deviceCenter(*painter->device()));
+      drawItemForeground(painter, rect, model_->root());
+    }
+  }
+
+  void drawItemForeground(QPainter *const painter, const QRect &rect,
+                          const radial_menu_model::ItemConstPtr &item) const {
+    switch (item->displayType()) {
+    case radial_menu_model::Item::Name:
+      painter->drawText(rect, Qt::AlignCenter | Qt::TextWordWrap,
+                        QString::fromStdString(item->name()));
+      return;
+    case radial_menu_model::Item::AltTxt:
+      painter->drawText(rect, Qt::AlignCenter | Qt::TextWordWrap,
+                        QString::fromStdString(item->altTxt()));
+      return;
+    case radial_menu_model::Item::Image:
+      painter->drawPixmap(
+          rect, rviz::loadPixmap(QString::fromStdString(item->imgURL()), /* fill_cache = */ true));
+      return;
     }
   }
 
@@ -270,6 +285,10 @@ protected:
     const double u(radius * std::cos(th)), v(radius * std::sin(th));
     // rightward & downward positive
     return QPoint(-static_cast< int >(v), -static_cast< int >(u));
+  }
+
+  static QPoint deviceCenter(const QPaintDevice &device) {
+    return QPoint(device.width() / 2, device.height() / 2);
   }
 
   static QRgb averagedRgb(const QRgb &rgb1, const QRgb &rgb2) {
