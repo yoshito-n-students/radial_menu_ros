@@ -108,7 +108,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES radial_menu_rviz_plugins
   CATKIN_DEPENDS radial_menu_model radial_menu_msgs roscpp rviz
-#  DEPENDS system_lib
+  DEPENDS rviz
 )
 
 

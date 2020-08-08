@@ -2,8 +2,9 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.3.2 (2020-XX-XX)
+0.3.2 (2020-08-08)
 ------------------
+* Fix system dependency (rviz)
 * Support the latest model description
 
 0.3.1 (2020-08-06)
