@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.2 (2020-08-08)
+------------------
+* No changes
+
 0.3.1 (2020-08-06)
 ------------------
 * Use an emoji as the alternative text in the example teleop menu
