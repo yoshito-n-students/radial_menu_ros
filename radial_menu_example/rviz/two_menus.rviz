@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TeleopMenu1
+        - /HTeleopMenu1
       Splitter Ratio: 0.5196969509124756
     Tree Height: 956
   - Class: rviz/Selection
@@ -107,6 +108,7 @@ Visualization Manager:
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
+      Fg height: 32
       Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
@@ -128,6 +130,7 @@ Visualization Manager:
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
+      Fg height: 32
       Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
