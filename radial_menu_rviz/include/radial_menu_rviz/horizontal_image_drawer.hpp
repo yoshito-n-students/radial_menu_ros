@@ -9,6 +9,7 @@
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
 #include <ros/console.h>
+#include <rviz/load_resource.h>
 
 #include <QBrush>
 #include <QColor>
@@ -43,25 +44,29 @@ public:
     // plan element layouts on the image
     QSize image_size;
     std::vector< ElementType > element_types;
-    std::vector< QRect > bg_rects, text_rects;
-    std::vector< QString > texts;
-    imageLayout(&image_size, &element_types, &bg_rects, &text_rects, &texts);
+    std::vector< QRect > bg_rects, fg_rects;
+    std::vector< radial_menu_model::ItemConstPtr > items;
+    imageLayout(&image_size, &element_types, &bg_rects, &fg_rects, &items);
 
     // draw elements on the image
     QImage image(ImageOverlay::formattedImage(image_size, Qt::transparent));
+    QPainter painter(&image);
+    painter.setFont(prop_.font);
+    painter.setRenderHint(QPainter::TextAntialiasing);
+    painter.setRenderHint(QPainter::Antialiasing);
     for (std::size_t i = 0; i < element_types.size(); ++i) {
       switch (element_types[i]) {
       case TitleElement:
-        drawBackground(&image, prop_.title_bg_rgb, bg_rects[i]);
-        drawText(&image, prop_.title_rgb, text_rects[i], texts[i]);
+        drawBackground(&painter, prop_.title_bg_rgb, bg_rects[i]);
+        drawForeground(&painter, prop_.title_rgb, fg_rects[i], items[i]);
         break;
       case SelectedElement:
-        drawBackground(&image, prop_.item_bg_rgb_selected, bg_rects[i]);
-        drawText(&image, prop_.item_rgb_selected, text_rects[i], texts[i]);
+        drawBackground(&painter, prop_.item_bg_rgb_selected, bg_rects[i]);
+        drawForeground(&painter, prop_.item_rgb_selected, fg_rects[i], items[i]);
         break;
       case PointedElement:
-        drawBackground(&image, prop_.item_bg_rgb_pointed, bg_rects[i]);
-        drawText(&image, prop_.item_rgb_pointed, text_rects[i], texts[i]);
+        drawBackground(&painter, prop_.item_bg_rgb_pointed, bg_rects[i]);
+        drawForeground(&painter, prop_.item_rgb_pointed, fg_rects[i], items[i]);
         break;
       default:
         ROS_ERROR_STREAM("HorizontalImageDrawer::draw(): unexpected element type ("
@@ -76,85 +81,57 @@ public:
 protected:
   enum ElementType { TitleElement, SelectedElement, PointedElement };
 
-  // drawing functions
-
-  void drawBackground(QImage *const image, const QRgb &rgb, const QRect &rect) const {
-    // painter for the given image
-    QPainter painter(image);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    // draw background
-    const QColor color(makeColor(rgb, prop_.bg_alpha));
-    painter.setPen(color);
-    painter.setBrush(color);
-    painter.drawRect(rect);
-  }
-
-  void drawText(QImage *const image, const QRgb &rgb, const QRect &rect,
-                const QString &text) const {
-    // painter for the given image
-    QPainter painter(image);
-    painter.setFont(prop_.font);
-    painter.setRenderHint(QPainter::TextAntialiasing);
-
-    // draw text
-    painter.setPen(makeColor(rgb, prop_.text_alpha));
-    painter.drawText(rect, Qt::AlignCenter, text);
-  }
-
-  // helper functions
+  // layout functions
 
   // calc image size and element layouts
   void imageLayout(QSize *const image_size, std::vector< ElementType > *const element_types,
-                   std::vector< QRect > *const bg_rects, std::vector< QRect > *const text_rects,
-                   std::vector< QString > *const texts) const {
+                   std::vector< QRect > *const bg_rects, std::vector< QRect > *const fg_rects,
+                   std::vector< radial_menu_model::ItemConstPtr > *const items) const {
     element_types->clear();
     bg_rects->clear();
-    text_rects->clear();
-    texts->clear();
+    fg_rects->clear();
+    items->clear();
 
     //
     // 1. enumerate drawable elements
     //
 
-    // evaluate the title
+    // evaluate the title element
     {
-      const QString text(QString::fromStdString(model_->root()->name()));
-      QRect bg_rect, text_rect;
-      elementLayout(text, &bg_rect, &text_rect);
-      if (bg_rect.isValid() && text_rect.isValid()) {
+      const radial_menu_model::ItemConstPtr item(model_->root());
+      QRect bg_rect, fg_rect;
+      elementLayout(item, &bg_rect, &fg_rect);
+      if (bg_rect.isValid() && fg_rect.isValid()) {
         element_types->push_back(TitleElement);
         bg_rects->push_back(bg_rect);
-        text_rects->push_back(text_rect);
-        texts->push_back(text);
+        fg_rects->push_back(fg_rect);
+        items->push_back(item);
       }
     }
 
-    // evaluate the selected items
+    // evaluate the selected elements
     for (const radial_menu_model::ItemConstPtr &item : model_->selected()) {
-      const QString text(QString::fromStdString(item->name()));
-      QRect bg_rect, text_rect;
-      elementLayout(text, &bg_rect, &text_rect);
-      if (bg_rect.isValid() && text_rect.isValid()) {
+      QRect bg_rect, fg_rect;
+      elementLayout(item, &bg_rect, &fg_rect);
+      if (bg_rect.isValid() && fg_rect.isValid()) {
         element_types->push_back(SelectedElement);
         bg_rects->push_back(bg_rect);
-        text_rects->push_back(text_rect);
-        texts->push_back(text);
+        fg_rects->push_back(fg_rect);
+        items->push_back(item);
       }
     }
 
-    // evaluate the pointed item
+    // evaluate the pointed element
     {
       const radial_menu_model::ItemConstPtr item(model_->pointed());
       if (item) {
-        const QString text(QString::fromStdString(item->name()));
-        QRect bg_rect, text_rect;
-        elementLayout(text, &bg_rect, &text_rect);
-        if (bg_rect.isValid() && text_rect.isValid()) {
+        QRect bg_rect, fg_rect;
+        elementLayout(item, &bg_rect, &fg_rect);
+        if (bg_rect.isValid() && fg_rect.isValid()) {
           element_types->push_back(PointedElement);
           bg_rects->push_back(bg_rect);
-          text_rects->push_back(text_rect);
-          texts->push_back(text);
+          fg_rects->push_back(fg_rect);
+          items->push_back(item);
         }
       }
     }
@@ -179,9 +156,9 @@ protected:
       (*bg_rects)[i].moveLeft((*bg_rects)[i - 1].right() + prop_.line_width);
     }
 
-    // layout of text elements
+    // layout of foreground elements
     for (std::size_t i = 0; i < bg_rects->size(); ++i) {
-      (*text_rects)[i].moveCenter((*bg_rects)[i].center());
+      (*fg_rects)[i].moveCenter((*bg_rects)[i].center());
     }
 
     //
@@ -192,20 +169,78 @@ protected:
     image_size->setHeight(bg_rects->empty() ? 0 : bg_rects->back().bottom());
   }
 
-  // calc bounding rectangles of element's background and text.
+  // calc bounding rectangles of element's background and foreground.
   // the top left corner of the background rectangle will be aligined to (0, 0).
   // if the text is not drawable, returns null rectangles.
-  void elementLayout(const QString &text, QRect *const bg_rect, QRect *const text_rect) const {
-    if (!text.isEmpty()) {
-      *text_rect = QFontMetrics(prop_.font).boundingRect(QRect(), Qt::AlignCenter, text);
-      *bg_rect = *text_rect +
-                 QMargins(prop_.bg_padding, prop_.bg_padding, prop_.bg_padding, prop_.bg_padding);
-      const QPoint offset(-bg_rect->topLeft());
-      text_rect->translate(offset);
-      bg_rect->translate(offset);
-    } else {
-      *bg_rect = QRect();
-      *text_rect = QRect();
+  void elementLayout(const radial_menu_model::ItemConstPtr &item, QRect *const bg_rect,
+                     QRect *const fg_rect) const {
+    // set foreground rect
+    switch (item->displayType()) {
+    case radial_menu_model::Item::Name:
+      fg_rect->setHeight(prop_.fg_height);
+      fg_rect->setWidth(textWidth(prop_.font, QString::fromStdString(item->name())));
+      break;
+    case radial_menu_model::Item::AltTxt:
+      fg_rect->setHeight(prop_.fg_height);
+      fg_rect->setWidth(textWidth(prop_.font, QString::fromStdString(item->altTxt())));
+      break;
+    case radial_menu_model::Item::Image:
+      fg_rect->setHeight(prop_.fg_height);
+      fg_rect->setWidth(prop_.fg_height);
+      break;
+    default:
+      ROS_ERROR_STREAM("HorizontalImageDrawer::elementLayout(): the item '"
+                       << item->name() << "' has unexpected type ("
+                       << static_cast< int >(item->displayType()) << ")");
+      fg_rect->setHeight(1);
+      fg_rect->setWidth(1);
+      break;
+    }
+
+    // set background rect
+    *bg_rect = *fg_rect + uniformMargins(prop_.bg_padding);
+
+    // align rects
+    bg_rect->translate(-bg_rect->topLeft());
+    fg_rect->moveCenter(bg_rect->center());
+  }
+
+  static int textWidth(const QFont &font, const QString &text) {
+    return QFontMetrics(font).boundingRect(QRect(), Qt::AlignCenter, text).width();
+  }
+
+  static QMargins uniformMargins(const int margin) {
+    return QMargins(margin, margin, margin, margin);
+  }
+
+  // drawing functions
+
+  void drawBackground(QPainter *const painter, const QRgb &rgb, const QRect &rect) const {
+    const QColor color(makeColor(rgb, prop_.bg_alpha));
+    painter->setPen(color);
+    painter->setBrush(color);
+    painter->drawRect(rect);
+  }
+
+  void drawForeground(QPainter *const painter, const QRgb &rgb, const QRect &rect,
+                      const radial_menu_model::ItemConstPtr &item) const {
+    painter->setPen(makeColor(rgb, prop_.text_alpha));
+    switch (item->displayType()) {
+    case radial_menu_model::Item::Name:
+      painter->drawText(rect, Qt::AlignCenter, QString::fromStdString(item->name()));
+      break;
+    case radial_menu_model::Item::AltTxt:
+      painter->drawText(rect, Qt::AlignCenter, QString::fromStdString(item->altTxt()));
+      break;
+    case radial_menu_model::Item::Image:
+      painter->drawPixmap(
+          rect, rviz::loadPixmap(QString::fromStdString(item->imgURL()), /* fill_cache = */ true));
+      break;
+    default:
+      ROS_ERROR_STREAM("HorizontalImageDrawer::drawForeground(): the item '"
+                       << item->name() << "' has unexpected type ("
+                       << static_cast< int >(item->displayType()) << ")");
+      break;
     }
   }
 

@@ -91,6 +91,10 @@ public:
                                                 "Padding of all background area in pixels", parent,
                                                 SLOT(updateDrawingProperty()), this));
     bg_padding_ctl_->setMin(0);
+    fg_height_ctl_.reset(new rviz::IntProperty("Fg height", 32,
+                                                "Height of all foreground area in pixels", parent,
+                                                SLOT(updateDrawingProperty()), this));
+    fg_height_ctl_->setMin(0);
 
     // position control
     left_ctl_.reset(new rviz::IntProperty("Left", 128, "Position of menu's left edge in pixels",
@@ -153,6 +157,7 @@ protected Q_SLOTS:
     drawing_prop_.bg_alpha = bg_alpha_ctl_->getInt();
     drawing_prop_.text_alpha = text_alpha_ctl_->getInt();
     drawing_prop_.bg_padding = bg_padding_ctl_->getInt();
+    drawing_prop_.fg_height = fg_height_ctl_->getInt();
 
     Q_EMIT drawingPropertyChanged(drawing_prop_);
   }
@@ -181,7 +186,8 @@ protected:
   boost::scoped_ptr< rviz::IntProperty > line_width_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, text_alpha_ctl_, bg_padding_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, text_alpha_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > bg_padding_ctl_, fg_height_ctl_;
   HorizontalDrawingProperty drawing_prop_;
 
   // position property & control

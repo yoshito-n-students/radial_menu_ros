@@ -43,7 +43,8 @@ struct HorizontalDrawingProperty {
   QRgb item_bg_rgb_pointed, item_rgb_pointed;
   QRgb item_bg_rgb_selected, item_rgb_selected;
 
-  int bg_alpha, text_alpha, bg_padding;
+  int bg_alpha, text_alpha;
+  int bg_padding, fg_height;
 };
 
 struct PositionProperty {
