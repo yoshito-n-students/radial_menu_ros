@@ -2,6 +2,10 @@
 Changelog for package radial_menu_model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.3 (2020-08-09)
+------------------
+* No changes
+
 0.3.2 (2020-08-08)
 ------------------
 * Rename attribute 'url' to 'imgurl'

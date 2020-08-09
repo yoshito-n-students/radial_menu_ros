@@ -2,6 +2,10 @@
 Changelog for package radial_menu_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.3 (2020-08-09)
+------------------
+* Support the latest properties of Rviz plugins
+
 0.3.2 (2020-08-08)
 ------------------
 * No changes
