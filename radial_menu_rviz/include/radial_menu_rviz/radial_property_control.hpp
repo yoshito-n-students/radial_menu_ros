@@ -99,11 +99,11 @@ public:
         parent, SLOT(updateDrawingProperty()), this));
     bg_alpha_ctl_->setMin(0);
     bg_alpha_ctl_->setMax(255);
-    text_alpha_ctl_.reset(new rviz::IntProperty(
-        "Text alpha", 255, "Alpha of all text colors from 0 (transparent) to 255 (opaque)", parent,
-        SLOT(updateDrawingProperty()), this));
-    text_alpha_ctl_->setMin(0);
-    text_alpha_ctl_->setMax(255);
+    fg_alpha_ctl_.reset(new rviz::IntProperty(
+        "Fg alpha", 255, "Alpha of all foreground colors from 0 (transparent) to 255 (opaque)",
+        parent, SLOT(updateDrawingProperty()), this));
+    fg_alpha_ctl_->setMin(0);
+    fg_alpha_ctl_->setMax(255);
 
     // position control
     center_x_ctl_.reset(new rviz::IntProperty("Center x", 256,
@@ -171,7 +171,7 @@ protected Q_SLOTS:
     drawing_prop_.item_rgb_selected = item_rgb_selected_ctl_->getColor().rgb();
 
     drawing_prop_.bg_alpha = bg_alpha_ctl_->getInt();
-    drawing_prop_.text_alpha = text_alpha_ctl_->getInt();
+    drawing_prop_.fg_alpha = fg_alpha_ctl_->getInt();
 
     Q_EMIT drawingPropertyChanged(drawing_prop_);
   }
@@ -209,7 +209,7 @@ protected:
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
   boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
   // - others
-  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, text_alpha_ctl_;
+  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, fg_alpha_ctl_;
   RadialDrawingProperty drawing_prop_;
 
   // position property & control

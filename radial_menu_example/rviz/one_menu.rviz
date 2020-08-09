@@ -58,6 +58,7 @@ Visualization Manager:
       Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
+      Fg alpha: 255
       Font: FontAwesome
       Font bold: true
       Font size: 10
@@ -72,7 +73,6 @@ Visualization Manager:
       Menu description: /menu_description
       Name: CameraMenu
       State topic: /menu_state
-      Text alpha: 255
       Title: 255; 251; 252
       Title area: true
       Title area radius: 64
@@ -82,6 +82,7 @@ Visualization Manager:
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
+      Fg alpha: 255
       Fg height: 32
       Font: Liberation Sans Narrow
       Font bold: true
@@ -95,7 +96,6 @@ Visualization Manager:
       Menu description: /menu_description
       Name: HCameraMenu
       State topic: /menu_state
-      Text alpha: 255
       Title: 255; 251; 252
       Title bg: 39; 7; 34
       Top: 32

@@ -30,7 +30,7 @@ struct RadialDrawingProperty {
   QRgb item_bg_rgb_pointed, item_rgb_pointed;
   QRgb item_bg_rgb_selected, item_rgb_selected;
 
-  int bg_alpha, text_alpha;
+  int bg_alpha, fg_alpha;
 };
 
 struct HorizontalDrawingProperty {
@@ -43,7 +43,7 @@ struct HorizontalDrawingProperty {
   QRgb item_bg_rgb_pointed, item_rgb_pointed;
   QRgb item_bg_rgb_selected, item_rgb_selected;
 
-  int bg_alpha, text_alpha;
+  int bg_alpha, fg_alpha;
   int bg_padding, fg_height;
 };
 

@@ -224,7 +224,7 @@ protected:
 
   void drawForeground(QPainter *const painter, const QRgb &rgb, const QRect &rect,
                       const radial_menu_model::ItemConstPtr &item) const {
-    painter->setPen(makeColor(rgb, prop_.text_alpha));
+    painter->setPen(makeColor(rgb, prop_.fg_alpha));
     switch (item->displayType()) {
     case radial_menu_model::Item::Name:
       painter->drawText(rect, Qt::AlignCenter, QString::fromStdString(item->name()));

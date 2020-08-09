@@ -59,6 +59,7 @@ Visualization Manager:
       Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
+      Fg alpha: 255
       Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
@@ -73,7 +74,6 @@ Visualization Manager:
       Menu description: /teleop_menu_description
       Name: TeleopMenu
       State topic: /teleop_menu_state
-      Text alpha: 255
       Title: 255; 250; 255
       Title area: true
       Title area radius: 96
@@ -84,6 +84,7 @@ Visualization Manager:
       Center y: 512
       Class: radial_menu_rviz/RadialMenu
       Enabled: true
+      Fg alpha: 255
       Font: Liberation Sans Narrow
       Font bold: true
       Font size: 12
@@ -98,7 +99,6 @@ Visualization Manager:
       Menu description: /reboot_menu_description
       Name: RebootMenu
       State topic: /reboot_menu_state
-      Text alpha: 255
       Title: 255; 251; 252
       Title area: true
       Title area radius: 48
@@ -108,6 +108,7 @@ Visualization Manager:
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
+      Fg alpha: 255
       Fg height: 32
       Font: Liberation Sans Narrow
       Font bold: true
@@ -121,7 +122,6 @@ Visualization Manager:
       Menu description: /teleop_menu_description
       Name: HTeleopMenu
       State topic: /teleop_menu_state
-      Text alpha: 255
       Title: 10; 36; 99
       Title bg: 255; 250; 255
       Top: 32
@@ -130,6 +130,7 @@ Visualization Manager:
       Bg padding: 16
       Class: radial_menu_rviz/HorizontalMenu
       Enabled: true
+      Fg alpha: 255
       Fg height: 32
       Font: Liberation Sans Narrow
       Font bold: true
@@ -143,7 +144,6 @@ Visualization Manager:
       Menu description: /reboot_menu_description
       Name: HRebootMenu
       State topic: /reboot_menu_state
-      Text alpha: 255
       Title: 255; 251; 252
       Title bg: 39; 7; 34
       Top: 32
