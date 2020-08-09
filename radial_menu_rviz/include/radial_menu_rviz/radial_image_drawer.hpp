@@ -8,6 +8,7 @@
 #include <radial_menu_model/model.hpp>
 #include <radial_menu_rviz/image_overlay.hpp>
 #include <radial_menu_rviz/properties.hpp>
+#include <ros/console.h>
 #include <rviz/load_resource.h>
 
 #include <QBrush>
@@ -189,44 +190,41 @@ protected:
     // draw item texts
     for (int sid = 0; sid < n_sibilings; ++sid) {
       const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
-      // set tools for the painter according to item type
-      const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
-      if (is_selected && is_pointed) {
-        const QRgb rgb(averagedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed));
-        painter->setPen(makeColor(rgb, prop_.text_alpha));
-      } else if (is_selected && !is_pointed) {
-        painter->setPen(makeColor(prop_.item_rgb_selected, prop_.text_alpha));
-      } else if (!is_selected && is_pointed) {
-        const QRgb rgb(averagedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed));
-        painter->setPen(makeColor(rgb, prop_.text_alpha));
-      } else { // !is_selected && !is_pointed
-        painter->setPen(makeColor(prop_.item_rgb_default, prop_.text_alpha));
-      }
       // set the item bounding rect
       QRect rect;
       rect.setWidth(prop_.item_area_width);
       rect.setHeight(prop_.item_area_width);
       rect.moveCenter(relativeItemCenter(sid, n_sibilings, depth));
       rect.translate(image_center);
-      // draw the item
-      drawItemForeground(painter, rect, item);
+      // draw the item with color according to item type
+      const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
+      if (is_selected && is_pointed) {
+        drawItemForeground(painter, averagedRgb(prop_.item_rgb_selected, prop_.item_rgb_pointed),
+                           rect, item);
+      } else if (is_selected && !is_pointed) {
+        drawItemForeground(painter, prop_.item_rgb_selected, rect, item);
+      } else if (!is_selected && is_pointed) {
+        drawItemForeground(painter, averagedRgb(prop_.item_rgb_default, prop_.item_rgb_pointed),
+                           rect, item);
+      } else { // !is_selected && !is_pointed
+        drawItemForeground(painter, prop_.item_rgb_default, rect, item);
+      }
     }
   }
 
   void drawTitleForeground(QPainter *const painter) const {
     if (prop_.draw_title_area) {
-      painter->setPen(makeColor(prop_.title_rgb, prop_.text_alpha));
-      // draw the title item at the image center
       QRect rect;
       rect.setWidth(2 * prop_.title_area_radius);
       rect.setHeight(2 * prop_.title_area_radius);
       rect.moveCenter(deviceCenter(*painter->device()));
-      drawItemForeground(painter, rect, model_->root());
+      drawItemForeground(painter, prop_.title_rgb, rect, model_->root());
     }
   }
 
-  void drawItemForeground(QPainter *const painter, const QRect &rect,
+  void drawItemForeground(QPainter *const painter, const QRgb &rgb, const QRect &rect,
                           const radial_menu_model::ItemConstPtr &item) const {
+    painter->setPen(makeColor(rgb, prop_.text_alpha));
     switch (item->displayType()) {
     case radial_menu_model::Item::Name:
       painter->drawText(rect, Qt::AlignCenter | Qt::TextWordWrap,
@@ -239,6 +237,11 @@ protected:
     case radial_menu_model::Item::Image:
       painter->drawPixmap(
           rect, rviz::loadPixmap(QString::fromStdString(item->imgURL()), /* fill_cache = */ true));
+      return;
+    default:
+      ROS_ERROR_STREAM("RadialImageDrawer::drawItemForeground(): the item '"
+                       << item->name() << "' has unexpected type ("
+                       << static_cast< int >(item->displayType()) << ")");
       return;
     }
   }
