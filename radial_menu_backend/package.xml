@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>radial_menu_backend</name>
-  <version>0.3.2</version>
+  <version>0.3.3</version>
   <description>The radial_menu_backend package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
