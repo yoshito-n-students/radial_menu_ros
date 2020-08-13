@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.3.4 (2020-08-14)
+------------------
+* Add system dependency to Qt
+
 0.3.3 (2020-08-09)
 ------------------
 * Support display types in HorizontalMenu

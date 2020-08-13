@@ -16,7 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
+find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Gui)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui)
+# Disable Qt's keywords "signals", "slots" "emit"
 add_definitions(-DQT_NO_KEYWORDS)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -108,7 +110,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES radial_menu_rviz_plugins
   CATKIN_DEPENDS radial_menu_model radial_menu_msgs roscpp rviz
-  DEPENDS rviz
+#  DEPENDS
 )
 
 
@@ -167,8 +169,7 @@ add_dependencies(
 target_link_libraries(
   radial_menu_rviz_plugins
   ${catkin_LIBRARIES}
-  Qt5::Core
-  Qt5::Gui
+  ${QT_LIBRARIES}
 )
 
 #############
