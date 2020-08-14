@@ -4,7 +4,11 @@
 #include <string>
 #include <vector>
 
+#include <ros/console.h>
+
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/optional.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -17,12 +21,10 @@ typedef boost::shared_ptr< Item > ItemPtr;
 typedef boost::shared_ptr< const Item > ItemConstPtr;
 
 // menu item.
-// only Model can construct Item because the constructor is protected and Model is the only friend.
-// state of Item cannot be changed after construction because all methods of Item is const.
+// state of Item cannot be changed after construction by itemsFromElement()
+// because all methods of Item is const.
 
 class Item : public boost::enable_shared_from_this< Item > {
-  friend class Model;
-
 public:
   enum DisplayType { Name, AltTxt, Image };
 
@@ -100,15 +102,103 @@ public:
 
   int numChildren() const { return children_.size(); }
 
-  std::vector< ItemConstPtr > children() const {
-    return std::vector< ItemConstPtr >(children_.begin(), children_.end());
-  }
+  std::vector< ItemConstPtr > children() const { return children_; }
 
   ItemConstPtr child(const int cid) const {
     return (cid >= 0 && cid < children_.size()) ? children_[cid] : ItemConstPtr();
   }
 
   ItemConstPtr childLevel() const { return child(0); }
+
+  // factory
+
+  static std::vector< ItemConstPtr >
+  itemsFromElement(const boost::property_tree::ptree::value_type &elm) {
+    namespace bpt = boost::property_tree;
+
+    struct Internal {
+      static bool appendItems(const bpt::ptree::value_type &elm,
+                              std::vector< ItemConstPtr > *const items,
+                              const ItemPtr &parent_item = ItemPtr()) {
+        // is the element name "item"?
+        if (elm.first != "item") {
+          ROS_ERROR_STREAM("Item::itemsFromElement(): Invalid element '" << elm.first << "'");
+          return false;
+        }
+
+        // create an item and append it to the given list
+        const ItemPtr item(new Item());
+        item->item_id_ = items->size();
+        if (parent_item) {
+          item->parent_ = parent_item;
+          parent_item->children_.push_back(item);
+        }
+        items->push_back(item);
+
+        // load the item name from the attribute
+        if (!getAttribute(elm, "name", &item->name_)) {
+          ROS_ERROR("Item::itemsFromElement(): No attribute 'name'");
+          return false;
+        }
+
+        // load the display type from the attribute
+        const std::string display(attribute(elm, "display", "name"));
+        if (display == "name") {
+          item->display_type_ = Item::Name;
+        } else if (display == "alttxt") {
+          item->display_type_ = Item::AltTxt;
+          if (!getAttribute(elm, "alttxt", &item->alt_txt_)) {
+            ROS_ERROR("Item::itemsFromElement(): No attribute 'alttxt'");
+            return false;
+          }
+        } else if (display == "image") {
+          item->display_type_ = Item::Image;
+          if (!getAttribute(elm, "imgurl", &item->img_url_)) {
+            ROS_ERROR("Item::itemsFromElement(): No attribute 'imgurl'");
+            return false;
+          }
+        } else {
+          ROS_ERROR_STREAM("Item::itemsFromElement(): Unknown display type '" << display << "'");
+          return false;
+        }
+
+        // recursively update the given list
+        for (const bpt::ptree::value_type &child_elm : elm.second) {
+          if (child_elm.first == "<xmlattr>") {
+            continue;
+          }
+          if (!appendItems(child_elm, items, item)) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      // get xml attribute like ros::param::param()
+      static std::string attribute(const bpt::ptree::value_type &elm, const std::string &attr,
+                                   const std::string &default_val) {
+        const boost::optional< std::string > val(
+            elm.second.get_optional< std::string >("<xmlattr>." + attr));
+        return val ? *val : default_val;
+      }
+
+      // get xml attribute like ros::param::getParam()
+      static bool getAttribute(const bpt::ptree::value_type &elm, const std::string &attr,
+                               std::string *const val) {
+        const boost::optional< std::string > opt_val(
+            elm.second.get_optional< std::string >("<xmlattr>." + attr));
+        if (opt_val) {
+          *val = *opt_val;
+          return true;
+        }
+        return false;
+      }
+    };
+
+    std::vector< ItemConstPtr > items;
+    return Internal::appendItems(elm, &items) ? items : std::vector< ItemConstPtr >();
+  }
 
 protected:
   typedef boost::weak_ptr< const Item > ItemWeakConstPtr;
