@@ -42,7 +42,7 @@ public:
 
   std::string path(const char separator = '.') const {
     const ItemConstPtr p(parent());
-    return p ? p->path() + separator + name_ : name_;
+    return p ? (p->path() + separator + name_) : name_;
   }
 
   DisplayType displayType() const { return display_type_; }
@@ -76,8 +76,7 @@ public:
 
   std::vector< ItemConstPtr > sibilings() const {
     const ItemConstPtr p(parent());
-    return p ? std::vector< ItemConstPtr >(p->children_.begin(), p->children_.end())
-             : std::vector< ItemConstPtr >(1, shared_from_this());
+    return p ? p->children_ : std::vector< ItemConstPtr >(1, shared_from_this());
   }
 
   ItemConstPtr sibiling(const int sid) const {
@@ -102,7 +101,7 @@ public:
 
   int numChildren() const { return children_.size(); }
 
-  std::vector< ItemConstPtr > children() const { return children_; }
+  const std::vector< ItemConstPtr > &children() const { return children_; }
 
   ItemConstPtr child(const int cid) const {
     return (cid >= 0 && cid < children_.size()) ? children_[cid] : ItemConstPtr();
