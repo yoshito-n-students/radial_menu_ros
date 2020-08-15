@@ -2,6 +2,7 @@
 #define RADIAL_MENU_BACKEND_BACKEND_CONTROLLER_HPP
 
 #include <cmath>
+#include <limits>
 
 #include <radial_menu_backend/backend_config.hpp>
 #include <radial_menu_model/model.hpp>
@@ -44,17 +45,11 @@ public:
     const bool select_is_pressed(buttonValue(joy, config_.select_button) > 0);
     const bool ascend_is_pressed(buttonValue(joy, config_.ascend_button) > 0);
     if (enable_is_pressed) {
-      // if axes is enough tilted, point an item
-      const double value_v(config_.invert_pointing_axis_v
-                               ? -axisValue(joy, config_.pointing_axis_v)
-                               : axisValue(joy, config_.pointing_axis_v));
-      const double value_h(config_.invert_pointing_axis_h
-                               ? -axisValue(joy, config_.pointing_axis_h)
-                               : axisValue(joy, config_.pointing_axis_h));
-      if (value_v * value_v + value_h * value_h >=
-          config_.pointing_axis_threshold * config_.pointing_axis_threshold) {
+      // update the pointing item
+      const double pointing_angle(pointingAngle(joy));
+      if (!std::isnan(pointing_angle)) {
         const radial_menu_model::ItemConstPtr item_to_point(
-            model_->sibilingByAngle(std::atan2(value_h, value_v)));
+            model_->sibilingByAngle(pointing_angle));
         if (model_->canPoint(item_to_point)) {
           model_->point(item_to_point);
         }
@@ -65,7 +60,7 @@ public:
       const radial_menu_model::ItemConstPtr pointed_item(model_->pointed());
       if (pointed_item && select_is_pressed && !select_was_pressed_) {
         adaptiveSelect(pointed_item);
-      } else if (config_.auto_select && !pointed_item && last_pointed_item) {
+      } else if (config_.auto_select && std::isnan(pointing_angle) && last_pointed_item) {
         adaptiveSelect(last_pointed_item);
       }
 
@@ -87,6 +82,17 @@ public:
 
 protected:
   // utility functions
+
+  double pointingAngle(const sensor_msgs::Joy &joy) const {
+    const double value_v(config_.invert_pointing_axis_v ? -axisValue(joy, config_.pointing_axis_v)
+                                                        : axisValue(joy, config_.pointing_axis_v));
+    const double value_h(config_.invert_pointing_axis_h ? -axisValue(joy, config_.pointing_axis_h)
+                                                        : axisValue(joy, config_.pointing_axis_h));
+    return (value_v * value_v + value_h * value_h >=
+            config_.pointing_axis_threshold * config_.pointing_axis_threshold)
+               ? std::atan2(value_h, value_v)
+               : std::numeric_limits< double >::quiet_NaN();
+  }
 
   void adaptiveSelect(const radial_menu_model::ItemConstPtr &item) {
     if (model_->canSelect(item)) {
@@ -115,7 +121,7 @@ protected:
   bool enable_was_pressed_, select_was_pressed_, ascend_was_pressed_;
 
   const BackendConfig config_;
-};
+}; // namespace radial_menu_backend
 } // namespace radial_menu_backend
 
 #endif

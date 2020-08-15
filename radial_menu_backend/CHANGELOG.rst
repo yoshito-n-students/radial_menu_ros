@@ -2,6 +2,10 @@
 Changelog for package radial_menu_backend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.0 (2020-XX-XX)
+------------------
+* Support null items
+
 0.3.4 (2020-08-14)
 ------------------
 * No changes
