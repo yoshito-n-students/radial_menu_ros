@@ -52,7 +52,8 @@ protected:
   }
 
   void updateDescription(const DescriptionProperty &prop) {
-    if (model_->setDescriptionFromParam(prop.param_name.toStdString())) {
+    const std::string param_name(prop.param_name.toStdString());
+    if (!param_name.empty() && model_->setDescriptionFromParam(param_name)) {
       state_ = model_->exportState();
       updateImage();
     }
@@ -68,13 +69,14 @@ protected:
     updateImage();
 
     // subscribe the new topic
+    const std::string topic(prop.topic.toStdString());
     try {
-      state_sub_ =
-          ros::NodeHandle().subscribe(prop.topic.toStdString(), 1, &DisplayBase::updateImage, this);
+      if (!topic.empty()) {
+        state_sub_ = ros::NodeHandle().subscribe(topic, 1, &DisplayBase::updateImage, this);
+      }
     } catch (const ros::Exception &error) {
       ROS_ERROR_STREAM(getName().toStdString()
-                       << ": error on subscribing topic ('" << prop.topic.toStdString()
-                       << "'): " << error.what());
+                       << ": error on subscribing '" << topic << "': " << error.what());
     }
   }
 

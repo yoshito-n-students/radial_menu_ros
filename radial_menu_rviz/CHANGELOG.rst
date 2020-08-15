@@ -6,6 +6,7 @@ Changelog for package radial_menu_rviz
 ------------------
 * Support null items in RadialMenu
 * Use std's smart pointers
+* Suppress error console outputs on startup
 
 0.3.4 (2020-08-14)
 ------------------
