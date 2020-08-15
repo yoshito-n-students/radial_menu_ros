@@ -2,6 +2,10 @@
 Changelog for package radial_menu_model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.0 (2020-XX-XX)
+------------------
+* Support attributes 'rows' and 'row' to allow null items
+
 0.3.4 (2020-08-14)
 ------------------
 * No changes

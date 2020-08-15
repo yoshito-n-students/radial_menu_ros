@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -14,8 +13,6 @@
 #include <ros/param.h>
 #include <ros/time.h>
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace radial_menu_model {
@@ -100,28 +97,9 @@ public:
   // ***********
 
   // set new model tree description. also rests the state
-  bool setDescription(const std::string &new_desc) {
-    namespace bpt = boost::property_tree;
-
-    // parse the given xml string
-    bpt::ptree xml;
-    try {
-      std::istringstream iss(new_desc);
-      bpt::read_xml(iss, xml, bpt::xml_parser::no_comments);
-    } catch (const bpt::ptree_error &ex) {
-      ROS_ERROR_STREAM("Model::setDescription(): " << ex.what());
-      return false;
-    }
-
-    // find the root xml element
-    if (xml.size() != 1) {
-      ROS_ERROR("Model::setDescription(): Non unique root element in xml");
-      return false;
-    }
-    const bpt::ptree::value_type &root_elm(xml.front());
-
+  bool setDescription(const std::string &desc) {
     // populate items in the item tree
-    const std::vector< ItemConstPtr > new_items(Item::itemsFromElement(root_elm));
+    const std::vector< ItemConstPtr > new_items(Item::itemsFromDescription(desc));
     if (new_items.empty()) {
       ROS_ERROR("Model::setDescription(): No items");
       return false;
@@ -143,9 +121,9 @@ public:
 
   // set new description obtained from a ROS param server
   bool setDescriptionFromParam(const std::string &param_name) {
-    std::string new_desc;
-    if (ros::param::get(param_name, new_desc)) {
-      return setDescription(new_desc);
+    std::string desc;
+    if (ros::param::get(param_name, desc)) {
+      return setDescription(desc);
     } else {
       ROS_ERROR_STREAM("Model::setDescriptionFromParam(): Cannot get the param '" << param_name
                                                                                   << "'");
@@ -177,12 +155,14 @@ public:
     state_ = new_state;
 
     // update the current level by moving to the deepest level of selected items or its children
-    current_level_ = current_level_->root()->childLevel();
+    current_level_ = items_.front()->childLevel();
     for (const std::int32_t iid : state_.selected_ids) {
       if (iid >= 0 && iid < items_.size()) {
         const ItemConstPtr item(items_[iid]);
-        const ItemConstPtr level(item->numChildren() <= 0 ? item->sibilingLevel()
-                                                          : item->childLevel());
+        ItemConstPtr level(item->childLevel());
+        if (!level) {
+          level = item->sibilingLevel();
+        }
         if (level->depth() > current_level_->depth()) {
           current_level_ = level;
         }
@@ -245,9 +225,9 @@ public:
   // Leaf selection / deselection
   // ****************************
 
-  // can select if the given item is in the current level, has no children, and is not selected
+  // can select if the given item is in the current level, has no child level, and is not selected
   bool canSelect(const ItemConstPtr &item) const {
-    return item && item->sibilingLevel() == current_level_ && item->numChildren() <= 0 &&
+    return item && item->sibilingLevel() == current_level_ && !item->childLevel() &&
            !isSelected(item);
   }
 
@@ -266,9 +246,9 @@ public:
     throw ros::Exception("Model::select()");
   }
 
-  // can deselect if the given item is in the current level, has no children, and is selected
+  // can deselect if the given item is in the current level, has no child level, and is selected
   bool canDeselect(const ItemConstPtr &item) const {
-    return item && item->sibilingLevel() == current_level_ && item->numChildren() <= 0 &&
+    return item && item->sibilingLevel() == current_level_ && !item->childLevel() &&
            isSelected(item);
   }
 
@@ -285,9 +265,9 @@ public:
   // Descending / Ascending
   // **********************
 
-  // can descend if the given item is in the current level and has a child
+  // can descend if the given item is in the current level and has a child level
   bool canDescend(const ItemConstPtr &item) const {
-    return item && item->sibilingLevel() == current_level_ && item->numChildren() > 0;
+    return item && item->sibilingLevel() == current_level_ && item->childLevel();
   }
 
   // unpoint and deselect all sibilings, select the given item
@@ -309,7 +289,7 @@ public:
   }
 
   // can ascend if the current level is not the first
-  bool canAscend() const { return current_level_->parent() != current_level_->root(); }
+  bool canAscend() const { return current_level_->depth() >= 2; }
 
   // unpoint and deselect all sibilings, deselect and move to the parent level
   void ascend() {
@@ -331,17 +311,19 @@ public:
 
   std::string toString() const {
     struct Internal {
-      static std::string toString(const Model *const model, const ItemConstPtr &item) {
-        const int depth(item->depth());
-        std::string str;
-        if (depth <= 0) { // root item
+      static std::string toString(const Model *const model, const ItemConstPtr &item,
+                                  const int n_indent) {
+        std::string str(n_indent, ' ');
+        if (item) {
+          if (item != item->root()) {
+            str += itemStateStr(model, item) + " ";
+          }
           str += item->name() + " " + itemIdStr(item) + "\n";
-        } else { // non-root item
-          str += std::string(depth * 2, ' ') + itemStateStr(model, item) + " " + item->name() +
-                 " " + itemIdStr(item) + "\n";
-        }
-        for (const ItemConstPtr &child : item->children()) {
-          str += toString(model, child);
+          for (const ItemConstPtr &child : item->children()) {
+            str += toString(model, child, n_indent + 2);
+          }
+        } else {
+          str += "      -\n";
         }
         return str;
       }
@@ -360,7 +342,7 @@ public:
       }
     };
 
-    return Internal::toString(this, current_level_->root());
+    return Internal::toString(this, items_.front(), 0);
   }
 
 protected:
@@ -369,15 +351,19 @@ protected:
   // ************
 
   void forceSelect(const ItemConstPtr &item) {
-    std::vector< std::int32_t > &ids(state_.selected_ids);
-    if (std::find(ids.begin(), ids.end(), item->itemId()) == ids.end()) {
-      ids.push_back(item->itemId());
+    if (item) {
+      std::vector< std::int32_t > &ids(state_.selected_ids);
+      if (std::find(ids.begin(), ids.end(), item->itemId()) == ids.end()) {
+        ids.push_back(item->itemId());
+      }
     }
   }
 
   void forceDeselect(const ItemConstPtr &item) {
-    std::vector< std::int32_t > &ids(state_.selected_ids);
-    ids.erase(std::remove(ids.begin(), ids.end(), item->itemId()), ids.end());
+    if (item) {
+      std::vector< std::int32_t > &ids(state_.selected_ids);
+      ids.erase(std::remove(ids.begin(), ids.end(), item->itemId()), ids.end());
+    }
   }
 
 protected:
