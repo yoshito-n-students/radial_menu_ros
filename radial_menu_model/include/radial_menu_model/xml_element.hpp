@@ -32,14 +32,13 @@ public:
   const std::string name() const { return elm_->first; }
 
   // get an attribute like ros::param::param()
-  template < typename T > T attribute(const std::string &attr, const T &default_val) const {
-    const boost::optional< T > val(elm_->second.get_optional< T >("<xmlattr>." + attr));
-    return val ? *val : default_val;
+  template < typename T > T attribute(const std::string &key, const T &default_val) const {
+    return elm_->second.get("<xmlattr>." + key, default_val);
   }
 
   // get an attribute like ros::param::get()
-  template < typename T > bool getAttribute(const std::string &attr, T *const val) const {
-    const boost::optional< T > opt_val(elm_->second.get_optional< T >("<xmlattr>." + attr));
+  template < typename T > bool getAttribute(const std::string &key, T *const val) const {
+    const boost::optional< T > opt_val(elm_->second.get_optional< T >("<xmlattr>." + key));
     if (opt_val) {
       *val = *opt_val;
       return true;
