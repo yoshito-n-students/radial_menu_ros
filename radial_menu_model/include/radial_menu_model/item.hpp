@@ -1,29 +1,27 @@
 #ifndef RADIAL_MENU_MODEL_ITEM_HPP
 #define RADIAL_MENU_MODEL_ITEM_HPP
 
+#include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include <radial_menu_model/xml_element.hpp>
 #include <ros/console.h>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-
 namespace radial_menu_model {
 
 // pointer types
 
 class Item;
-typedef boost::shared_ptr< Item > ItemPtr;
-typedef boost::shared_ptr< const Item > ItemConstPtr;
+typedef std::shared_ptr< Item > ItemPtr;
+typedef std::shared_ptr< const Item > ItemConstPtr;
 
 // menu item.
 // state of Item cannot be changed after construction by itemsFromDescription()
 // because all methods of Item is const.
 
-class Item : public boost::enable_shared_from_this< Item > {
+class Item : public std::enable_shared_from_this< Item > {
 public:
   enum DisplayType { Name, AltTxt, Image };
 
@@ -223,9 +221,9 @@ public:
   }
 
 protected:
-  typedef boost::weak_ptr< const Item > ItemWeakConstPtr;
+  typedef std::weak_ptr< const Item > ItemWeakConstPtr;
 
-  std::int32_t item_id_;
+  std::int32_t item_id_; // int32_t is the type of ids in State msg
   std::string name_;
   DisplayType display_type_;
   std::string alt_txt_, img_url_;

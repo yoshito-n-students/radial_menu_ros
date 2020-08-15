@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -13,13 +14,11 @@
 #include <ros/param.h>
 #include <ros/time.h>
 
-#include <boost/shared_ptr.hpp>
-
 namespace radial_menu_model {
 
 class Model;
-typedef boost::shared_ptr< Model > ModelPtr;
-typedef boost::shared_ptr< const Model > ModelConstPtr;
+typedef std::shared_ptr< Model > ModelPtr;
+typedef std::shared_ptr< const Model > ModelConstPtr;
 
 class Model {
 public:
@@ -312,10 +311,10 @@ public:
   std::string toString() const {
     struct Internal {
       static std::string toString(const Model *const model, const ItemConstPtr &item,
-                                  const int n_indent) {
+                                  const int n_indent = 0) {
         std::string str(n_indent, ' ');
         if (item) {
-          if (item != item->root()) {
+          if (item->depth() > 0) {
             str += itemStateStr(model, item) + " ";
           }
           str += item->name() + " " + itemIdStr(item) + "\n";
@@ -342,7 +341,7 @@ public:
       }
     };
 
-    return Internal::toString(this, items_.front(), 0);
+    return Internal::toString(this, items_.front());
   }
 
 protected:

@@ -1,6 +1,7 @@
 #ifndef RADIAL_MENU_MODEL_XML_ELEMENT_HPP
 #define RADIAL_MENU_MODEL_XML_ELEMENT_HPP
 
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -11,17 +12,16 @@
 #include <boost/property_tree/exceptions.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace radial_menu_model {
 
 class XmlElement;
-typedef boost::shared_ptr< XmlElement > XmlElementPtr;
-typedef boost::shared_ptr< const XmlElement > XmlElementConstPtr;
+typedef std::shared_ptr< XmlElement > XmlElementPtr;
+typedef std::shared_ptr< const XmlElement > XmlElementConstPtr;
 
 class XmlElement {
 protected:
-  XmlElement(const boost::shared_ptr< const boost::property_tree::ptree > &xml,
+  XmlElement(const std::shared_ptr< const boost::property_tree::ptree > &xml,
              const boost::property_tree::ptree::value_type *const elm)
       : xml_(xml), elm_(elm) {}
 
@@ -70,7 +70,7 @@ public:
     namespace bpt = boost::property_tree;
 
     // parse the given string as a xml
-    const boost::shared_ptr< bpt::ptree > xml(new bpt::ptree());
+    const std::shared_ptr< bpt::ptree > xml(new bpt::ptree());
     try {
       std::istringstream iss(str);
       bpt::read_xml(iss, *xml, bpt::xml_parser::no_comments);
@@ -93,7 +93,7 @@ public:
   }
 
 protected:
-  const boost::shared_ptr< const boost::property_tree::ptree > xml_;
+  const std::shared_ptr< const boost::property_tree::ptree > xml_;
   const boost::property_tree::ptree::value_type *const elm_;
 };
 } // namespace radial_menu_model
