@@ -59,8 +59,13 @@ Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick fr
             ...
         </item>
     </item>
-    <item name="Arm">
-        ...
+    <!-- An element can optionally have the attribute 'rows' and 'row'. -->
+    <!-- In the example below, The item 'Arm' will have child items     -->
+    <!-- ['Motors', null, 'Cameras', null, 'LEDs', null].               -->
+    <item name="Arm" rows="6">
+        <item name="Motors" row="0" />
+        <item name="Cameras" row="2" />
+        <item name="LEDs" row="4" />
     </item>
 </item>
 ```
