@@ -7,11 +7,11 @@
         <item name="Right" display="alttxt" alttxt="&#xF101;" />
     </item>
 
-    <item name="Zoom">
-        <item name="In" display="alttxt" alttxt="&#xF00E;" />
-        <item name="Capture" display="alttxt" alttxt="&#xF019;" />
-        <item name="Out" display="alttxt" alttxt="&#xF010;" />
-        <item name="Home" display="alttxt" alttxt="&#xF015;" />
+    <item name="Zoom" rows="7">
+        <item name="In" display="alttxt" alttxt="&#xF00E;" row="2" />
+        <item name="Home" display="alttxt" alttxt="&#xF015;" row="3" />
+        <item name="Capture" display="alttxt" alttxt="&#xF019;" row="4" />
+        <item name="Out" display="alttxt" alttxt="&#xF010;" row="5" />
     </item>
 
 </item>
