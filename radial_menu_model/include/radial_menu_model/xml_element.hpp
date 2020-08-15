@@ -29,7 +29,7 @@ public:
   virtual ~XmlElement() {}
 
   // element name
-  const std::string name() const { return elm_->first; }
+  const std::string &name() const { return elm_->first; }
 
   // get an attribute like ros::param::param()
   template < typename T > T attribute(const std::string &key, const T &default_val) const {
