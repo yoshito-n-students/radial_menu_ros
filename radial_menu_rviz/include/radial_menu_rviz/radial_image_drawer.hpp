@@ -98,8 +98,11 @@ protected:
       const int span_angle(pieSpanAngle(n_sibilings));
       // draw pies
       for (int sid = 0; sid < n_sibilings; ++sid) {
-        // set tools for rgb painter according to item type
         const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
+        if (!item) {
+          continue;
+        }
+        // set tools for rgb painter according to item type
         const bool is_selected(model_->isSelected(item)), is_pointed(model_->isPointed(item));
         if (is_selected && is_pointed) {
           const QRgb rgb(averagedRgb(prop_.item_bg_rgb_selected, prop_.item_bg_rgb_pointed));
@@ -190,6 +193,9 @@ protected:
     // draw item texts
     for (int sid = 0; sid < n_sibilings; ++sid) {
       const radial_menu_model::ItemConstPtr item(level->sibiling(sid));
+      if (!item) {
+        continue;
+      }
       // set the item bounding rect
       QRect rect;
       rect.setWidth(prop_.item_area_width);

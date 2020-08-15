@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.0 (2020-XX-XX)
+------------------
+* Support null items in RadialMenu
+
 0.3.4 (2020-08-14)
 ------------------
 * Add system dependency to Qt
