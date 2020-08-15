@@ -12,8 +12,6 @@
 #include <ros/subscriber.h>
 #include <sensor_msgs/Joy.h>
 
-#include <boost/make_shared.hpp>
-
 namespace radial_menu_backend {
 
 class BackendNodelet : public nodelet::Nodelet {
@@ -33,8 +31,8 @@ protected:
     }
     NODELET_INFO_STREAM("Menu:\n" << model_->toString());
 
-    controller_ = boost::make_shared< BackendController >(
-        model_, BackendConfig::fromParamNs(pnh.getNamespace()));
+    controller_.reset(
+        new BackendController(model_, BackendConfig::fromParamNs(pnh.getNamespace())));
 
     state_pub_ = nh.advertise< radial_menu_msgs::State >("menu_state", 1, true);
     state_pub_.publish(model_->exportState());

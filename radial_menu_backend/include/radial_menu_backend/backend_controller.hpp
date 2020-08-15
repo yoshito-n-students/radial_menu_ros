@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <limits>
+#include <memory>
 
 #include <radial_menu_backend/backend_config.hpp>
 #include <radial_menu_model/model.hpp>
@@ -12,8 +13,8 @@
 namespace radial_menu_backend {
 
 class BackendController;
-typedef boost::shared_ptr< BackendController > BackendControllerPtr;
-typedef boost::shared_ptr< const BackendController > BackendControllerConstPtr;
+typedef std::shared_ptr< BackendController > BackendControllerPtr;
+typedef std::shared_ptr< const BackendController > BackendControllerConstPtr;
 
 class BackendController {
 public:
@@ -121,7 +122,7 @@ protected:
   bool enable_was_pressed_, select_was_pressed_, ascend_was_pressed_;
 
   const BackendConfig config_;
-}; // namespace radial_menu_backend
+};
 } // namespace radial_menu_backend
 
 #endif
