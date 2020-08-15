@@ -1,6 +1,8 @@
 #ifndef RADIAL_MENU_RVIZ_RADIAL_PROPERTY_CONTROL_HPP
 #define RADIAL_MENU_RVIZ_RADIAL_PROPERTY_CONTROL_HPP
 
+#include <memory>
+
 #include <radial_menu_msgs/State.h>
 #include <radial_menu_rviz/properties.hpp>
 #include <rviz/properties/bool_property.h>
@@ -13,8 +15,6 @@
 
 #include <QFontDatabase>
 #include <QStringList>
-
-#include <boost/scoped_ptr.hpp>
 
 namespace radial_menu_rviz {
 
@@ -185,35 +185,35 @@ protected Q_SLOTS:
 
 protected:
   // description property & control
-  boost::scoped_ptr< rviz::StringProperty > desc_param_ctl_;
+  std::unique_ptr< rviz::StringProperty > desc_param_ctl_;
   DescriptionProperty desc_prop_;
 
   // subscription property & control
-  boost::scoped_ptr< rviz::RosTopicProperty > state_topic_ctl_;
+  std::unique_ptr< rviz::RosTopicProperty > state_topic_ctl_;
   SubscriptionProperty sub_prop_;
 
   // drawing property & control
   // - font
-  boost::scoped_ptr< rviz::EnumProperty > font_ctl_;
-  boost::scoped_ptr< rviz::BoolProperty > font_bold_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > font_size_ctl_;
+  std::unique_ptr< rviz::EnumProperty > font_ctl_;
+  std::unique_ptr< rviz::BoolProperty > font_bold_ctl_;
+  std::unique_ptr< rviz::IntProperty > font_size_ctl_;
   // - title area
-  boost::scoped_ptr< rviz::BoolProperty > draw_title_area_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > title_area_radius_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > title_bg_rgb_ctl_, title_rgb_ctl_;
+  std::unique_ptr< rviz::BoolProperty > draw_title_area_ctl_;
+  std::unique_ptr< rviz::IntProperty > title_area_radius_ctl_;
+  std::unique_ptr< rviz::ColorProperty > title_bg_rgb_ctl_, title_rgb_ctl_;
   // - line
-  boost::scoped_ptr< rviz::IntProperty > line_width_ctl_;
+  std::unique_ptr< rviz::IntProperty > line_width_ctl_;
   // - item area
-  boost::scoped_ptr< rviz::IntProperty > item_area_width_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_default_ctl_, item_rgb_default_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
+  std::unique_ptr< rviz::IntProperty > item_area_width_ctl_;
+  std::unique_ptr< rviz::ColorProperty > item_bg_rgb_default_ctl_, item_rgb_default_ctl_;
+  std::unique_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
+  std::unique_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
   // - others
-  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, fg_alpha_ctl_;
+  std::unique_ptr< rviz::IntProperty > bg_alpha_ctl_, fg_alpha_ctl_;
   RadialDrawingProperty drawing_prop_;
 
   // position property & control
-  boost::scoped_ptr< rviz::IntProperty > center_x_ctl_, center_y_ctl_;
+  std::unique_ptr< rviz::IntProperty > center_x_ctl_, center_y_ctl_;
   PositionProperty pos_prop_;
 };
 } // namespace radial_menu_rviz

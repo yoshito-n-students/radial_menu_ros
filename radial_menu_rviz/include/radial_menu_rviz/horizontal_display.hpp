@@ -32,14 +32,14 @@ protected:
     overlay_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     // slots on properties changed
-    connect(prop_ctl_.get(), SIGNAL(descriptionPropertyChanged(const DescriptionProperty &)), this,
-            SLOT(updateDescription(const DescriptionProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(subscriptionPropertyChanged(const SubscriptionProperty &)),
-            this, SLOT(updateSubscription(const SubscriptionProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(drawingPropertyChanged(const HorizontalDrawingProperty &)),
-            this, SLOT(updateImage(const HorizontalDrawingProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(positionPropertyChanged(const PositionProperty &)), this,
-            SLOT(updatePosition(const PositionProperty &)));
+    connect(prop_ctl_.get(), &HorizontalPropertyControl::descriptionPropertyChanged, this,
+            &HorizontalDisplay::updateDescription);
+    connect(prop_ctl_.get(), &HorizontalPropertyControl::subscriptionPropertyChanged, this,
+            &HorizontalDisplay::updateSubscription);
+    connect(prop_ctl_.get(), &HorizontalPropertyControl::drawingPropertyChanged, this,
+            &HorizontalDisplay::updateImage);
+    connect(prop_ctl_.get(), &HorizontalPropertyControl::positionPropertyChanged, this,
+            &HorizontalDisplay::updatePosition);
   }
 
 protected Q_SLOTS:

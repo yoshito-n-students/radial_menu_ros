@@ -31,14 +31,14 @@ protected:
     overlay_->setAlignment(Qt::AlignCenter);
 
     // slots on properties changed
-    connect(prop_ctl_.get(), SIGNAL(descriptionPropertyChanged(const DescriptionProperty &)),
-            this, SLOT(updateDescription(const DescriptionProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(subscriptionPropertyChanged(const SubscriptionProperty &)),
-            this, SLOT(updateSubscription(const SubscriptionProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(drawingPropertyChanged(const RadialDrawingProperty &)), this,
-            SLOT(updateImage(const RadialDrawingProperty &)));
-    connect(prop_ctl_.get(), SIGNAL(positionPropertyChanged(const PositionProperty &)), this,
-            SLOT(updatePosition(const PositionProperty &)));
+    connect(prop_ctl_.get(), &RadialPropertyControl::descriptionPropertyChanged, this,
+            &RadialDisplay::updateDescription);
+    connect(prop_ctl_.get(), &RadialPropertyControl::subscriptionPropertyChanged, this,
+            &RadialDisplay::updateSubscription);
+    connect(prop_ctl_.get(), &RadialPropertyControl::drawingPropertyChanged, this,
+            &RadialDisplay::updateImage);
+    connect(prop_ctl_.get(), &RadialPropertyControl::positionPropertyChanged, this,
+            &RadialDisplay::updatePosition);
   }
 
 protected Q_SLOTS:

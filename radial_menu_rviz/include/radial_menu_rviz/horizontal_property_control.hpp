@@ -14,8 +14,6 @@
 #include <QFontDatabase>
 #include <QStringList>
 
-#include <boost/scoped_ptr.hpp>
-
 namespace radial_menu_rviz {
 
 class HorizontalPropertyControl : public QObject {
@@ -171,27 +169,27 @@ protected Q_SLOTS:
 
 protected:
   // description property & control
-  boost::scoped_ptr< rviz::StringProperty > desc_param_ctl_;
+  std::unique_ptr< rviz::StringProperty > desc_param_ctl_;
   DescriptionProperty desc_prop_;
 
   // subscription property & control
-  boost::scoped_ptr< rviz::RosTopicProperty > state_topic_ctl_;
+  std::unique_ptr< rviz::RosTopicProperty > state_topic_ctl_;
   SubscriptionProperty sub_prop_;
 
   // drawing property & control
-  boost::scoped_ptr< rviz::EnumProperty > font_ctl_;
-  boost::scoped_ptr< rviz::BoolProperty > font_bold_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > font_size_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > title_bg_rgb_ctl_, title_rgb_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > line_width_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
-  boost::scoped_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > bg_alpha_ctl_, fg_alpha_ctl_;
-  boost::scoped_ptr< rviz::IntProperty > bg_padding_ctl_, fg_height_ctl_;
+  std::unique_ptr< rviz::EnumProperty > font_ctl_;
+  std::unique_ptr< rviz::BoolProperty > font_bold_ctl_;
+  std::unique_ptr< rviz::IntProperty > font_size_ctl_;
+  std::unique_ptr< rviz::ColorProperty > title_bg_rgb_ctl_, title_rgb_ctl_;
+  std::unique_ptr< rviz::IntProperty > line_width_ctl_;
+  std::unique_ptr< rviz::ColorProperty > item_bg_rgb_pointed_ctl_, item_rgb_pointed_ctl_;
+  std::unique_ptr< rviz::ColorProperty > item_bg_rgb_selected_ctl_, item_rgb_selected_ctl_;
+  std::unique_ptr< rviz::IntProperty > bg_alpha_ctl_, fg_alpha_ctl_;
+  std::unique_ptr< rviz::IntProperty > bg_padding_ctl_, fg_height_ctl_;
   HorizontalDrawingProperty drawing_prop_;
 
   // position property & control
-  boost::scoped_ptr< rviz::IntProperty > left_ctl_, top_ctl_;
+  std::unique_ptr< rviz::IntProperty > left_ctl_, top_ctl_;
   PositionProperty pos_prop_;
 };
 } // namespace radial_menu_rviz

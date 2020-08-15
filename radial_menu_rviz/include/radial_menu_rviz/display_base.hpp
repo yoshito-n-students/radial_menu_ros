@@ -1,6 +1,8 @@
 #ifndef RADIAL_MENU_RVIZ_DISPLAY_BASE_HPP
 #define RADIAL_MENU_RVIZ_DISPLAY_BASE_HPP
 
+#include <memory>
+
 #include <radial_menu_model/model.hpp>
 #include <radial_menu_msgs/State.h>
 #include <radial_menu_rviz/image_overlay.hpp>
@@ -9,8 +11,6 @@
 #include <ros/exception.h>
 #include <ros/subscriber.h>
 #include <rviz/display.h>
-
-#include <boost/scoped_ptr.hpp>
 
 namespace radial_menu_rviz {
 
@@ -86,7 +86,8 @@ protected:
 
   // update menu image with the given menu state
   void updateImage(const radial_menu_msgs::StateConstPtr &new_state) {
-    if (state_->is_enabled != new_state->is_enabled || state_->pointed_id != new_state->pointed_id ||
+    if (state_->is_enabled != new_state->is_enabled ||
+        state_->pointed_id != new_state->pointed_id ||
         state_->selected_ids != new_state->selected_ids) {
       model_->setState(*new_state);
       state_ = new_state;
@@ -107,16 +108,16 @@ protected:
 
 protected:
   // property control via Rviz
-  boost::scoped_ptr< PropertyControl > prop_ctl_;
+  std::unique_ptr< PropertyControl > prop_ctl_;
   // menu tree model
   radial_menu_model::ModelPtr model_;
   // menu state subscriber
   ros::Subscriber state_sub_;
   radial_menu_msgs::StateConstPtr state_;
   // state drawer
-  boost::scoped_ptr< ImageDrawer > drawer_;
+  std::unique_ptr< ImageDrawer > drawer_;
   // overlay on Rviz
-  boost::scoped_ptr< ImageOverlay > overlay_;
+  std::unique_ptr< ImageOverlay > overlay_;
 };
 } // namespace radial_menu_rviz
 
