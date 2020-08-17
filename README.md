@@ -2,7 +2,7 @@
 
 Radial menu on ROS1 for quick, accurate and intuitive selection by a joystick from 10+ items
 
-![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_v0_1_4.png)
+![](https://raw.githubusercontent.com/yoshito-n-students/radial_menu_ros/images/images/screenshot_v0_4_0.png)
 
 ## Tested environments
 * ROS Kinetic on Ubuntu 16.04
