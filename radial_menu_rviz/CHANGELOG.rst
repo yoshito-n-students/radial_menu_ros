@@ -2,6 +2,10 @@
 Changelog for package radial_menu_rviz
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.1 (2020-08-27)
+------------------
+* No changes
+
 0.4.0 (2020-08-16)
 ------------------
 * Support null items in RadialMenu
