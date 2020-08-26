@@ -205,7 +205,7 @@ target_link_libraries(
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
 install(
-  TARGETS example_teleop_node
+  TARGETS example_teleop_node random_model_controller
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -226,7 +226,7 @@ install(
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(
-  DIRECTORY launch rviz
+  DIRECTORY config launch rviz
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   USE_SOURCE_PERMISSIONS
 )
